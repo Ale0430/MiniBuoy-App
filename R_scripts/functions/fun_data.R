@@ -271,33 +271,6 @@ remove.outlier <- function(data, data.vector, data.group, group.value){
                       remove.outlier(data, data.vector, data.group, x)))
     }
 
-   # # filter temperature filters by range
-   # dTSymMin = ifelse(is.na(ui.input$dTSymMin), -Inf, ui.input$dTSymMin)
-   # dTSymMax = ifelse(is.na(ui.input$dTSymMax), Inf, ui.input$dTSymMax)
-   # dTasMin = ifelse(is.na(ui.input$dTasMin), -Inf, ui.input$dTasMin)
-   # dTasMax = ifelse(is.na(ui.input$dTasMax), Inf, ui.input$dTasMax)
-   # dTsym.dTasMin = ifelse(is.na(ui.input$dTsym.dTasMin), -Inf, ui.input$dTsym.dTasMin)
-   # dTsym.dTasMax = ifelse(is.na(ui.input$dTsym.dTasMax), Inf, ui.input$dTsym.dTasMax)
-   # 
-   # data = data %>%
-   #    filter((dTSym >= dTSymMin) %>% replace_na(TRUE)) %>%
-   #    filter((dTSym <= dTSymMax) %>% replace_na(TRUE))
-   # 
-   # data = data %>%
-   #    filter((dTas >= dTasMin) %>% replace_na(TRUE)) %>%
-   #    filter((dTas <= dTasMax) %>% replace_na(TRUE))
-   # 
-   # data = data %>%
-   #    filter((dTsym.dTas >= dTsym.dTasMin) %>% replace_na(TRUE)) %>%
-   #    filter((dTsym.dTas <= dTsym.dTasMax) %>% replace_na(TRUE))
-   # 
-   # # filter by sensor positions
-   # if (ui.input$sensorFilter != ""){
-   #    sensorFilter = as.numeric(unlist(strsplit(ui.input$sensorFilter,",")))
-   #    data = data %>%
-   #       filter((position %in% sensorFilter) %>% replace_na(TRUE))
-   # }
-
    return(data)
 }
 
