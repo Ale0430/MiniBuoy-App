@@ -418,22 +418,22 @@ save.figure = function(path, name, plotObject, ui.input){
 #' #' @param name: file name
 #' #' @param csvObject: object to be saved, i.e. data.frame
 #' #' @param fileAppendix: character to be appended to file name
-#' save.csv = function(path, name, csvObject, ui.input){
-#'    # Gets list(noti_note, noti_type, path)
-#'    nots = get.notifications(ui.input)
-#'    if (nots[[2]] == "message"){
-#'       path = paste(path, "csv-files", sep = "/")
-#'    }
-#'    filename = get.filename(path, name, "csv", ui.input)
-#'    
-#'    res = try(write.csv(csvObject, 
-#'                        file = filename,
-#'                        row.names = FALSE))
-#'    if (is.null(res)){
-#'       showNotification(nots[[1]], 
-#'                        type = nots[[2]])
-#'    } else {
-#'       showNotification("Error: File not saved!",
-#'                        type = "error")
-#'    }
-#' }
+save.csv = function(path, name, csvObject, ui.input){
+   # Gets list(noti_note, noti_type, path)
+   nots = get.notifications(ui.input)
+   if (nots[[2]] == "message"){
+      path = paste(path, "csv-files", sep = "/")
+   }
+   filename = get.filename(path, name, "csv", ui.input)
+
+   res = try(write.csv(csvObject,
+                       file = filename,
+                       row.names = FALSE))
+   if (is.null(res)){
+      showNotification(nots[[1]],
+                       type = nots[[2]])
+   } else {
+      showNotification("Error: File not saved!",
+                       type = "error")
+   }
+}
