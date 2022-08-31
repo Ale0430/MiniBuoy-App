@@ -434,7 +434,7 @@ output$custumPlot <- renderPlot({
 #' (Data > Upload > Preview data)
 observeEvent(input$save_dat_upl, {
   save.csv(path = projectPath(), 
-           name = "dTemp",
+           name = "g raw",
            csvObject = DataSet(), 
            ui.input = input)
   
@@ -459,8 +459,9 @@ observeEvent(input$save.custumPlot, {
 #' (Data > Filter > Figures)
 observeEvent(input$save_dat_filter, {
   save.csv(path = projectPath(), 
-           name = "Acceleration_filtered",
-           csvObject = DataSet(), 
+           name = paste("Acceleration_filtered",
+                        as.character(input$DataSet), sep= "_"),
+           csvObject = DataSetInput(), 
            ui.input = input)
 })
 
