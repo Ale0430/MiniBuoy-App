@@ -1,0 +1,2 @@
+
+The ‘Mini Buoy’ is an applied research and restoration tool to assess inundation frequencies, current velocities, and wave forcing at a given site. Mini Buoy devices can be used in single deployments to assess inundation characteristics at a given location or used in comparative deployments such as when comparing conditions between restoration and reference ‘natural’ sites
