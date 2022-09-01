@@ -1,7 +1,7 @@
-The 'Mini Buoy App" is designed to interpret Mini Buoy data into:
+This App uses Mini Buoy data to calculate:
 
-   1.- inundation periods (Inundation duration and Inundation frequency)
+A.  inundation duration and frequency
 
-   2.- current velocity near the bed
+B.  current velocity
 
-   3.- wave orbital velocities near the bed
+C.  wave orbital velocity (MSR145+ only)
