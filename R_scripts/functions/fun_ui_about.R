@@ -52,7 +52,7 @@ box.settings_sensors = function(){
       
       br(),
       p(strong("Schematic representation of Mini Buoy 1 (aka: original) [add here a brief description of MB1 attributes]")),
-      img(src='MiniBuoy1.jpeg', width = "80%")),
+      img(src='whiteLab.jpeg', width = "80%")),
     
     conditionalPanel(
       condition = "input.sensorType == 'Mini Buoy 2'",
@@ -61,7 +61,7 @@ box.settings_sensors = function(){
       
       br(),
       p(strong("Schematic representation of Mini Buoy 2 (aka: black) [add here a brief description of MB2 attributes]")),
-      img(src='ChocoLAb.png', width = "80%")),
+      img(src='MiniBuoy2.jpeg', width = "80%")),
     
     conditionalPanel(
       condition = "input.sensorType == 'Mini Buoy 3'",

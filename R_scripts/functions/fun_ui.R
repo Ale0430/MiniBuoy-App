@@ -75,6 +75,6 @@ menuItemOutput = function() {
     menuItem("Data", tabName = "data", icon = icon("circle-notch"),
              menuSubItem("Upload data", tabName = "dat_upl", icon= icon("upload")),
              menuSubItem("Filters", tabName = "dat_filter", icon = icon("filter"))),
-    menuItem("Hidrology", tabName = "hidr_res", icon = icon("water"))
+    menuItem("Hydrodynamics", tabName = "hidr_res", icon = icon("water"))
   ))
 }
