@@ -5,3 +5,5 @@ The 'Mini Buoy App" is designed to interpret Mini Buoy data into:
    2.- current velocity near the bed
 
    3.- wave orbital velocities near the bed
+   
+   Because I can
