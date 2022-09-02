@@ -147,7 +147,6 @@ shinyServer(function(input, output, session) {
   #' If no data set is defined, use default data set
   
   rawData_T <- reactive({
-    #print(input$fileTarget)
     if (is.null(input$fileTarget$datapath)) {
       defaultData_T = "./data/default_target.csv"
       print("Default TARGET data")
@@ -332,12 +331,11 @@ shinyServer(function(input, output, session) {
   }
   
   get.rawData.sum = function(data, type){
-    no.days = length(unique(data$date))
+    no.days = round(max(data$datetime) - min(data$datetime), 2)
     if (no.days < 2){
-      showNotification(paste("Error:", type, "data set too small to analyze (< 2 dayss)!", sep = " "),
-                       type = "error",
-                       duration = NULL, closeButton = T)
-      tab = tab.with.file.upload.message("Error: Data set too small to analyze (< 2 dayss)!")
+      showNotification(paste("Error:", type, "data set too small to analyze (< 2 days)!", sep = " "),
+                       type = "error", duration = NULL, closeButton = T)
+      tab = tab.with.file.upload.message("Error: Data set too small to analyze (< 2 days)!")
     } else {
       if (ncol(data) > 4){
         showNotification(paste("Warning:", type, 
@@ -347,8 +345,7 @@ shinyServer(function(input, output, session) {
       }
       if (no.days < 15){
         showNotification(paste("Warning:", type, "data set too small to analyze properly (< 15 days)!", sep = " "),
-                         type = "warning",
-                         duration = NULL, closeButton = T)
+                         type = "warning", duration = NULL, closeButton = T)
       }
       meanAcc = mean(data$Acceleration)
       tab = data.frame(Variable = c("No. rows", "Column names",
