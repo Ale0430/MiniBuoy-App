@@ -76,11 +76,10 @@ get.rawData_R = function(input) {
 #' @param skip: number of rows to skip
 #' @return data.frame
 get.ACCy = function(file, sep, skip) {
-   rawData <- read.csv(
+   rawData <- fread(
       file,
       header = FALSE,
       sep = sep,
-      fileEncoding = "latin1",
       skip = skip
    )
    rawData <- rawData[, 1:2]
@@ -93,18 +92,29 @@ get.ACCy = function(file, sep, skip) {
 }
 
 
-unify.datetime = function(rawData) {
+unify.datetime = function(rawData){
+   print("Transform datetime to date and time")
+   rawData$datetime = fastPOSIXct(rawData$datetime, tz="GMT")
+   rawData$date = lubridate::as_date(rawData$datetime)
+   rawData$time = format(rawData$datetime, format = "%H:%M:%S") #@Marie @Ale: too slow?
+   return(rawData)
+}
+
+unify.datetimeOLD = function(rawData) {#@Marie: delete?
    if ("datetime" %in% tolower(names(rawData))) {
       print("Transform datetime to date and time")
       datetimeformat = get.datetime.format(rawData[1, ]$datetime)
-      rawData$datetime = as.POSIXct(rawData$datetime,
-                                    format = datetimeformat)
-      rawData$date = strftime(rawData$datetime, format = "%d-%m-%Y")
-      rawData$time = strftime(rawData$datetime, format = "%H:%M:%S")
+      rawData$datetime = fastPOSIXct(rawData$datetime)
+      print("F datetime")
       
-      dateformat = get.date.format(rawData[1, ]$date)
-      rawData$date = as.Date(rawData$date,
-                             format =  "%d-%m-%Y")
+      # @Ale @Marie 2 rows below are slow
+      # rawData$date = strftime(rawData$datetime, format = "%d-%m-%Y")
+      # rawData$time = strftime(rawData$datetime, format = "%H:%M:%S")
+
+      rawData[, date := fasttime::fastPOSIXct(substr(datetime, 0, 10), tz = "UTC")]
+      print("F date")
+      rawData$time = strftime(rawData$datetime, format = "%H:%M:%S")
+      print("F time")
       
    } else {
       if (all(c(tolower("time"), tolower("date")) %in% tolower(names(rawData)))) {
@@ -133,7 +143,7 @@ unify.datetime = function(rawData) {
       }
    }
    
-   # add hour of day and date of year
+   # add hour of day and date of year @Ale: is this needed?
    rawData$dTime = convertTimeToDeci(as.character(rawData$time))
    rawData$doy <-
       as.numeric(strftime(rawData$datetime, format = "%j"))
@@ -149,7 +159,7 @@ unify.datetime = function(rawData) {
 #' #' @param date: datetime or date as string
 #' #' @param time: time as string
 #' #' @return datetime object
-get.datetime.format = function(date, time = "") {
+get.datetime.format = function(date, time = "") { #@Marie: delete?
    # datetime = rawData[1, c("Date", "Time")]
    if (!is.na(as.POSIXct(x = paste(date, time),
                          format = "%d.%m.%Y %H:%M:%S"))) {
@@ -176,7 +186,7 @@ get.datetime.format = function(date, time = "") {
 #' Function to convert string to data format
 #' @param date: datetime or date as string
 #' @return datetime object
-get.date.format = function(date) {
+get.date.format = function(date) {#@Marie: delete?
    # datetime = rawData[1, c("Date", "Time")]
    if (!is.na(as.POSIXct(x = date,
                          format = "%d.%m.%Y"))) {
@@ -204,7 +214,7 @@ get.date.format = function(date) {
 #' @param time: time object or character
 #' @return numeric
 #'
-convertTimeToDeci <- function(time) {
+convertTimeToDeci <- function(time) { #@Marie: delete?
    dt = sapply(strsplit(time, ":"),
                function(x) {
                   x <- as.numeric(x)
