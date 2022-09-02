@@ -1,10 +1,1 @@
-
-Prepare a menu with hyperlinks to common features of the Mini Buoy Manual-- should we also develop an "App Manual" and release it with the app?
-
-
-Example will be:
-
-  [Manual](https://gla-my.sharepoint.com/:w:/r/personal/cai_ladd_glasgow_ac_uk/_layouts/15/Doc.aspx?sourcedoc=%7B09AA4A54-F380-408A-8D41-585D5BCAA018%7D&file=MiniBuoyHandbook.docx&action=default&mobileredirect=true)
-  
-  
-   (at the moment the hyperlink is our Drive repo, can change to abGitHub Project folder)
+<delete>

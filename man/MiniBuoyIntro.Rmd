@@ -1,2 +1,13 @@
 
-The ‘Mini Buoy’ is an applied research and restoration tool to assess inundation frequencies, current velocities, and wave forcing at a given site. Mini Buoy devices can be used in single deployments to assess inundation characteristics at a given location or used in comparative deployments such as when comparing conditions between restoration and reference ‘natural’ sites
+The Mini Buoy measures hydrodynamics at the coast. Analysis can be done for a single deployment, or for comparing target (restoration) and reference (natural) locations. There are three Mini Buoy designs to choose from.
+
+Mini Buoys will calculate:
+
+A.  inundation duration
+
+B.  current velocity
+
+C.  wave orbital velocity (B4+ only)
+
+A handbook on how to configure, assemble, deploy, and use this App is available [here](https://gla-my.sharepoint.com/:w:/r/personal/cai_ladd_glasgow_ac_uk/_layouts/15/Doc.aspx?sourcedoc=%7B09AA4A54-F380-408A-8D41-585D5BCAA018%7D&file=MiniBuoyHandbook.docx&action=default&mobileredirect=true)
+

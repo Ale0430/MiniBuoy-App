@@ -1,7 +1,1 @@
-This App uses Mini Buoy data to calculate:
-
-A.  inundation duration and frequency
-
-B.  current velocity
-
-C.  wave orbital velocity (MSR145+ only)
+<delete>
