@@ -314,10 +314,10 @@ shinyServer(function(input, output, session) {
   
   #### TABLE OUTPUTS ####
   
-  tab.with.file.upload.message = function(){
+  tab.with.file.upload.message = function(message){
     m = matrix(
       data = c(
-        "An error occured. Please check your upload settings (e.g. number of lines skipped) and required column names."
+        message
       )
     )
     return(
@@ -331,23 +331,36 @@ shinyServer(function(input, output, session) {
     )
   }
   
-  get.rawData.sum = function(data){
+  get.rawData.sum = function(data, type){
     no.days = length(unique(data$date))
-    tab = data.frame(Variable = c("No. rows", "No. columns",
-                                  "No. days",
-                                  "First date", "Last date",
-                                  "Mean Acc. (Min, Max)"),
-                     Value = c(as.character(nrow(data)),
-                               paste(ncol(data), " (", 
-                                     paste(colnames(data), collapse = ", "), ")",
-                                     sep = ""),
-                               as.character(no.days),
-                               as.character(min(data$datetime)),
-                               as.character(max(data$datetime)),
-                               paste(as.character(round(mean(data$Acceleration), 3)), " (",
-                                     as.character(min(data$Acceleration)), ", ",
-                                     as.character(max(data$Acceleration)), ")", 
-                                     collapse = "")))
+    if (no.days < 2){
+      showNotification(paste("Error:", type, "data set too small to analyze (< 2 dayss)!", sep = " "),
+                       type = "error",
+                       duration = NULL, closeButton = T)
+      tab = tab.with.file.upload.message("Error: Data set too small to analyze (< 2 dayss)!")
+    } else {
+      if (no.days < 15){
+        showNotification(paste("Warning:", type, "data set too small to analyze properly (< 15 days)!", sep = " "),
+                         type = "warning",
+                         duration = NULL, closeButton = T)
+      }
+      tab = data.frame(Variable = c("No. rows", "No. columns",
+                                    "No. days",
+                                    "First date", "Last date",
+                                    "Mean Acc. (Min, Max)"),
+                       Value = c(as.character(nrow(data)),
+                                 paste(ncol(data), " (", 
+                                       paste(colnames(data), collapse = ", "), ")",
+                                       sep = ""),
+                                 as.character(no.days),
+                                 as.character(min(data$datetime)),
+                                 as.character(max(data$datetime)),
+                                 paste(as.character(round(mean(data$Acceleration), 3)), " (",
+                                       as.character(min(data$Acceleration)), ", ",
+                                       as.character(max(data$Acceleration)), ")", 
+                                       collapse = "")))
+    }
+    
     return(tab)
   }
   
@@ -357,9 +370,9 @@ shinyServer(function(input, output, session) {
       rawDataTable_T = rawData_T()
       
       if (is.numeric(rawDataTable_T$Acceleration)){
-        return(get.rawData.sum(rawDataTable_T))
+        return(get.rawData.sum(rawDataTable_T, "TARGET"))
       } else {
-        return(tab.with.file.upload.message())
+        return(tab.with.file.upload.message("An error occured. Please check your upload settings (e.g. number of lines skipped) and required column names."))
       }
     },
     options = list(dom = 't'),
@@ -369,9 +382,9 @@ shinyServer(function(input, output, session) {
     {
       rawDataTable_R = rawData_R()
       if (is.numeric(rawDataTable_R$Acceleration)){
-        return(get.rawData.sum(rawDataTable_R))
+        return(get.rawData.sum(rawDataTable_R, "REFERENCE"))
       } else {
-        return(tab.with.file.upload.message())
+        return(tab.with.file.upload.message("An error occured. Please check your upload settings (e.g. number of lines skipped) and required column names."))
       }
     },
     options = list(dom = 't'),
