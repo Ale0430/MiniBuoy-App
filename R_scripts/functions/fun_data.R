@@ -16,7 +16,7 @@ get.rawData_R = function(input) {
                       skip = input$skip.R))
 }
 
-get.rawData = function(inputType, file, sep, skip) {
+get.rawData = function(inputType, file, sep, skip) { # @Marie: needs to be checked when we receive raw data
    an.error.occured = F
    if (inputType == "MB1") {
       tryCatch({
@@ -59,7 +59,8 @@ get.ACCy = function(file, sep, skip) {
       sep = sep,
       skip = skip
    )
-   rawData <- rawData[, 1:2] #@Ale: always 1+2?
+   rawData <- rawData[, 1:2]
+   #@Ale: always 1+2? > yes, except used downloaded wrong data > @Marie: throw warning if ncol > 2
    colnames(rawData) <- c("datetime", "Acceleration")
    
    rawData = suppressWarnings(unify.datetime(rawData))
@@ -207,7 +208,7 @@ convertTimeToDeci <- function(time) { #@Marie: delete?
 #' #' @param data: data.frame with long-format data
 #' #' @param data.vector: character indicating column name of selected variable
 #' #' @return data.frame
-remove.outlier <-
+remove.outlier <- #@Marie: delete? > ask cai and thorsten
    function(data,
             data.vector,
             data.group,
