@@ -391,7 +391,15 @@ shinyServer(function(input, output, session) {
     options = list(dom = 't'),
   )
   
+  observeEvent(input$setData.T | input$setData.R, {
+    if(input$setData.T==0 || input$setData.R==0){
+      return()
+    }
+    get.time.overlap(data.t = Target(), 
+                     data.r = Reference())
+  })
   
+
   #### Text output ####
   
   #' UI Text output of remaining data points after filtering

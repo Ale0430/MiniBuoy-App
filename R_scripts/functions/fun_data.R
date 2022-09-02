@@ -91,6 +91,38 @@ convertTimeToDeci <- function(time) { #@Marie: delete?
    return(dt)
 }
 
+get.time.overlap = function(data.t, data.r){
+   timerange.t = c(min(data.t$datetime), max(data.t$datetime))
+   timerange.r = c(min(data.r$datetime), max(data.r$datetime))
+
+   # Test if recordings of reference and target overlap
+   if ((min(timerange.t) <= max(timerange.r)) & (max(timerange.t) >= min(timerange.r))){
+      sorted.times = sort(c(timerange.t, timerange.r))[c(2,3)]
+      showNotification(paste("Time windows of TARGET and REFERENCE overlap",
+                             round(sorted.times[2] - sorted.times[1], 2),
+                             "days.",
+                             sep = " "),
+                       type = "message",
+                       duration = NULL, closeButton = T)
+      
+   } else {
+      showNotification("Warning: Time windows of TARGET and REFERENCE overlap",
+                       type = "warning",
+                       duration = NULL, closeButton = T)
+      sorted.times = c()
+   }
+   return(sorted.times)
+   
+   # data.t = data.t %>% 
+   #    filter(datetime >= sorted.times[2] & datetime <= sorted.times[3]) %>% 
+   #    distinct(min(datetime), max(datetime))
+   # 
+   # data.r = data.r %>% 
+   #    filter(datetime >= sorted.times[2] & datetime <= sorted.times[3]) %>% 
+   #    distinct(min(datetime), max(datetime))
+   # return(list("Target" = data.t, "Reference" = data.r))
+}
+
 #' ########### CLEAN #############
 #'
 #' #' Remove outlier
