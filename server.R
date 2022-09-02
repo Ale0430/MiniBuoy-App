@@ -350,7 +350,8 @@ shinyServer(function(input, output, session) {
                          type = "warning",
                          duration = NULL, closeButton = T)
       }
-      tab = data.frame(Variable = c("No. rows", "No. columns",
+      meanAcc = mean(data$Acceleration)
+      tab = data.frame(Variable = c("No. rows", "Column names",
                                     "No. days",
                                     "First date", "Last date",
                                     "Mean Acc. (Min, Max)"),
@@ -359,10 +360,16 @@ shinyServer(function(input, output, session) {
                                  as.character(no.days),
                                  as.character(min(data$datetime)),
                                  as.character(max(data$datetime)),
-                                 paste(as.character(round(mean(data$Acceleration), 3)), " (",
+                                 paste(as.character(round(meanAcc, 3)), " (",
                                        as.character(min(data$Acceleration)), ", ",
                                        as.character(max(data$Acceleration)), ")", 
                                        collapse = "")))
+      if (meanAcc > 0){
+        showNotification(paste("Warning: Mean Acceleration in data set", type, 
+                               "is > 0. You may installed the Mini-Buoy upside down.", sep = " "),
+                         type = "warning",
+                         duration = NULL, closeButton = T)
+      }
     }
     
     return(tab)
