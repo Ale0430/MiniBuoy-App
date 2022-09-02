@@ -77,6 +77,19 @@ get.gradientcolors = function(ui.input){
    return(col)
 }
 
+#' Empty diagram
+#' @param message: message to be shown
+#' @return ggplot-object
+plot.emptyMessage = function(message){
+   return(p = ggplot() +
+             annotate(geom = "text", x = 0, y = 5, 
+                      label = message,
+                      color = "red", size = 6,
+                      hjust = 0) +
+             xlim(c(0, 10)) +
+             ylim(c(0, 10)) +
+             theme_void())
+}
 
 ######### labels working in shiny ggplot
 
