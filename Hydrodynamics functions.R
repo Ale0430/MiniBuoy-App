@@ -1,5 +1,5 @@
-source("Hidrology data set-up.R")
-source("set-up.R")
+source("Hydrodynamics set-up.R")
+#source("set-up.R")
 
 
 #### Load Data ####
@@ -9,8 +9,8 @@ source("set-up.R")
 
 DESIGN = 'B4+' # Choose 'B4', 'B4+', or 'Pendant'
 
-TARGET    = './TestSet/B4+/Target.csv'
-REFERENCE = './TestSet/B4+/Reference.csv'
+TARGET    = './data/TestSet/B4+/Target.csv'
+REFERENCE = './data/TestSet/B4+/Reference.csv'
 
 # Read the data: @already ready to analyze data-set (this is after filtering start and end dates)
 Target = read_csv(TARGET, col_types = cols()) %>%
@@ -193,10 +193,8 @@ Reference.stats = if (exists('REFERENCE')) { statistics(Reference.h) }
 
 # @% time flooded (min flooded/ minutes surveyed) - more informative mean % time flooded per day?
 
-
-
-
-
+#### Table comparing Target vs Reference Site #### 
+#@Ale: To be added in the "comparisons" section of the app
 # Statistics table:@ Comparison table, only produced when Reference site is uploaded, and located in the cmparisson section of App's menu
 Site_Comparison = if (exists('REFERENCE')) { Target.stats %>% 
     left_join(., Reference.stats, 'Parameter') %>%
