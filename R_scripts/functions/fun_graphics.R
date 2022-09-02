@@ -115,92 +115,12 @@ data_summary <- function(x) {
 #' @param data: data.frame, long-format
 #' @param ui.input: UI-input
 #' @return ggplot-object
-plot.histogram <- function(data, ui.input){
-   variable.col = ui.input$DataSetInput
-   Target.col= ui.input$DataSet
-   fill.col = ui.input$filterPlot_col
-   binwidth = ui.input$filterPlot_binwidth
+plot.filteredRawData <- function(data, ui.input) {
+   # binwidth = ui.input$filterPlot_binwidth
+   bins = ui.input$filterPlot_bins
    type = ui.input$filterPlot_type
-   facetGrid = ui.input$filterPlot_facetGrid
-
-   variable = data[, variable.col]
-
-   if (fill.col != "none"){
-      if (fill.col == "date"){
-         fill = factor(data[, fill.col])
-      } else {
-         fill = data[, fill.col]
-      }
-      p = data %>% 
-         ggplot(., aes(fill = fill, col = fill, group = fill))# +
-         labs(fill = labels[fill.col][[1]],
-              col = labels[fill.col][[1]])
-   } else {
-      p = data %>% 
-         ggplot(.) +
-         labs(fill = labels[fill.col][[1]],
-              col = labels[fill.col][[1]])
-   }
-   
-   if (type == "hist"){
-      p = p +
-         geom_histogram(mapping=aes(x = Acceleration), 
-                        binwidth = binwidth, col = "white") + #, fill = fill
-         labs(x = "Acceleration (g) ",
-              fill = labels[fill.col][[1]])
-      
-      
-   } 
-   
-   # Set x axis for violin and boxplot
-   if (fill.col == "none"){
-      x = 0
-   } 
-   if (fill.col == "date"){
-      x = factor(data[, fill.col])
-   }
-
-   if (type == "scatter"){
-      p = p +
-         geom_point(mapping=aes(x = datetime, y = Acceleration), alpha = 0.5)  + 
-         #stat_summary(mapping=aes(x = x, y = variable),
-                   #   fun.data=data_summary) +
-         labs(x = "Date", y= "Acceleration (g)") +
-         theme(axis.title.x=element_blank())
-   }
-   # if (Target.col == "Target" ){
-   #   p = p +
-   #     scale_color_gradient(low = gradientcolors()[1],
-   #                          high = gradientcolors()[2],
-   #                          trans = "doy") +
-   #     scale_fill_gradient(low = gradientcolors()[1],
-   #                         high = gradientcolors()[2],
-   #                         trans = "doy")
-   #}
-   
-   if (fill.col == "date"){
-      p = p +
-         scale_color_gradient(low = gradientcolors()[1],
-                              high = gradientcolors()[2],
-                              trans = "date") +
-         scale_fill_gradient(low = gradientcolors()[1],
-                              high = gradientcolors()[2],
-                              trans = "date")
-   }
-  # if (fill.col == "position"){
-     # N = length(unique(data$position))
-    #  p = p +
-     #    scale_color_manual(values = fillcolors(N)) +
-     #    scale_fill_manual(values = fillcolors(N))
-  # }
-   if (facetGrid){
-      p = p +
-         facet_grid( ~ date, labeller = label_both, scales = "free_x")
-   }
-   
-
-   return(p)
-}
+   rollingmean = ui.input$filterPlot_rollmean
+   steps = ui.input$filterPlot_rollmean_steps
 
 
 ######## TEMPERATURES ########

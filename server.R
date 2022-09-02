@@ -245,77 +245,105 @@ shinyServer(function(input, output, session) {
   
   #### FILTER ####
   
-  #' Button to load filter options
+  #' Buttons to load filter options
   #' Assigns unfiltered  target data as reactive
   #' value 'Target'
-  observeEvent(input$LoadFilter, {
-    values$Target <- Target_NoFilter()
-    values$Reference <- Reference_NoFilter()
-    
+  
+  #' Eventlistener to built Filter-UI
+  #' Calling helper function, same as delete filter
+  observeEvent(input$LoadFilter.T, {
+      # values$Target <- Target()
+    filter_helper.T(input, output)
   })
   
-  #' Button to apply filter
+  observeEvent(input$LoadFilter.R, {
+      # values$Reference <- Reference()
+    filter_helper.R(input, output)
+  })
+  
+  #' Buttons to apply filter
   #' Assigns filter selected options to Target and reference site data sets
-  observeEvent(input$FilterApply, {
+  observeEvent(input$FilterApply.T, {
     values$Target <- get.filteredData(data = values$Target,
-                                      ui.input = input)
-    values$Reference <- get.filteredData(data = values$Reference,
-                                         ui.input = input)
+                                      ui.input = input,
+                                      filetype = "T")
   })
   
-  #' Button to delete filter
+  observeEvent(input$FilterApply.R, {
+    values$Target <- get.filteredData(data = values$Reference,
+                                      ui.input = input,
+                                      filetype = "R")
+  })
+  
+  #' Buttons to delete filter
   #' Assigns unfiltered data for both Target and Reference sites
-  observeEvent(input$FilterDelete, {
-    values$Target <- Target_NoFilter()
-    values$Reference <- Reference_NoFilter()
+  observeEvent(input$FilterDelete.T, {
+    values$Target <- rawData_T()
+  })
+  
+  observeEvent(input$FilterDelete.R, {
+    values$Reference <- rawData_T()
   })
   
   #### UI ####
   
-  #' Reactive variable to get start and end data of data set
-  minMaxDatetime <- reactive({
-    if (!is.null(input$file1)) {
-      req(input$setData)
+  #' Reactive variables to get start and end data of data set
+  minMaxDatetime.T <- reactive({
+    if (!is.null(input$fileTarget)) {
+      req(input$setData.T)
     }
-    d = rawData_T()
-    minDate = as.Date(d[which.min(as.POSIXct(d$datetime)),
-                        "datetime"])
-    maxDate = as.Date(d[which.max(as.POSIXct(d$datetime)),
-                        "datetime"])
+    d = Target()
+    minDate = min(d$date)
+    maxDate = max(d$date)
+    return(c(minDate, maxDate))
+  })
+  
+  minMaxDatetime.R <- reactive({
+    if (!is.null(input$fileReference)) {
+      req(input$setData.R)
+    }
+    d = Reference()
+    minDate = min(d$date)
+    maxDate = max(d$date)
     return(c(minDate, maxDate))
   })
   
   #' Helper function to built Filter-UI (load or delete)
-  filter_helper = function(input, output) {
-    if (!is.null(input$file1)) {
-      req(input$setData)
+  filter_helper.T = function(input, output) {
+    if (!is.null(input$fileTarget)) {
+      req(input$setData.T)
     }
-    output = update.filter.ui(ui.output = output, ui.input = input)
-    minMaxDatetime = minMaxDatetime()
+    output = update.filter.ui(ui.output = output, ui.input = input,
+                              filetype = "T")
+    minMaxDatetime = minMaxDatetime.T()
+    print(minMaxDatetime)
     updateDateRangeInput(
       session,
-      "daterange",
+      "daterange.T",
       start = minMaxDatetime[1],
       end = minMaxDatetime[2],
       min = minMaxDatetime[1],
       max = minMaxDatetime[2]
     )
   }
-  
-  #' Eventlistener to built Filter-UI
-  #' Calling helper function, same as delete filter
-  observeEvent(input$LoadFilter, {
-    filter_helper(input, output)
-  })
-  
-  #' Eventlistener to built Filter-UI
-  #' Calling helper function, same as load filter
-  observeEvent(input$FilterDelete, {
-    filter_helper(input, output)
-  })
-  
-  
-  
+  filter_helper.R = function(input, output) {
+    if (!is.null(input$fileReference)) {
+      req(input$setData.R)
+    }
+    output = update.filter.ui(ui.output = output, ui.input = input,
+                              filetype = "R")
+    minMaxDatetime = minMaxDatetime.R()
+    print(minMaxDatetime)
+    print("Update daterange in R")
+    updateDateRangeInput(
+      session,
+      "daterange.R", #@Marie: bug - not updated when T loaded before
+      start = minMaxDatetime[1],
+      end = minMaxDatetime[2],
+      min = minMaxDatetime[1],
+      max = minMaxDatetime[2]
+    )
+  }
   
   #### TABLE OUTPUTS ####
   
@@ -395,30 +423,25 @@ shinyServer(function(input, output, session) {
   
   #' Reactive variable holding the
   #' plot with (filtered) data
-  #'
   DataSetInput <- reactive({
-    if (input$DataSet == "Target") {
-      dataset <- Target()
+    if (input$filterPlot_DataSet == "Target") {
+      dataset <- data.frame(Target())
     }
-    else if (input$DataSet == "Reference") {
-      dataset <- Reference()
+    else if (input$filterPlot_DataSet == "Reference") {
+      dataset <- data.frame(Reference())
     }
     return(dataset)
   })
   
   
-  filterPlot <- reactive({
-    plot.histogram(data = DataSetInput(),
-                   ui.input = input)
+  filterPlot <- eventReactive(input$filterPlot_renderPlot, {
+    plot.filteredRawData(data = DataSetInput(),
+                         ui.input = input)
   })
   
   
+
   output$filterPlot <- renderPlot({
-    filterPlot()
-  })
-  
-  
-  
   
   
   ##### Custom View ####
@@ -446,13 +469,10 @@ shinyServer(function(input, output, session) {
                            ui.input.processed = plotSettings())
   })
   
-  #' UI of customized plot
-  #' (Data > View > Figure)
-  output$custumPlot <- renderPlot({
-    if (input$renderPlot == 0) {
+    if (input$filterPlot_renderPlot == 0){
       plot.emptyMessage("Customize your figure (settings).")
     } else {
-      custumPlot()
+      filterPlot()
     }
   })
   
@@ -491,6 +511,8 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  #### Buttons ####
+
   #' Eventlistener to save filtered, long-format data
   #' (Data > Filter > Figures)
   observeEvent(input$save_dat_filter, {
@@ -511,9 +533,8 @@ shinyServer(function(input, output, session) {
   observeEvent(input$save_dat_filter_fig, {
     name = paste(
       "g_filtered",
-      as.character(input$filterPlot_type),
       as.character(input$DataSet),
-      as.character(input$filterPlot_col),
+      as.character(input$filterPlot_type),
       sep = "_"
     )
     save.figure(

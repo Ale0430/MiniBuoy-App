@@ -240,50 +240,32 @@ remove.outlier <- #@Marie: delete? > ask cai and thorsten
 #' @param data: data.frame with long-format data
 #' @param ui.input: UI-input
 #' @return data.frame
-get.filteredData <- function(data, ui.input) {
+get.filteredData <- function(data, ui.input, filetype) {
    # remove na-values
-   if (ui.input$removeNA) {
+   if (ui.input[[paste("removeNA", filetype, sep = ".")]]) { #@Marie: what's wrong here?
       data = data[complete.cases(data),]
    }
-   # #    data$doy <- as.numeric(data$doy)   # filter by day/ doy and day time
-   minDoy = as.numeric(strftime(ui.input$daterange[1], format = "%j"))
-   maxDoy = as.numeric(strftime(ui.input$daterange[2], format = "%j"))
-   
+
+   # Filter by date
+   daterange = ui.input[[paste("daterange", filetype, sep = ".")]]
    data = data %>%
-      filter((doy >= minDoy) %>% replace_na(TRUE)) %>%
-      filter((doy <= maxDoy) %>% replace_na(TRUE))
+      filter((date >= daterange[1]) %>% replace_na(TRUE)) %>%
+      filter((date <= daterange[2]) %>% replace_na(TRUE))
    
-   start = ui.input$timerangeStart
-   end = ui.input$timerangeEnd
-   if (start < end) {
-      data = data %>%
-         filter((dTime >= start &
-                    dTime <= end) %>% replace_na(TRUE))
-      
-   } else {
-      data = data %>%
-         filter((dTime >= start |
-                    dTime <= end) %>% replace_na(TRUE))
-      
-   }
+   # start = ui.input$timerangeStart
+   # end = ui.input$timerangeEnd
+   # if (start < end) {
+   #    data = data %>%
+   #       filter((dTime >= start &
+   #                  dTime <= end) %>% replace_na(TRUE))
+   #    
+   # } else {
+   #    data = data %>%
+   #       filter((dTime >= start |
+   #                  dTime <= end) %>% replace_na(TRUE))
+   #    
+   # }
    
-   # remove outlier
-   if (ui.input$removeOutlier) {
-      data.vector = ui.input$filterPlot_X
-      
-      # Grouping variable = Color
-      data.group = ui.input$filterPlot_col
-      # Set number of groups = 1 if grouping variable does not
-      # exist in data
-      group.values = if (data.group %in% colnames(data))
-         unique(data[, data.group])
-      else
-         1
-      
-      data = do.call(rbind,
-                     lapply(group.values, function(x)
-                        remove.outlier(data, data.vector, data.group, x)))
-   }
    
    return(data)
 }
@@ -292,45 +274,48 @@ get.filteredData <- function(data, ui.input) {
 #' #' @description Function to update data filter in UI based on uploaded data set
 #' #' @param ui.input: UI-input
 #' #' @param ui.output: UI-output
+#' #' @param filetype: "R" or "T"
 #' #' @return UI-output
-update.filter.ui = function(ui.output, ui.input) {
-   ui.output$filterOptions <- renderUI({
-      req(ui.input$LoadFilter)
-      
+update.filter.ui = function(ui.output, ui.input, filetype) {
+   fO = paste("filterOptions", filetype, sep = ".")
+   ui.output[[fO]] <- renderUI({
+      #req(ui.input$LoadFilter)
+      print("In load filters")
+      print(filetype)
       tagList(
-         checkboxInput("removeNA", "Remove NA-rows", T),
+         checkboxInput(paste("removeNA", filetype, sep = ".")
+                       , "Remove NA-rows", T),
          
          # Date and time range
-         h4(strong("Time filters")),
+         h5(strong("Time filters")),
          
          fluidRow(# Date
             column(2, p(
                strong('Date')
             )),
             column(
-               10, dateRangeInput("daterange", "Range")
+               10, dateRangeInput(paste("daterange", filetype, sep = ".")
+                                  , "Range")
             )),
          
          fluidRow(
             # Time of day
             column(2, p(strong('Time'))),
-            column(5, numericInput("timerangeStart", "Start", value = 0)),
-            column(5, numericInput("timerangeEnd", "End", value = 24)),
+            column(5, numericInput(paste("timerangeStart", filetype, sep = ".")
+                                   , "Start", value = 0)),
+            column(5, numericInput(paste("timerangeEnd", filetype, sep = ".")
+                                   , "End", value = 24)),
          ),
-         
-         
-         # General filters
-         checkboxInput("removeOutlier", "Remove outliers of plot variable", F),
-         
-         
          
          
          # Buttons
          fluidRow(column(5, (
-            actButton("FilterApply", "Apply filter", "update")
+            actButton(paste("FilterApply", filetype, sep = ".")
+                      , "Apply filter", "update")
          )),
          column(5, (
-            actButton("FilterDelete", "Delete filter", "update")
+            actButton(paste("FilterDelete", filetype, sep = ".")
+                      , "Delete filter", "update")
          )),),
          htmlOutput("dataPoints")
       )

@@ -105,53 +105,70 @@ box.dat_upl.upload.ref = function(){
 ### Filter ###
 
 dataFilterOutput = function(){
-  return(
+  return(list(
     fluidRow(
-      column(4, box(title = "Filter options",
+      column(6, box(title = "Deployment time TARGET",
                     collapsible = T,  width = "100%",
                     status = "warning",
-                    actButton("LoadFilter", "Load filter options", "update"),
-                    uiOutput("filterOptions")
+                    actButton("LoadFilter.T", "Load filter options", "update"),
+                    uiOutput("filterOptions.T")
       )),
-      column(8,
-             box(title = "Raw data figures",
-                 collapsible = T, width = "100%",
-                 status = "success",
-                 box.filter.figures(),
-                 actButton("save_dat_filter", "Save csv", "saveCsv"),
-                 actButton("save_dat_filter_fig", "Save figure", "saveFigure")),
-             box(title = "Info",
-                 collapsible = T, width = "100%",
-                 status = "info")#,
-                 #includeMarkdown("./man/des_data_filter.md"))
-             
+      column(6, box(title = "Deployment time REFERENCE",
+                    collapsible = T,  width = "100%",
+                    status = "warning",
+                    actButton("LoadFilter.R", "Load filter options", "update"),
+                    uiOutput("filterOptions.R")
       ))
+    ),
+    fluidRow(
+      column(12, box(title = "Raw data figures",
+                     collapsible = T, width = "100%",
+                     status = "success",
+                     box.filter.figures(),
+                     actButton("save_dat_filter", "Save csv", "saveCsv"),
+                     actButton("save_dat_filter_fig", "Save figure", "saveFigure")))
+    ))
   )
 }
 
 
 box.filter.figures = function(){
   return(list(
-    fluidRow(
-      column(4, checkboxInput("filterPlot_facetGrid", 
-                              "Facet grid (Acceleration ~ date)", F))
-    ),
-    
-    radioButtons("filterPlot_type", "Diagram type", inline = T,
-                 choices = c("Scatter plot" = "scatter",
-                             "Histogram" = "hist")),
     
     fluidRow(
-      column(4, selectInput("DataSet", "View",
-                           choices = c("Reference" = "Reference",
-                                        "Target" = "Target"))),
-       column(4, selectInput("filterPlot_col", "Color/ Group",
-                             choices = c("Acceleration" = "Acceleration",
-                                         "doy" = "doy",
-                                         "none" = "none",
-                                         "date" = "date"))),
-      column(4, numericInput("filterPlot_binwidth", "Binwidth", value = 0.1))
+      column(3, selectInput(
+        "filterPlot_DataSet",
+        "View data set",
+        choices = c("Target" = "Target",
+                    "Reference" = "Reference")
+      )),
+      column(4,
+             radioButtons(
+               "filterPlot_type",
+               "Diagram type",
+               inline = T,
+               choices = c(
+                 "Histogram" = "hist",
+                 "Line plot" = "line",
+                 "Scatter plot" = "scatter"
+               )), 
+             offset = 1
+    )), 
+    conditionalPanel(
+      condition = "input.filterPlot_type == `hist`",
+      fluidRow(
+        column(3, numericInput("filterPlot_bins", "No. Bins", value = 100))
+        ),
     ),
+    conditionalPanel(
+      condition = "input.filterPlot_type == `line`",
+      fluidRow(
+        column(3, checkboxInput("filterPlot_rollmean", "Apply rolling average (only line plot)", T)),
+        column(3, numericInput("filterPlot_rollmean_steps", "Width rolling window", 10))
+      )
+    ), 
+
+    actButton("filterPlot_renderPlot", "Render figure", "update"),
     
     output.figure("filterPlot")
   ))
