@@ -353,9 +353,8 @@ save.csv = function(path, name, csvObject, ui.input) {
    }
    filename = get.filename(path, name, "csv", ui.input)
    
-   res = try(write.csv(csvObject,
-                       file = filename,
-                       row.names = FALSE))
+   res = try(fwrite(csvObject,
+                    file = filename))
    if (is.null(res)) {
       showNotification(nots[[1]],
                        type = nots[[2]])
