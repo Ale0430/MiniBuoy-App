@@ -339,6 +339,12 @@ shinyServer(function(input, output, session) {
                        duration = NULL, closeButton = T)
       tab = tab.with.file.upload.message("Error: Data set too small to analyze (< 2 dayss)!")
     } else {
+      if (ncol(data) > 4){
+        showNotification(paste("Warning:", type, 
+                               "data set contains > 2 columns. Only columns 1 (datetime) and 2 (Acceleration) are used for further processing.",
+                               sep = " "),
+                         type = "warning", duration = NULL, closeButton = T)
+      }
       if (no.days < 15){
         showNotification(paste("Warning:", type, "data set too small to analyze properly (< 15 days)!", sep = " "),
                          type = "warning",
@@ -349,9 +355,7 @@ shinyServer(function(input, output, session) {
                                     "First date", "Last date",
                                     "Mean Acc. (Min, Max)"),
                        Value = c(as.character(nrow(data)),
-                                 paste(ncol(data), " (", 
-                                       paste(colnames(data), collapse = ", "), ")",
-                                       sep = ""),
+                                 paste(colnames(data), collapse = ", "),
                                  as.character(no.days),
                                  as.character(min(data$datetime)),
                                  as.character(max(data$datetime)),
