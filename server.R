@@ -140,7 +140,8 @@ shinyServer(function(input, output, session) {
   #### DATA ####
   ##############
   
-  #### Variables ####
+  #### UPLOAD ####
+  ##### Variables #####
   
   #' Reactive variables holding raw data
   #' If no data set is defined, use default data set
@@ -174,39 +175,7 @@ shinyServer(function(input, output, session) {
     return(dataR)
   })
   
-  
-  #' #' Reactive variables holding Mini-Buoy model type- later used
-  #' #' for hydrological parameter computation
-  #' Target_NoFilter <- reactive({# @Ale: what for are those functions needed?
-  #'   data = rawData_T()
-  #'   
-  #'   if (input$inputType == "MB1" |
-  #'       input$inputType == "MB2") {
-  #'     d = data
-  #'   }
-  #'   if (input$inputType == "MB3") {
-  #'     d = data
-  #'   }
-  #'   
-  #'   return(d)
-  #'   
-  #' })
-  #' 
-  #' Reference_NoFilter <- reactive({
-  #'   data = rawData_R()
-  #'   
-  #'   if (input$inputType == "MB1" |
-  #'       input$inputType == "MB2") {
-  #'     d = data
-  #'   }
-  #'   if (input$inputType == "MB3") {
-  #'     d = data
-  #'   }
-  #'   
-  #'   return(d)
-  #'   
-  #' })
-  
+
   #' Create empty reactive value with a placeholder for the
   #' data sets belonging to Target and reference sites
   values <- reactiveValues(Target = NULL,
@@ -233,13 +202,11 @@ shinyServer(function(input, output, session) {
   #' button is pressed
   #' Updates data for the whole App
   observeEvent(input$setData.R, { #@Marie: does not make sense with the previous functions
-    # values$Reference <- rawData_R()
     print("Set data REFERENCE")
     Reference()
   })
   observeEvent(input$setData.T, {
     print("Set data TARGET")
-    # values$Target <- rawData_T()
     Target()
   })
   
@@ -347,9 +314,7 @@ shinyServer(function(input, output, session) {
   
   #### TABLE OUTPUTS ####
   
-  
-  
-  tab.with.file.upload.message = function() {
+  tab.with.file.upload.message = function(){
     m = matrix(
       data = c(
         "An error occured. Please check your upload settings (e.g. number of lines skipped) and required column names."
@@ -366,40 +331,51 @@ shinyServer(function(input, output, session) {
     )
   }
   
+  get.rawData.sum = function(data){
+    no.days = length(unique(data$date))
+    tab = data.frame(Variable = c("No. rows", "No. columns",
+                                  "No. days",
+                                  "First date", "Last date",
+                                  "Mean Acc. (Min, Max)"),
+                     Value = c(as.character(nrow(data)),
+                               paste(ncol(data), " (", 
+                                     paste(colnames(data), collapse = ", "), ")",
+                                     sep = ""),
+                               as.character(no.days),
+                               as.character(min(data$datetime)),
+                               as.character(max(data$datetime)),
+                               paste(as.character(round(mean(data$Acceleration), 3)), " (",
+                                     as.character(min(data$Acceleration)), ", ",
+                                     as.character(max(data$Acceleration)), ")", 
+                                     collapse = "")))
+    return(tab)
+  }
   
-  #' UI Target site Table with , wide-format
-  #' (Data > Upload > Preview data)
-  output$raw.target <- DT::renderDataTable(
-    rownames = FALSE,
+  output$raw.target.sum <- DT::renderDataTable(
+    rownames = F,
     {
       rawDataTable_T = rawData_T()
-      #if ("dTime" %in% colnames(rawData)){
-      # rawDataTable = rawData %>%
-      #  mutate(dTime = round(dTime, 2))
-      #} else {
-      # rawDataTable = tab.with.file.upload.message()
-      # }
-      return(head(rawDataTable_T, n = 1000)) #remove function head() to show all data entries (makes the table render very slow- avoid for now)
+      
+      if (is.numeric(rawDataTable_T$Acceleration)){
+        return(get.rawData.sum(rawDataTable_T))
+      } else {
+        return(tab.with.file.upload.message())
+      }
     },
-    options = list(scrollX = TRUE, searching = F),
-    server = FALSE
+    options = list(dom = 't'),
   )
   
-  
-  
-  output$raw.reference <- DT::renderDataTable(
-    rownames = FALSE,
+  output$raw.reference.sum <- DT::renderDataTable(
     {
       rawDataTable_R = rawData_R()
-      
-      return(head(rawDataTable_R, n = 1000))
+      if (is.numeric(rawDataTable_R$Acceleration)){
+        return(get.rawData.sum(rawDataTable_R))
+      } else {
+        return(tab.with.file.upload.message())
+      }
     },
-    options = list(scrollX = TRUE, searching = F),
-    server = FALSE
+    options = list(dom = 't'),
   )
-  
-  
-  
   
   
   #### Text output ####
@@ -408,7 +384,7 @@ shinyServer(function(input, output, session) {
   #' (Data > Filter > Subset data)
   output$dataPoints <- renderText({
     filtered_data = Target()
-    n_diff = nrow(Target_NoFilter()) - nrow(filtered_data)
+    n_diff = nrow(rawData_T()) - nrow(filtered_data)
     if (any(is.na(filtered_data))) {
       paste("Data set contains NA values. <br/><br/>",
             n_diff,
@@ -442,33 +418,6 @@ shinyServer(function(input, output, session) {
   
 
   output$filterPlot <- renderPlot({
-  
-  
-  ##### Custom View ####
-  
-  #' Assign empty reactive value holding ui inputs for
-  #' customized figure
-  values <- reactiveValues(plotSettings = NULL)
-  
-  #' Eventlistener assigning ui inputs to customize figure
-  #' to reactive value
-  observeEvent(input$renderPlot, {
-    values$plotSettings <- get.customizedPlotSettings(ui.input = input)
-  })
-  
-  #' Reactive variable holding ui inputs to customize figure
-  plotSettings <- reactive({
-    return(values$plotSettings)
-  })
-  
-  #' Reactive variable holding the plot showing customized
-  #' temperature visualizations
-  custumPlot <- reactive({
-    req(input$renderPlot)
-    plot.customTemperature(data =  DataSetInput(),
-                           ui.input.processed = plotSettings())
-  })
-  
     if (input$filterPlot_renderPlot == 0){
       plot.emptyMessage("Customize your figure (settings).")
     } else {
@@ -477,39 +426,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  #### Buttons ####
   
-  #' Eventlistener to save unfiltered, long-format data
-  #' (Data > Upload > Preview data)
-  observeEvent(input$save_dat_upl, {
-    save.csv(
-      path = projectPath(),
-      name = "g raw",
-      csvObject = DataSet(),
-      ui.input = input
-    )
-    
-  })
-  
-  #' Eventlistener to save plot with customized temperatures
-  #' (Data > View > Figure)
-  observeEvent(input$save.custumPlot, {
-    name = paste(
-      "g",
-      input$rawPlot.xcol,
-      input$rawPlot.ycol,
-      input$rawPlot.col,
-      input$rawPlot.shape,
-      input$rawPlot.facet,
-      sep = "_"
-    )
-    save.figure(
-      path = projectPath(),
-      name = name,
-      plotObject = custumPlot(),
-      ui.input = input
-    )
-  })
   
   #### Buttons ####
 
