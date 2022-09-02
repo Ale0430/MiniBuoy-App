@@ -136,9 +136,9 @@ shinyServer(function(input, output, session) {
   })
   
   
-  
+  ##############
   #### DATA ####
-  
+  ##############
   
   #### Variables ####
   
@@ -146,63 +146,66 @@ shinyServer(function(input, output, session) {
   #' If no data set is defined, use default data set
   
   rawData_T <- reactive({
-    if (is.null(input$file1)) {
+    #print(input$fileTarget)
+    if (is.null(input$fileTarget$datapath)) {
       defaultData_T = "./data/default_target.csv"
-      print("Default data")
+      print("Default TARGET data")
       dataT = get.ACCy(defaultData_T,
                        sep = ",",
                        skip = 27)
     } else {
+      print("User TARGET data")
       dataT = get.rawData_T(input)
     }
     return(dataT)
   })
   
   rawData_R <- reactive({
-    if (is.null(input$file1)) {
+    if (is.null(input$fileReference)) {
       defaultData_R = "./data/default_reference.csv"
-      print("Default data")
+      print("Default REFERENCE data")
       dataR = get.ACCy(defaultData_R,
                        sep = ",",
                        skip = 27)
     } else {
+      print("User REFERENCE data")
       dataR = get.rawData_R(input)
     }
     return(dataR)
   })
   
   
-  #' Reactive variables holding Mini-Buoy model type- later used
-  #' for hydrological parameter computation
-  Target_NoFilter <- reactive({
-    data = rawData_T()
-    
-    if (input$inputType == "MB1" |
-        input$inputType == "MB2") {
-      d = data
-    }
-    if (input$inputType == "MB3") {
-      d = data
-    }
-    
-    return(d)
-    
-  })
-  
-  Reference_NoFilter <- reactive({
-    data = rawData_R()
-    
-    if (input$inputType == "MB1" |
-        input$inputType == "MB2") {
-      d = data
-    }
-    if (input$inputType == "MB3") {
-      d = data
-    }
-    
-    return(d)
-    
-  })
+  #' #' Reactive variables holding Mini-Buoy model type- later used
+  #' #' for hydrological parameter computation
+  #' Target_NoFilter <- reactive({# @Ale: what for are those functions needed?
+  #'   data = rawData_T()
+  #'   
+  #'   if (input$inputType == "MB1" |
+  #'       input$inputType == "MB2") {
+  #'     d = data
+  #'   }
+  #'   if (input$inputType == "MB3") {
+  #'     d = data
+  #'   }
+  #'   
+  #'   return(d)
+  #'   
+  #' })
+  #' 
+  #' Reference_NoFilter <- reactive({
+  #'   data = rawData_R()
+  #'   
+  #'   if (input$inputType == "MB1" |
+  #'       input$inputType == "MB2") {
+  #'     d = data
+  #'   }
+  #'   if (input$inputType == "MB3") {
+  #'     d = data
+  #'   }
+  #'   
+  #'   return(d)
+  #'   
+  #' })
   
   #' Create empty reactive value with a placeholder for the
   #' data sets belonging to Target and reference sites
@@ -214,14 +217,14 @@ shinyServer(function(input, output, session) {
   #' Assigned to reactive value if empty
   Target <- reactive({
     if (is.null(values$Target)) {
-      values$Target <- Target_NoFilter()
+      values$Target <- rawData_T()
     }
     return(values$Target)
   })
   
   Reference <- reactive({
     if (is.null(values$Reference)) {
-      values$Reference <- Reference_NoFilter()
+      values$Reference <- rawData_R()
     }
     return(values$Reference)
   })
@@ -229,10 +232,15 @@ shinyServer(function(input, output, session) {
   #' Trigger to update reactive data when 'Use data'
   #' button is pressed
   #' Updates data for the whole App
-  observeEvent(input$setData, {
-    values$Target <- Target_NoFilter()
-    values$Reference <- Reference_NoFilter()
-    
+  observeEvent(input$setData.R, { #@Marie: does not make sense with the previous functions
+    # values$Reference <- rawData_R()
+    print("Set data REFERENCE")
+    Reference()
+  })
+  observeEvent(input$setData.T, {
+    print("Set data TARGET")
+    # values$Target <- rawData_T()
+    Target()
   })
   
   #### FILTER ####

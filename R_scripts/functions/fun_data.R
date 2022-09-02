@@ -3,70 +3,47 @@
 #' @param UI-input: file, file-args, method, etc.
 #' @return data.frame
 get.rawData_T = function(input) {
-   an.error.occured = F
-   if (input$inputType == "MB1") {
-      tryCatch({
-         rawDataTarget  = get.ACCy(input$file1$datapath,
-                                   sep = input$sep,
-                                   skip = input$skip)
-      },
-      error = function(e) {
-         an.error.occured <<- TRUE
-      })
-      # print(an.error.occurred)
-      
-   }
-   if (input$inputType == "MB2" |
-       input$inputType == "MB3") {
-      tryCatch({
-         rawDataTarget  = get.ACCy(input$file1$datapath,
-                                   sep = input$sep,
-                                   skip =  input$skip)
-      },
-      error = function(e) {
-         an.error.occured <<- TRUE
-      })
-      
-   }
-   
-   if (an.error.occured) {
-      return(data.frame())
-   } else {
-      return(rawDataTarget)
-   }
+   return(get.rawData(inputType = input$inputType.T, 
+                      file = input$fileTarget$datapath, 
+                      sep = input$sep.T, 
+                      skip = input$skip.T))
 }
 
 get.rawData_R = function(input) {
+   return(get.rawData(inputType = input$inputType.R, 
+                      file = input$fileReference$datapath, 
+                      sep = input$sep.R, 
+                      skip = input$skip.R))
+}
+
+get.rawData = function(inputType, file, sep, skip) {
    an.error.occured = F
-   if (input$inputType == "MB1") {
+   if (inputType == "MB1") {
       tryCatch({
-         rawDataRef  = get.ACCy(input$file2$datapath,
-                                sep = input$sep,
-                                skip = input$skip)
+         rawData  = get.ACCy(file = file,
+                             sep = sep,
+                             skip = skip)
       },
       error = function(e) {
          an.error.occured <<- TRUE
       })
-      # print(an.error.occurred)
-      
    }
-   if (input$inputType == "MB2" |
-       input$inputType == "MB3") {
+   if (inputType == "MB2" |
+       inputType == "MB3") {
       tryCatch({
-         rawDataRef  = get.ACCy(input$file2$datapath,
-                                sep = input$sep,
-                                skip = input$skip)
+         rawData  = get.ACCy(file = file,
+                             sep = sep,
+                             skip =  skip)
       },
       error = function(e) {
          an.error.occured <<- TRUE
       })
       
    }
-   
    if (an.error.occured) {
       return(data.frame())
    } else {
-      return(rawDataRef)
+      return(rawData)
    }
 }
 
@@ -82,9 +59,8 @@ get.ACCy = function(file, sep, skip) {
       sep = sep,
       skip = skip
    )
-   rawData <- rawData[, 1:2]
+   rawData <- rawData[, 1:2] #@Ale: always 1+2?
    colnames(rawData) <- c("datetime", "Acceleration")
-   
    
    rawData = suppressWarnings(unify.datetime(rawData))
    
