@@ -132,30 +132,21 @@ remove.outlier <- #@Marie: delete? > ask cai and thorsten
 #' @return data.frame
 get.filteredData <- function(data, ui.input, filetype) {
    # remove na-values
-   if (ui.input[[paste("removeNA", filetype, sep = ".")]]) { #@Marie: what's wrong here?
+   if (ui.input[[paste("removeNA", filetype, sep = ".")]]) {
       data = data[complete.cases(data),]
    }
 
-   # Filter by date
+   # Filter by date and time of first and last day
    daterange = ui.input[[paste("daterange", filetype, sep = ".")]]
+   start = ui.input[[paste("timerangeStart", filetype, sep = ".")]]
+   end = ui.input[[paste("timerangeEnd", filetype, sep = ".")]]
+
+   startdt = fastPOSIXct(paste(daterange[1], start, sep = " "), tz="GMT")
+   endtdt = fastPOSIXct(paste(daterange[2], end, sep = " "), tz="GMT")
+   
    data = data %>%
-      filter((date >= daterange[1]) %>% replace_na(TRUE)) %>%
-      filter((date <= daterange[2]) %>% replace_na(TRUE))
-   
-   # start = ui.input$timerangeStart
-   # end = ui.input$timerangeEnd
-   # if (start < end) {
-   #    data = data %>%
-   #       filter((dTime >= start &
-   #                  dTime <= end) %>% replace_na(TRUE))
-   #    
-   # } else {
-   #    data = data %>%
-   #       filter((dTime >= start |
-   #                  dTime <= end) %>% replace_na(TRUE))
-   #    
-   # }
-   
+      filter((datetime >= startdt) %>% replace_na(TRUE)) %>%
+      filter((datetime <= endtdt) %>% replace_na(TRUE))
    
    return(data)
 }
@@ -171,7 +162,6 @@ update.filter.ui = function(ui.output, ui.input, filetype) {
    ui.output[[fO]] <- renderUI({
       #req(ui.input$LoadFilter)
       print("In load filters")
-      print(filetype)
       tagList(
          checkboxInput(paste("removeNA", filetype, sep = ".")
                        , "Remove NA-rows", T),
@@ -191,10 +181,14 @@ update.filter.ui = function(ui.output, ui.input, filetype) {
          fluidRow(
             # Time of day
             column(2, p(strong('Time'))),
-            column(5, numericInput(paste("timerangeStart", filetype, sep = ".")
-                                   , "Start", value = 0)),
-            column(5, numericInput(paste("timerangeEnd", filetype, sep = ".")
-                                   , "End", value = 24)),
+            # column(5, numericInput(paste("timerangeStart", filetype, sep = ".")
+            #                        , "Start", value = 0)),
+            # column(5, numericInput(paste("timerangeEnd", filetype, sep = ".")
+            #                        , "End", value = 24)),
+            column(5, textInput(paste("timerangeStart", filetype, sep = "."),
+                                "Start", value = "00:00:00", placeholder = "00:00:00")),
+            column(5, textInput(paste("timerangeEnd", filetype, sep = "."),
+                                "End", value = "00:00:00", placeholder = "23:59:00"))
          ),
          
          
@@ -207,7 +201,7 @@ update.filter.ui = function(ui.output, ui.input, filetype) {
             actButton(paste("FilterDelete", filetype, sep = ".")
                       , "Delete filter", "update")
          )),),
-         htmlOutput("dataPoints")
+         htmlOutput(paste("dataPoints", filetype, sep = "."))
       )
    })
    return(ui.output)

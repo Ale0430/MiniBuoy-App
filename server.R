@@ -219,12 +219,12 @@ shinyServer(function(input, output, session) {
   #' Eventlistener to built Filter-UI
   #' Calling helper function, same as delete filter
   observeEvent(input$LoadFilter.T, {
-      # values$Target <- Target()
+    values$Target <- rawData_T()
     filter_helper.T(input, output)
   })
   
   observeEvent(input$LoadFilter.R, {
-      # values$Reference <- Reference()
+    values$Reference <- rawData_R()
     filter_helper.R(input, output)
   })
   
@@ -237,7 +237,7 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$FilterApply.R, {
-    values$Target <- get.filteredData(data = values$Reference,
+    values$Reference <- get.filteredData(data = values$Reference,
                                       ui.input = input,
                                       filetype = "R")
   })
@@ -249,7 +249,7 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$FilterDelete.R, {
-    values$Reference <- rawData_T()
+    values$Reference <- rawData_R()
   })
   
   #### UI ####
@@ -379,6 +379,7 @@ shinyServer(function(input, output, session) {
   )
   
   output$raw.reference.sum <- DT::renderDataTable(
+    rownames = F,
     {
       rawDataTable_R = rawData_R()
       if (is.numeric(rawDataTable_R$Acceleration)){
@@ -395,18 +396,26 @@ shinyServer(function(input, output, session) {
   
   #' UI Text output of remaining data points after filtering
   #' (Data > Filter > Subset data)
-  output$dataPoints <- renderText({
-    filtered_data = Target()
-    n_diff = nrow(rawData_T()) - nrow(filtered_data)
-    if (any(is.na(filtered_data))) {
+  get.deleted.points.text = function(data_before, data_after){
+    n_diff = nrow(data_before) - nrow(data_after)
+    if (any(is.na(data_after))) {
       paste("Data set contains NA values. <br/><br/>",
             n_diff,
             " data points removed.")
     } else {
       paste(n_diff, " data points removed.")
     }
+  }
+  
+  output$dataPoints.T <- renderText({ 
+    get.deleted.points.text(data_before = rawData_T(),
+                            data_after = Target())
   })
   
+  output$dataPoints.R <- renderText({
+    get.deleted.points.text(data_before = rawData_R(),
+                            data_after = Reference())
+  })
   
   #### Graphics ####
   
@@ -432,7 +441,7 @@ shinyServer(function(input, output, session) {
 
   output$filterPlot <- renderPlot({
     if (input$filterPlot_renderPlot == 0){
-      plot.emptyMessage("Customize your figure (settings).")
+      plot.emptyMessage("Customize your figure.")
     } else {
       filterPlot()
     }
