@@ -368,6 +368,7 @@ shinyServer(function(input, output, session) {
     return(tab)
   }
   
+  message.upload.failed = "An error occured. Please check your uploaded csv-file (e.g. needs to contain line starting with '*DATA')."
   output$raw.target.sum <- DT::renderDataTable(
     rownames = F,
     {
@@ -376,7 +377,7 @@ shinyServer(function(input, output, session) {
       if (is.numeric(rawDataTable_T$Acceleration)){
         return(get.rawData.sum(rawDataTable_T, "TARGET"))
       } else {
-        return(tab.with.file.upload.message("An error occured. Please check your upload settings (e.g. number of lines skipped) and required column names."))
+        return(tab.with.file.upload.message(message.upload.failed))
       }
     },
     options = list(dom = 't'),
@@ -389,7 +390,7 @@ shinyServer(function(input, output, session) {
       if (is.numeric(rawDataTable_R$Acceleration)){
         return(get.rawData.sum(rawDataTable_R, "REFERENCE"))
       } else {
-        return(tab.with.file.upload.message("An error occured. Please check your upload settings (e.g. number of lines skipped) and required column names."))
+        return(tab.with.file.upload.message(message.upload.failed))
       }
     },
     options = list(dom = 't'),
