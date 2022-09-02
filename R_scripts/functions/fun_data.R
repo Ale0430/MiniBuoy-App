@@ -53,15 +53,10 @@ get.rawData = function(inputType, file, sep, skip) { # @Marie: needs to be check
 #' @param skip: number of rows to skip
 #' @return data.frame
 get.ACCy = function(file, sep, skip) {
-   rawData <- fread(
-      file,
-      header = FALSE,
-      sep = sep,
-      skip = skip
-   )
-   rawData <- rawData[, 1:2]
-   #@Ale: always 1+2? > yes, except used downloaded wrong data > @Marie: throw warning if ncol > 2
-   colnames(rawData) <- c("datetime", "Acceleration")
+   rawData <- suppressWarnings(fread(file, 
+                                     skip = "*DATA"))
+   colnames(rawData)[c(1,2)] <- c("datetime", "Acceleration")
+   rawData$Acceleration = as.numeric(rawData$Acceleration)
    
    rawData = suppressWarnings(unify.datetime(rawData))
    

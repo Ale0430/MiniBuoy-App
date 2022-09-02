@@ -43,15 +43,10 @@ box.dat_upl.upload.tar = function(){
                          "text/comma-separated-values,text/plain",
                          ".csv")),
     fluidRow(
-      column(4,  selectInput("sep.T", "Separator", 
-                             choices = c("Comma" = ",",
-                                         "Semicolon" = ";",
-                                         "Tab" = "\t"))),
-      column(4, selectInput("inputType.T", "Input file type",
+     column(4, selectInput("inputType.T", "Input file type",
                   c("Mini Buoy 1" = "MB1", 
                     "Mini Buoy 2" = "MB2",
-                    "Mini Buoy 3" = "MB3"))),
-      column(4, numericInput("skip.T", "Skip:", min = 0, max = 100, 1))
+                    "Mini Buoy 3" = "MB3")))
     ),
     
     h5(strong("Summary data set")),
@@ -81,15 +76,10 @@ box.dat_upl.upload.ref = function(){
                          "text/comma-separated-values,text/plain",
                          ".csv")),
     fluidRow(
-      column(4,  selectInput("sep.R", "Separator", 
-                             choices = c("Comma" = ",",
-                                         "Semicolon" = ";",
-                                         "Tab" = "\t"))),
       column(4, selectInput("inputType.R", "Input file type",
                             c("Mini Buoy 1" = "MB1", 
                               "Mini Buoy 2" = "MB2",
-                              "Mini Buoy 3" = "MB3"))),
-      column(4, numericInput("skip.R", "Skip:", min = 0, max = 100, 1))
+                              "Mini Buoy 3" = "MB3")))
     ),
     
     h5(strong("Summary data set")),
