@@ -75,6 +75,10 @@ menuItemOutput = function() {
     menuItem("Data", tabName = "data", icon = icon("circle-notch"),
              menuSubItem("Upload data", tabName = "dat_upl", icon= icon("upload")),
              menuSubItem("Filters", tabName = "dat_filter", icon = icon("filter"))),
-    menuItem("Hydrodynamics", tabName = "hidr_res", icon = icon("water"))
+    menuItem("Hydrodynamics", tabName = "hidr_res", icon = icon("water"),
+             menuSubItem("Target", tabName = "hy_target", icon= icon("bullseye")),
+             menuSubItem("Reference", tabName = "hy_reference", icon= icon("asterisk")),
+             menuSubItem("Comparison", tabName = "hy_compare", icon= icon("not-equal"))
+             )
   ))
 }
