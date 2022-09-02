@@ -7,38 +7,27 @@ dataUplOutput = function(){
   return(
     fluidRow(
       column(6,
-             box(title = "Upload data files",
+             box(title = "Upload TARGET file",
                  collapsible = T, width = "100%",
                  status = "warning",
-                 box.dat_upl.upload1(),
-                 box.dat_upl.upload2()
+                 box.dat_upl.upload.tar()
              )
       ),
       column(6,
-             box(title = "Description", collapsed = T,
+             box(title = "Upload REFERENCE file",
                  collapsible = T, width = "100%",
-                 status = "info",
-                 includeMarkdown("./man/des_data.md")),
-             box(title = "Preview data",
-                 collapsible = T, width = "100%",
-                 status = "success",
-                 
-                 tabsetPanel(
-                   tabPanel("Target", br(),
-                            output.table("raw.target")),
-                   tabPanel("Reference", br(),
-                            #actButton("save_dat_upl", "Save csv", "saveCsv"),
-                            br(),
-                            output.table("raw.reference")))))
+                 status = "warning",
+                 box.dat_upl.upload.ref()
+             )
+      )
     ))
 }
 
-box.dat_upl.upload1 = function(){
+box.dat_upl.upload.tar = function(){
   return(list(
     # Input: Select a file ----
-    fluidRow(
-      column(6, fileInput("file1", "Choose Target site CSV file",
-                          buttonLabel = HTML("<span 
+    fileInput("fileTarget", "Choose Target site CSV file",
+              buttonLabel = HTML("<span 
                 class='btn btn-primary' 
                 style='margin: -8px -13px;
                   position: relative;
@@ -49,37 +38,34 @@ box.dat_upl.upload1 = function(){
                    border-radius: 0;'>
                                    Browse...
                                    </span>"),
-                          multiple = F,
-                          accept = c("text/csv",
-                                     "text/comma-separated-values,text/plain",
-                                     ".csv"))),
-      column(6,  selectInput("sep", "Separator", 
+              multiple = F,
+              accept = c("text/csv",
+                         "text/comma-separated-values,text/plain",
+                         ".csv")),
+    fluidRow(
+      column(4,  selectInput("sep.T", "Separator", 
                              choices = c("Comma" = ",",
                                          "Semicolon" = ";",
-                                         "Tab" = "\t")))
+                                         "Tab" = "\t"))),
+      column(4, selectInput("inputType.T", "Input file type",
+                  c("Mini Buoy 1" = "MB1", 
+                    "Mini Buoy 2" = "MB2",
+                    "Mini Buoy 3" = "MB3"))),
+      column(4, numericInput("skip.T", "Skip:", min = 0, max = 100, 1))
     ),
     
-    selectInput("inputType", "Input file type",
-                c("Mini Buoy 1" = "MB1", 
-                  "Mini Buoy 2" = "MB2",
-                  "Mini Buoy 3" = "MB3")),
-    numericInput("skip", "Skip:", min = 0, max = 100, 1),
-    
-    # Input: Checkbox if file has header ----
-    # checkboxInput("header", "Header", TRUE),
-    # Input: Select separator ----
-    
-    actButton("setData", "Use data", "create")
+    h5(strong("Summary data set")),
+    output.table("raw.target.sum"),
+    actButton("setData.T", "Use data", "create")
    
   ))
 }
 
-box.dat_upl.upload2 = function(){
+box.dat_upl.upload.ref = function(){
   return(list(
     # Input: Select a file ----
-    fluidRow(
-      column(6, fileInput("file2", "Choose Reference site CSV file",
-                          buttonLabel = HTML("<span 
+    fileInput("fileReference", "Choose Target site CSV file",
+              buttonLabel = HTML("<span 
                 class='btn btn-primary' 
                 style='margin: -8px -13px;
                   position: relative;
@@ -90,29 +76,26 @@ box.dat_upl.upload2 = function(){
                    border-radius: 0;'>
                                    Browse...
                                    </span>"),
-                          multiple = F,
-                          accept = c("text/csv",
-                                     "text/comma-separated-values,text/plain",
-                                     ".csv"))),
-      column(6,  selectInput("sep", "Separator", 
+              multiple = F,
+              accept = c("text/csv",
+                         "text/comma-separated-values,text/plain",
+                         ".csv")),
+    fluidRow(
+      column(4,  selectInput("sep.R", "Separator", 
                              choices = c("Comma" = ",",
                                          "Semicolon" = ";",
-                                         "Tab" = "\t")))
+                                         "Tab" = "\t"))),
+      column(4, selectInput("inputType.R", "Input file type",
+                            c("Mini Buoy 1" = "MB1", 
+                              "Mini Buoy 2" = "MB2",
+                              "Mini Buoy 3" = "MB3"))),
+      column(4, numericInput("skip.R", "Skip:", min = 0, max = 100, 1))
     ),
     
-    selectInput("inputType", "Input file type",
-                c("Mini Buoy 1" = "MB1", 
-                  "Mini Buoy 2" = "MB2",
-                  "Mini Buoy 3" = "MB3")),
-    numericInput("skip", "Skip:", min = 0, max = 100, 1),
+    h5(strong("Summary data set")),
+    output.table("raw.reference.sum"),
+    actButton("setData.R", "Use data", "create")
     
-    # Input: Checkbox if file has header ----
-    # checkboxInput("header", "Header", TRUE),
-    # Input: Select separator ----
-    
-    actButton("setData", "Use data", "create"),
-    p(em("<Note> If your data set contains non-numeric rows, e.g. logger warnings,
-           they are converted to NA values. Remove them in the 'Data > Filter' section."))
   ))
 }
 
