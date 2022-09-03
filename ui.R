@@ -4,7 +4,7 @@ source("set-up.R")
 
 shinyUI(
   dashboardPage(
-    skin="green",
+    skin="blue",
     dashboardHeader(title = "The Mini Buoy App"),
     dashboardSidebar(
       br(), br(), br(),

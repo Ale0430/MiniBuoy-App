@@ -7,28 +7,14 @@ introOutput = function(){
            box(title = "The Mini Buoy" ,
                status = "info", solidHeader = F, width = "100%",
                collapsible = T,
-               includeMarkdown("./man/MinibuoyIntro.Rmd")),
-           box(title = "The Mini Buoy App",
-               status = "info", solideHeader = F, width ="100%",
-               collapsible = T,
-               includeMarkdown("./man/AppDescription.Rmd"),
-               img(src='MiniBuoyMotion.png', width = "100%"),
-               ),
-          
-           box(title = "Application Outputs",
-               status = "info", solidHeader = F, width="100%",
-               collapsible = T,
-               includeMarkdown("./man/AppOutputDescription.Rmd"))
+               includeMarkdown("./man/MinibuoyIntro.Rmd"),
+               img(src='MiniBuoyMotion.png', width = "100%"))
            
            
     ),
     column(6,
            
           
-           box(title = "Mini Buoy User Manual",
-               status = "info", solidHeader = F, width="100%",
-               collapsible = T,
-               includeMarkdown("./man/Manual.Rmd")),
            box(title = "Mini Buoy Models",
                status = "warning", solidHeader = F,
                collapsible = T, width = "100%",
@@ -42,35 +28,35 @@ introOutput = function(){
 box.settings_sensors = function(){
   return(list(
     selectInput("sensorType", "Select sensor type to view attributes",
-                choices = c("Mini Buoy 1", "Mini Buoy 2", "Mini Buoy 3"),
-                selected = "Mini Buoy 1"),
+                choices = c("B4", "B4+", "Pendant"),
+                selected = "B4"),
     
     conditionalPanel(
-      condition = "input.sensorType == 'Mini Buoy 1'",
+      condition = "input.sensorType == 'B4'",
       
       
       
       br(),
-      p(strong("Schematic representation of Mini Buoy 1 (aka: original) [add here a brief description of MB1 attributes]")),
-      img(src='whiteLab.jpeg', width = "80%")),
+      p("The original Mini Buoy design featured in Balke et al. (2021) that contains an MSR145 B4 acceleration data logger inside a self-standing centrifuge tube attached to an anchor via a fishing swivel. The B4 measures inundation duration and current velocity only."),
+      img(src='B4.jpg', width = "80%")),
     
     conditionalPanel(
-      condition = "input.sensorType == 'Mini Buoy 2'",
+      condition = "input.sensorType == 'B4+'",
       
       
       
       br(),
-      p(strong("Schematic representation of Mini Buoy 2 (aka: black) [add here a brief description of MB2 attributes]")),
-      img(src='MiniBuoy2.jpeg', width = "80%")),
+      p("A more durable version of the original Mini Buoy ideal for long term deployments. The B4+ has a UV-resistant casing without the skirt and a metal eye bolt connected to a mooring by crimped fishing line rings. In addition to measuring inundation duration and current velocity, the B4+ has been calibrated to measure wave orbital velocities. Whilst the durability and functionality may be improved, the B4+ requires more effort to assemble."),
+      img(src='B4plus.jpeg', width = "80%")),
     
     conditionalPanel(
-      condition = "input.sensorType == 'Mini Buoy 3'",
+      condition = "input.sensorType == 'Pendant'",
       
       
       
       br(),
-      p(strong("Schematic representation of Mini Buoy 3 (aka: Hobo) [add here a brief description of MB3 attributes]")),
-      img(src='Golden.jpeg', width = "80%")),
+      p("An integrated accelerometer data logger, float, and anchor point, attached to a pole by a fishing swivel. The Pendant is less expensive and easier to assemble than the B4 and B4+, however memory capacity and sampling rates are lower. Because of the low sampling rate, the Pendant measures inundation duration and current velocity only."),
+      img(src='Pendant.jpg', width = "80%")),
     
     br(),br()
     
