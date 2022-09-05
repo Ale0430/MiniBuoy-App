@@ -40,6 +40,9 @@ shinyServer(function(input, output, session) {
     )), 1))
   })
   
+  output$prjName <- renderPrint({
+    cat("No project chosen")
+  })
   
   #' Reactive variable holding the name of plot titles
   #' (for saved plots)
@@ -99,7 +102,12 @@ shinyServer(function(input, output, session) {
   #' Show project path in Project Settings > Project
   #' if a project folder is selected
   output$prjDir <- renderPrint({
-    projectPath()
+    projectPath = projectPath()
+    if (identical(projectPath, character(0))){
+      cat("WARNING: No directory has been selected.")
+    } else {
+      cat(projectPath())
+    }
   })
   
   
@@ -112,10 +120,13 @@ shinyServer(function(input, output, session) {
   #' Sets project name = project folder name
   observeEvent(input$crtPrj, {
     # If no folder have been selected show error
-    if (!isTruthy(input$folder)) {
-      showNotification("No folder has been selected yet",
+    if (!isTruthy(input$folder) | is.null(projectName())) {
+      showNotification("WARNING: No project has been created. Please select a folder.",
                        type = "error")
-    } else{
+      output$prjName <- renderPrint({
+        cat("NONE")
+      })
+    } else {
       req(input$folder)
       csvPath = paste(projectPath(),
                       "/csv-files/", sep = "")
@@ -129,10 +140,10 @@ shinyServer(function(input, output, session) {
       }
       showNotification("A project has been created",
                        type = "message")
+      output$prjName <- renderPrint({
+        cat(projectName())
+      })
     }
-    output$prjName <- renderPrint({
-      projectName()
-    })
   })
   
   

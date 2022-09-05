@@ -18,19 +18,16 @@ settingsOutput = function(){
                    status = "warning", solidHeader = F, #height = 300,
                    collapsible = T, width = 12,
                    
-                   p("Select a folder to create or set a project"),
+                   p("Select a folder to create a project. The project folder will contain all the files that will be saved during the further use of the app."),
                    
                    shinyDirButton('folder', 
-                                  'Folder select', 
-                                  'Please select a folder', 
-                                  # multiple = FALSE,
-                                  style = buttonStyles("red"),
-                                  icon = icon("folder-open")),
-                   actButton("crtPrj", "Create/set project", "create"),
+                                  'Browse to select a project folder', 
+                                  'Please select a folder'),
+                   actButton("crtPrj", "Create project", "create"),
                    br(), br(),
-                   h4("Current project"),
+                   h4("Project folder"),
                    verbatimTextOutput("prjName"),
-                   h4("Current project directory"),
+                   h4("Working directory"),
                    verbatimTextOutput("prjDir")
                )
                             )),
