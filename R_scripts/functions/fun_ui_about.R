@@ -42,35 +42,35 @@ introOutput = function(){
 box.settings_sensors = function(){
   return(list(
     selectInput("sensorType", "Select sensor type to view attributes",
-                choices = c("Mini Buoy 1", "Mini Buoy 2", "Mini Buoy 3"),
-                selected = "Mini Buoy 1"),
+                choices = c("B4", "B4+", "Pendant"),
+                selected = "B4"),
     
     conditionalPanel(
-      condition = "input.sensorType == 'Mini Buoy 1'",
+      condition = "input.sensorType == 'B4'",
       
       
       
       br(),
       p(strong("Schematic representation of Mini Buoy 1 (aka: original) [add here a brief description of MB1 attributes]")),
-      img(src='whiteLab.jpeg', width = "80%")),
+      img(src='B4.png', width = "80%")),
     
     conditionalPanel(
-      condition = "input.sensorType == 'Mini Buoy 2'",
+      condition = "input.sensorType == 'B4+'",
       
       
       
       br(),
-      p(strong("Schematic representation of Mini Buoy 2 (aka: black) [add here a brief description of MB2 attributes]")),
-      img(src='MiniBuoy2.jpeg', width = "80%")),
+      p(strong("Schematic representation of Mini Buoy B4+ (aka: black) [add here a brief description of MB2 attributes]")),
+      img(src='B4+.png', width = "80%")),
     
     conditionalPanel(
-      condition = "input.sensorType == 'Mini Buoy 3'",
+      condition = "input.sensorType == 'Pendant'",
       
       
       
       br(),
-      p(strong("Schematic representation of Mini Buoy 3 (aka: Hobo) [add here a brief description of MB3 attributes]")),
-      img(src='Golden.jpeg', width = "80%")),
+      p(strong("Schematic representation of Pendant Buoy (aka: Hobo) [add here a brief description of MB3 attributes]")),
+      img(src='Pendant.png', width = "80%")),
     
     br(),br()
     
