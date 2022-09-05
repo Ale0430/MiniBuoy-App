@@ -97,7 +97,8 @@ hydrodynamics = function(DATA, DESIGN) {
       # Calculate wave orbital velocity (based on rolling SD values):
       WaveOrbitalVelocity =
         if (DESIGN == 'B4+') {
-          ifelse(Status == 'F', runsd(Median, 60 * 5) * 1.7058 - 0.0103, NA)
+          #ifelse(Status == 'F', runsd(Median, 60 * 5) * 1.7058 - 0.0103, NA)
+          ifelse(Status == 'F', rollapply(data = Median, width = 60 * 5, FUN = sd, align = "right") * 1.7058 - 0.0103, NA)
         } else { NA }) %>% 
     dplyr::select(-Prox2N)
   
