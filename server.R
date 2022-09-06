@@ -185,6 +185,37 @@ shinyServer(function(input, output, session) {
     return(dataR)
   })
   
+  #' Reactive variable holding the target file name
+  get.fileName = function(type, input){
+    if (type == "Target"){
+      if (bool.file.upload.target()){
+        return(strsplit(input$fileTarget$name, "[.]")[[1]][1])
+      } else if (input$raw_default_T){
+        return("Default")
+      } else {
+        return("None")
+      }
+    }
+    if (type == "Reference"){
+      if (bool.file.upload.reference()){
+        return(strsplit(input$fileReference$name, "[.]")[[1]][1])
+      } else if (input$raw_default_R){
+        return("Default")
+      } else {
+        return("None")
+      }
+    }
+  }
+
+  output$TargetName <- renderText({ 
+    get.fileName("Target", input)
+  })
+  
+  output$ReferenceName <- renderText({ 
+    get.fileName("Reference", input)
+  })
+
+  
 
   #' Create empty reactive value with a placeholder for the
   #' data sets belonging to Target and reference sites

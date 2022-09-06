@@ -53,6 +53,7 @@ box.dat_upl.upload.tar = function(){
     output.table("raw.target.sum"),
     actButton("setData.T", "Use data", "create")
    
+    span(textOutput("TargetName"), style="color:white")
   ))
 }
 
@@ -86,6 +87,7 @@ box.dat_upl.upload.ref = function(){
     output.table("raw.reference.sum"),
     actButton("setData.R", "Use data", "create")
     
+    span(textOutput("ReferenceName"), style="color:white")
   ))
 }
 

@@ -33,7 +33,7 @@ StringManager.prototype.updateElement = function(){
     if(this.TargetString) strings.push(this.TargetString);
     if(this.ReferenceString) strings.push(this.ReferenceString);
 
-    this.element.textContent = strings.join(this.separator);
+    this.element.innerHTML = strings.join(this.separator);
 };
 
 var setProjectButton = document.getElementById('crtPrj'),
@@ -50,30 +50,44 @@ var setProjectButton = document.getElementById('crtPrj'),
 	});
 
 projectContainer.style.cssText = 'float: right; height: 50px; line-height: 50px; margin-right: 30px;';
-projectContainer.innerHTML = 'Project: <span style="color:#b3dec1">No project chosen</span> | Target: <span style="color:#b3dec1">Default</span> | Reference: <span style="color:#b3dec1">Default</span>';
+projectContainer.innerHTML = 'Project: <span style="color:#ccffff">No project chosen</span> | Target: <span style="color:#ccffff">None</span> | Reference: <span style="color:#ccffff">None</span>';
 
 
 window.addEventListener('load',function(){
-	var targetNode = document.getElementById('prjName'),
-		config = { childList: true },
-		observer = new MutationObserver(function(mutationsList, observer) {
+	var prjNode = document.getElementById('prjName'),
+		prjObserver = new MutationObserver(function(mutationsList) {
 		    for(var mutation of mutationsList) {
 		        if (mutation.type == 'childList') {
-		            titles.setProject('Project: '+ targetNode.textContent)
+		            titles.setProject('Project: <span style="color:#ccffff">'+ prjNode.textContent + ' </span>')
+
 		        }
 		    }
 		});
 
-	observer.observe(targetNode, config);
+	prjObserver.observe(prjNode, { childList: true });
 
-	setNameButtonTarget.addEventListener('click', function(){
-		fileName = document.querySelector('[for="fileTarget"] + .input-group > input').value;
-      titles.setTarget('Target: '+ fileName)
-   })
-	setNameButtonReference.addEventListener('click', function(){
-		fileName = document.querySelector('[for="fileReference"] + .input-group > input').value;
-      titles.setReference('Reference: '+ fileName)
-   })
+  var targetNode = document.getElementById('TargetName'),
+		targetObserver = new MutationObserver(function(mutationsList) {
+		    for(var mutation of mutationsList) {
+		        if (mutation.type == 'childList') {
+		            titles.setTarget('Target: <span style="color:#ccffff">'+ targetNode.textContent + ' </span>')
+		        }
+		    }
+		});
+
+	targetObserver.observe(targetNode, { childList: true });
+
+  var referenceNode = document.getElementById('ReferenceName'),
+		referenceObserver = new MutationObserver(function(mutationsList) {
+		    for(var mutation of mutationsList) {
+		        if (mutation.type == 'childList') {
+		            titles.setReference('Reference: <span style="color:#ccffff">'+ referenceNode.textContent + ' </span>')
+		        }
+		    }
+		});
+
+	referenceObserver.observe(referenceNode, { childList: true });
+
 	
 	nav.appendChild(projectContainer);
 
