@@ -604,12 +604,17 @@ shinyServer(function(input, output, session) {
   })
   
   
-
   output$filterPlot <- renderPlot({
-    if (input$filterPlot_renderPlot == 0){
-      plot.emptyMessage("Customize your figure.")
+    if (!bool.file.upload.target() & !input$raw_default_T) {
+      plot.emptyMessage("No figure available. Please upload data.")
+      
     } else {
-      filterPlot()
+      if (input$filterPlot_renderPlot == 0) {
+        plot.emptyMessage("Customize your figure.")
+      } else {
+        filterPlot()
+      }
+      
     }
   })
   
