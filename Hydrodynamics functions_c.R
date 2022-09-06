@@ -1,5 +1,4 @@
 source("Hydrodynamics set-up.R")
-#source("set-up.R")
 
 
 #### Load Data ####
@@ -9,8 +8,8 @@ source("Hydrodynamics set-up.R")
 
 DESIGN = 'B4+' # Choose 'B4', 'B4+', or 'Pendant'
 
-TARGET    = './data/TestSet/B4+/Target.csv'
-REFERENCE = './data/TestSet/B4+/Reference.csv'
+TARGET    = './TestSet/B4+/Target.csv'
+REFERENCE = './TestSet/B4+/Reference.csv'
 
 # Read the data: @already ready to analyze data-set (this is after filtering start and end dates)
 Target = read_csv(TARGET, col_types = cols()) %>%
@@ -51,15 +50,35 @@ hydrodynamics = function(DATA, DESIGN) {
     } else { message('Error: Did you enter the wrong Mini Buoy type?') 
     }
   
-  CLASS = DATA %>%
+  CLASS1 = #DATA %>%
     # Aggregate the data by minutes:
-    summarise_by_time(
-      Date,
-      if (DESIGN == 'Pendant' ) { '10 minutes' }
-      else if (DESIGN == 'B4' | DESIGN == 'B4+') { 'minute' }
-      else message('Error: Did you enter the wrong Minio Buoy type?'),
-      Median = median(Acceleration),
-      Quant  = quantile(Acceleration, 0.75, names = F) - quantile(Acceleration, 0.25, names = F)) %>%
+    # summarise_by_time(
+    #   Date,
+    if (DESIGN == 'B4'| DESIGN == 'B4+') {
+      setNames(do.call(data.frame, aggregate(Acceleration ~ as.POSIXct(format(as.POSIXct(Date), "%Y-%m-%d %H:%M"), format = "%Y-%m-%d %H:%M"), 
+                                             data=DATA,FUN= function(x) c(Median = median(x), Quant= quantile(x, probs = 0.75) - quantile(x, probs =  0.25)))),
+               c("Date","Median","Quant"))
+      
+    }
+  else if  (DESIGN == 'Pendant') {
+    
+    MinTime<-min(DATA$Date)
+    MaxTime<-max(DATA$Date)
+    
+    minute(MinTime)<-floor(minute(MinTime)/10)*10
+    minute(MaxTime)<-ceiling(minute(MaxTime)/10)*10
+    second(MinTime)<-0
+    second(MaxTime)<-0
+    breakpoints <- seq.POSIXt(MinTime, MaxTime, by = 600)
+    
+    setNames(do.call(data.frame, aggregate(Acceleration ~ cut(Date, breaks = breakpoints), 
+                                           data=DATA,FUN= function(x) c(Median = median(x), Quant= quantile(x, probs = 0.75) - quantile(x, probs =  0.25)))),
+             c("Date","Median","Quant"))
+    
+  } else message("Error: No applicable method, did you selected the corret Mini Buoy type?")
+  
+  CLASS=
+    CLASS1 %>%
     mutate(
       # Calculate N and F cases:
       Status = predict(SVML.NF, newdata = tibble(Median, Quant)), 
@@ -68,13 +87,15 @@ hydrodynamics = function(DATA, DESIGN) {
       # count events consecutively
       Event  = replace(cumsum(!Event), !Event, NA),
       # Change event to factor level (i.e. 1, 2, 3...):
-      Event = as.integer(factor((Event)))) %>% 
+      Event = as.integer(factor((Event)))) %>%
+    
     group_by(Event) %>%
     # filter false events (less than 10 min):
     filter(length(Event) > 10) %>%
     mutate(
       # To classify P cases, create a 'Prox2N' parameter:
       Prox2N = ifelse(is.na(Event), 0, n() - abs(1:n() - n():1))) %>%
+    
     ungroup() %>%
     mutate(
       # Calculate N, P and F cases:
@@ -97,14 +118,14 @@ hydrodynamics = function(DATA, DESIGN) {
       # Calculate wave orbital velocity (based on rolling SD values):
       WaveOrbitalVelocity =
         if (DESIGN == 'B4+') {
-          #ifelse(Status == 'F', runsd(Median, 60 * 5) * 1.7058 - 0.0103, NA)
-          ifelse(Status == 'F', rollapply(data = Median, width = 60 * 5, FUN = sd, align = "right") * 1.7058 - 0.0103, NA)
+          ifelse(Status == 'F', runsd(Median, 60 * 5) * 1.7058 - 0.0103, NA)
         } else { NA }) %>% 
+    
     dplyr::select(-Prox2N)
   
   return(CLASS)
-  
 }
+
 
 
 
@@ -121,15 +142,12 @@ statistics = function(DATA) {
               `Average flooding duration (min/d)` = mean(MinInundated))
   
   # daily flood frequency:
-  s.days = DATA %>%
-    dplyr::select(Date, Event) %>%
-    na.omit() %>%
-    summarise_by_time(
-      Date,
-      'days',
-      `Flooding frequency (f/d)` = length(unique(Event, na.rm = T))) %>%
-    summarise(`Flooding frequency (f/d)` = mean(`Flooding frequency (f/d)`))
-  
+  s.days = setNames(do.call(data.frame, aggregate(Event ~ as.POSIXct(format(as.POSIXct(Date), "%Y-%m-%d %H:%M"), format = "%Y-%m-%d"), 
+                                                 data=DATA, FUN= function(x)  length(unique(x)))),
+                   c("Date","dailyEvents"))%>%
+    summarise(`Flooding frequency (f/d)` = round(mean(dailyEvents), 2))
+  #colnames(s.day)<-"`Flooding frequency (f/d)`"
+
   # survey days, total length of survey (min), current and wave orbital velocities (median and upper quantile values):
   s.all = DATA %>%
     summarise(`Monitoring period (d)`   = difftime(last(Date), first(Date), units = 'days')[[1]],
@@ -163,7 +181,7 @@ statistics = function(DATA) {
   
   # Merge:
   HYDRO = bind_cols(s.events, s.days, s.all, max.WoO, flood.ebb) %>%
-    mutate(`Time flooded during survey (%)` = SumMinInundated / SurveyMins * 100) %>%
+    mutate(`Time flooded during survey (%)` = SumMinInundated / SurveyMins * 100, `Flooding frequency (f/d)`) %>%
     dplyr::select(`Monitoring period (d)`, `Average flooding duration (min/d)`, `Time flooded during survey (%)`, `Flooding frequency (f/d)`, `Max. WoO duration (d)`, `Median Current Vel. (m/s)`, `75 percentile Vel (m/s)`, `Flood Ebb Median velocity (m/s)`, `Median wave orbital vel. (m/s)`, `75 percentile wave orbital vel. (m/s)`) %>%
     gather(Parameter, Value, `Monitoring period (d)`:`75 percentile wave orbital vel. (m/s)`) %>%
     na.omit()
@@ -194,8 +212,10 @@ Reference.stats = if (exists('REFERENCE')) { statistics(Reference.h) }
 
 # @% time flooded (min flooded/ minutes surveyed) - more informative mean % time flooded per day?
 
-#### Table comparing Target vs Reference Site #### 
-#@Ale: To be added in the "comparisons" section of the app
+
+
+
+
 # Statistics table:@ Comparison table, only produced when Reference site is uploaded, and located in the cmparisson section of App's menu
 Site_Comparison = if (exists('REFERENCE')) { Target.stats %>% 
     left_join(., Reference.stats, 'Parameter') %>%
@@ -203,5 +223,8 @@ Site_Comparison = if (exists('REFERENCE')) { Target.stats %>%
     mutate(Difference = Target - Reference) 
 } else { Target.stats }
 
-Site_Comparison
+Site_Comparison #using anyFunction for hydrodynammics-> a bit slow
+
+
+
 
