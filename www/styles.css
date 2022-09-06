@@ -1,9 +1,13 @@
+/*#TargetName, #ReferenceName{
+    display: none;
+}*/
 #shiny-notification-panel {
     position: fixed;
     top: 60px;
     left: 240px;
     width: auto;
     right: 10px;
+    bottom: auto;
 }
 .shiny-notification {
     font-size: 2rem;
