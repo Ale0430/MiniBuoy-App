@@ -73,7 +73,7 @@ menuItemOutput = function() {
     menuItem("About", tabName="about", icon = icon("th")),
     menuItem("Settings", tabName = "sett", icon = icon("gear")),
     menuItem("Data", tabName = "data", icon = icon("circle-notch"),
-             menuSubItem("Upload data", tabName = "dat_upl", icon= icon("upload")),
+             menuSubItem("Upload", tabName = "dat_upl", icon= icon("upload")),
              menuSubItem("Filters", tabName = "dat_filter", icon = icon("filter"))),
     menuItem("Hydrodynamics", tabName = "hyd_res", icon = icon("water"),
              menuSubItem("Target", tabName = "hyd_target", icon= icon("bullseye")),

@@ -7,14 +7,14 @@ dataUplOutput = function(){
   return(
     fluidRow(
       column(6,
-             box(title = "Upload TARGET file",
+             box(title = "Target",
                  collapsible = T, width = "100%",
                  status = "warning",
                  box.dat_upl.upload.tar()
              )
       ),
       column(6,
-             box(title = "Upload REFERENCE file",
+             box(title = "Reference",
                  collapsible = T, width = "100%",
                  status = "warning",
                  box.dat_upl.upload.ref()
@@ -23,70 +23,115 @@ dataUplOutput = function(){
     ))
 }
 
-box.dat_upl.upload.tar = function(){
+box.dat_upl.upload.tar = function() {
   return(list(
     # Input: Select a file ----
-    fileInput("fileTarget", "Choose Target site CSV file",
-              buttonLabel = HTML("<span 
-                class='btn btn-primary' 
-                style='margin: -8px -13px;
-                  position: relative;
-                  top: -2px;
-                  border-radius: 0;margin: -8px -13px;
-                   position: relative;
-                   top: -2px;
-                   border-radius: 0;'>
-                                   Browse...
-                                   </span>"),
-              multiple = F,
-              accept = c("text/csv",
-                         "text/comma-separated-values,text/plain",
-                         ".csv")),
-    fluidRow(
-     column(4, selectInput("inputType.T", "Input file type",
-                  c("Mini Buoy 1" = "MB1", 
-                    "Mini Buoy 2" = "MB2",
-                    "Mini Buoy 3" = "MB3")))
+    fluidRow(column(
+      4, selectInput(
+        "inputType_T",
+        "Select Mini Buoy design used",
+        c(
+          "Please select" = "empty",
+          "B4" = "MB1",
+          "B4+" = "MB2",
+          "Pendant" = "MB3"
+        )
+      )
+    ),
+    column(
+      6,
+      offset = 2,
+      checkboxInput("raw_default_T", "Use default data set", F)
+    )),
+    conditionalPanel(
+      condition = "input.inputType_T != `empty` & input.raw_default_T == false",
+      
+      fileInput(
+        "fileTarget",
+        "Choose the target site data (.csv file)",
+        buttonLabel = HTML(
+          "<span
+      class='btn btn-primary'
+      style='margin: -8px -13px;
+        position: relative;
+        top: -2px;
+        border-radius: 0;margin: -8px -13px;
+         position: relative;
+         top: -2px;
+         border-radius: 0;'>
+                         Browse...
+                         </span>"
+        ),
+        multiple = F,
+        accept = c(
+          "text/csv",
+          "text/comma-separated-values,text/plain",
+          ".csv"
+        )
+      )
     ),
     
-    h5(strong("Summary data set")),
+    br(),
+    h5(strong("Summary of the data")),
     output.table("raw.target.sum"),
-    actButton("setData.T", "Use data", "create")
-   
+    actButton("setData.T", "Use data", "create"),
     span(textOutput("TargetName"), style="color:white")
+    
   ))
 }
 
 box.dat_upl.upload.ref = function(){
   return(list(
     # Input: Select a file ----
-    fileInput("fileReference", "Choose Target site CSV file",
-              buttonLabel = HTML("<span 
-                class='btn btn-primary' 
-                style='margin: -8px -13px;
-                  position: relative;
-                  top: -2px;
-                  border-radius: 0;margin: -8px -13px;
-                   position: relative;
-                   top: -2px;
-                   border-radius: 0;'>
-                                   Browse...
-                                   </span>"),
-              multiple = F,
-              accept = c("text/csv",
-                         "text/comma-separated-values,text/plain",
-                         ".csv")),
-    fluidRow(
-      column(4, selectInput("inputType.R", "Input file type",
-                            c("Mini Buoy 1" = "MB1", 
-                              "Mini Buoy 2" = "MB2",
-                              "Mini Buoy 3" = "MB3")))
+    fluidRow(column(
+      4, selectInput(
+        "inputType_R",
+        "Select Mini Buoy design used",
+        c(
+          "Please select" = "empty",
+          "B4" = "MB1",
+          "B4+" = "MB2",
+          "Pendant" = "MB3"
+        )
+      )
     ),
-    
-    h5(strong("Summary data set")),
+    column(
+      6,
+      offset = 2,
+      checkboxInput("raw_default_R", "Use default data set", F)
+    )),
+    conditionalPanel(
+      condition = "input.inputType_R != `empty` & input.raw_default_R == false",
+      
+      fileInput(
+        "fileReference",
+        "(Optional) Choose the reference site data (.csv file)",
+        buttonLabel = HTML(
+          "<span
+      class='btn btn-primary'
+      style='margin: -8px -13px;
+        position: relative;
+        top: -2px;
+        border-radius: 0;margin: -8px -13px;
+         position: relative;
+         top: -2px;
+         border-radius: 0;'>
+                         Browse...
+                         </span>"
+        ),
+        multiple = F,
+        accept = c(
+          "text/csv",
+          "text/comma-separated-values,text/plain",
+          ".csv"
+        )
+      )
+    ),
+
+    br(),
+    h5(strong("Summary of the data")),
     output.table("raw.reference.sum"),
-    actButton("setData.R", "Use data", "create")
-    
+    actButton("setData.R", "Use data", "create"),
     span(textOutput("ReferenceName"), style="color:white")
   ))
 }

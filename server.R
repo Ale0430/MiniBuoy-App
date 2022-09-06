@@ -153,32 +153,44 @@ shinyServer(function(input, output, session) {
   
   #### UPLOAD ####
   ##### Variables #####
+
+  
+  #' Indicates if data were uploaded
+  bool.file.upload.target = reactive({
+    buoy_and_file = (input$inputType_T != "empty" & !is.null(input$fileTarget$datapath))
+    return(!input$raw_default_T & buoy_and_file)
+  })
+  
+  bool.file.upload.reference = reactive({
+    buoy_and_file = (input$inputType_R != "empty" & !is.null(input$fileReference$datapath))
+    return(!input$raw_default_R & buoy_and_file)
+  })
   
   #' Reactive variables holding raw data
   #' If no data set is defined, use default data set
-  
   rawData_T <- reactive({
-    if (is.null(input$fileTarget$datapath)) {
+    dataT = data.frame()
+    if (input$raw_default_T){
       defaultData_T = "./data/default_target.csv"
       print("Default TARGET data")
-      dataT = get.ACCy(defaultData_T,
-                       sep = ",",
-                       skip = 27)
-    } else {
+      dataT = get.ACCy(defaultData_T)
+    } 
+    if (bool.file.upload.target()){
       print("User TARGET data")
-      dataT = get.rawData_T(input)
+      dataT = get.rawData_T(input) 
     }
     return(dataT)
   })
   
+  
   rawData_R <- reactive({
-    if (is.null(input$fileReference)) {
+    dataR = data.frame()
+    if (input$raw_default_R){
       defaultData_R = "./data/default_reference.csv"
       print("Default REFERENCE data")
-      dataR = get.ACCy(defaultData_R,
-                       sep = ",",
-                       skip = 27)
-    } else {
+      dataR = get.ACCy(defaultData_R)
+    } 
+    if (bool.file.upload.reference()){
       print("User REFERENCE data")
       dataR = get.rawData_R(input)
     }
@@ -229,6 +241,10 @@ shinyServer(function(input, output, session) {
     if (is.null(values$Target)) {
       values$Target <- rawData_T()
     }
+    if (!input$raw_default_T & !bool.file.upload.target()){
+      print("No TARGET data")
+      values$Target = data.frame()
+    }
     return(values$Target)
   })
   
@@ -236,20 +252,79 @@ shinyServer(function(input, output, session) {
     if (is.null(values$Reference)) {
       values$Reference <- rawData_R()
     }
+    if (!input$raw_default_R & !bool.file.upload.reference()){
+      print("No REFERENCE data")
+      values$Reference = data.frame()
+    }
     return(values$Reference)
   })
   
+
   #' Trigger to update reactive data when 'Use data'
   #' button is pressed
   #' Updates data for the whole App
-  observeEvent(input$setData.R, { #@Marie: does not make sense with the previous functions
-    print("Set data REFERENCE")
-    Reference()
-  })
+  message.upload.fail = "Error: Could not read file. Is the file in the correct format? Please refer to the Mini Buoy Handbook how to download data in the correct format for this App."
+  message.upload.no.data = "Error: No data were uploaded. "
+  
   observeEvent(input$setData.T, {
     print("Set data TARGET")
-    Target()
+    if (identical(rawData_T(), data.frame())) {
+      if (bool.file.upload.target()) {
+        showNotification(
+          message.upload.fail,
+          type = "error",
+          duration = NULL,
+          closeButton = T
+        )
+      } else {
+        showNotification(
+          message.upload.no.data,
+          type = "error",
+          duration = NULL,
+          closeButton = T
+        )
+      }
+    } else {
+      showNotification(
+        "Upload of Target data successful.",
+        type = "message",
+        duration = 3,
+        closeButton = T
+      )
+    }
+    Target = Target()
+    
   })
+
+  observeEvent(input$setData.R, {
+    print("Set data REFERENCE")
+    if (identical(rawData_R(), data.frame())) {
+      if (bool.file.upload.reference()) {
+        showNotification(
+          message.upload.fail,
+          type = "error",
+          duration = NULL,
+          closeButton = T
+        )
+      } else {
+        showNotification(
+          message.upload.no.data,
+          type = "error",
+          duration = NULL,
+          closeButton = T
+        )
+      }
+    } else {
+      Reference = Reference()
+      showNotification(
+        "Upload of Reference data successful.",
+        type = "message",
+        duration = 3,
+        closeButton = T
+      )
+    }
+  })
+
   
   #### FILTER ####
   

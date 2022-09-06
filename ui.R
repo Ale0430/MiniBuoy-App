@@ -9,6 +9,7 @@ shinyUI(
     dashboardSidebar(
       br(), br(), br(),
       sidebarMenu(menuItemOutput()),
+                  # style = "position: fixed; overflow: visible;"),
       br(), br(), br(),
       br(), br(), br(), tags$hr(),
       tags$footer("Geographical and Earth Sciences", align = "center"),
