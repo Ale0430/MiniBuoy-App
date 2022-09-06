@@ -3,26 +3,20 @@
 #' @param UI-input: file, file-args, method, etc.
 #' @return data.frame
 get.rawData_T = function(input) {
-   return(get.rawData(inputType = input$inputType.T, 
-                      file = input$fileTarget$datapath, 
-                      sep = input$sep.T, 
-                      skip = input$skip.T))
+   return(get.rawData(inputType = input$inputType_T, 
+                      file = input$fileTarget$datapath))
 }
 
 get.rawData_R = function(input) {
-   return(get.rawData(inputType = input$inputType.R, 
-                      file = input$fileReference$datapath, 
-                      sep = input$sep.R, 
-                      skip = input$skip.R))
+   return(get.rawData(inputType = input$inputType_R, 
+                      file = input$fileReference$datapath))
 }
 
-get.rawData = function(inputType, file, sep, skip) { # @Marie: needs to be checked when we receive raw data
+get.rawData = function(inputType, file) { # @Marie: needs to be checked when we receive raw data
    an.error.occured = F
    if (inputType == "MB1") {
       tryCatch({
-         rawData  = get.ACCy(file = file,
-                             sep = sep,
-                             skip = skip)
+         rawData  = get.ACCy(file = file)
       },
       error = function(e) {
          an.error.occured <<- TRUE
@@ -31,9 +25,7 @@ get.rawData = function(inputType, file, sep, skip) { # @Marie: needs to be check
    if (inputType == "MB2" |
        inputType == "MB3") {
       tryCatch({
-         rawData  = get.ACCy(file = file,
-                             sep = sep,
-                             skip =  skip)
+         rawData  = get.ACCy(file = file)
       },
       error = function(e) {
          an.error.occured <<- TRUE
@@ -49,12 +41,12 @@ get.rawData = function(inputType, file, sep, skip) { # @Marie: needs to be check
 
 #' Reads raw data (datetime & Acceleration (ACCy)) .
 #' @param file: uploaded file
-#' @param sep: symbol to use as separator
-#' @param skip: number of rows to skip
 #' @return data.frame
-get.ACCy = function(file, sep, skip) {
+get.ACCy = function(file) {
    rawData <- suppressWarnings(fread(file, 
                                      skip = "*DATA"))
+   # Assign column names to the first 2 columns
+   # If more columns exist a error is thrown (managed in Server.R)
    colnames(rawData)[c(1,2)] <- c("datetime", "Acceleration")
    rawData$Acceleration = as.numeric(rawData$Acceleration)
    
@@ -67,8 +59,8 @@ get.ACCy = function(file, sep, skip) {
 unify.datetime = function(rawData){
    print("Transform datetime to date and time")
    rawData$datetime = fastPOSIXct(rawData$datetime, tz="GMT")
-   rawData$date = lubridate::as_date(rawData$datetime)
-   rawData$time = format(rawData$datetime, format = "%H:%M:%S") #@Marie @Ale: too slow?
+   # rawData$date = lubridate::as_date(rawData$datetime)
+   # rawData$time = format(rawData$datetime, format = "%H:%M:%S") #@Marie @Ale: too slow?
    return(rawData)
 }
 
@@ -104,7 +96,7 @@ get.time.overlap = function(data.t, data.r){
                              "days.",
                              sep = " "),
                        type = "message",
-                       duration = NULL, closeButton = T)
+                       duration = 10, closeButton = T)
       
    } else {
       showNotification("Warning: Time windows of TARGET and REFERENCE overlap",
@@ -113,15 +105,6 @@ get.time.overlap = function(data.t, data.r){
       sorted.times = c()
    }
    return(sorted.times)
-   
-   # data.t = data.t %>% 
-   #    filter(datetime >= sorted.times[2] & datetime <= sorted.times[3]) %>% 
-   #    distinct(min(datetime), max(datetime))
-   # 
-   # data.r = data.r %>% 
-   #    filter(datetime >= sorted.times[2] & datetime <= sorted.times[3]) %>% 
-   #    distinct(min(datetime), max(datetime))
-   # return(list("Target" = data.t, "Reference" = data.r))
 }
 
 
