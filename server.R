@@ -7,7 +7,7 @@ shinyServer(function(input, output, session) {
   ########################
   
   #### Variables ####
-  
+
   #' Shiny function that returns 'available volumes on the system'
   volumes = getVolumes()
   
@@ -430,18 +430,19 @@ shinyServer(function(input, output, session) {
   
   #### TABLE OUTPUTS ####
   
-  tab.with.file.upload.message = function(message){
+  tab.with.file.upload.message = function(message, color = "red",
+                                          backgroundColor = 'orange'){
     m = matrix(
       data = c(
         message
       )
     )
     return(
-      datatable(m) %>%
+      datatable(m, options = list(dom = 't'), colnames=NULL) %>%
         formatStyle(
           1,
-          color = 'red',
-          backgroundColor = 'orange',
+          color = color,
+          backgroundColor = backgroundColor,
           fontWeight = 'bold'
         )
     )
@@ -464,20 +465,32 @@ shinyServer(function(input, output, session) {
         showNotification(paste("Warning:", type, "data set too small to analyze properly (< 15 days)!", sep = " "),
                          type = "warning", duration = NULL, closeButton = T)
       }
+      
+      coln = paste(colnames(data), collapse = ", ")
       meanAcc = mean(data$Acceleration)
-      tab = data.frame(Variable = c("No. rows", "Column names",
-                                    "No. days",
+      mAmm = paste(as.character(round(meanAcc, 2)), " (",
+                   as.character(round(min(data$Acceleration), 2)), ", ",
+                   as.character(round(max(data$Acceleration), 2)), ")", 
+                   collapse = "")
+      mAqq = paste(as.character(round(median(data$Acceleration), 2)), " (",
+                   as.character(round(quantile(data$Acceleration, 0.25), 2)), ", ",
+                   as.character(round(quantile(data$Acceleration, 0.55), 2)), ")", 
+                   collapse = "")
+      
+      tab = data.frame(Variable = c("Column names",
+                                    "Survey length (days)",
                                     "First date", "Last date",
-                                    "Mean Acc. (Min, Max)"),
-                       Value = c(as.character(nrow(data)),
-                                 paste(colnames(data), collapse = ", "),
+                                    "Mean Acc. (Min, Max)",
+                                    "Median acceleration (1st and 3rd quantile)",
+                                    "Number of recordings"),
+                       Value = c(coln,
                                  as.character(no.days),
                                  as.character(min(data$datetime)),
                                  as.character(max(data$datetime)),
-                                 paste(as.character(round(meanAcc, 3)), " (",
-                                       as.character(min(data$Acceleration)), ", ",
-                                       as.character(max(data$Acceleration)), ")", 
-                                       collapse = "")))
+                                 mAmm,
+                                 mAqq,
+                                 as.character(nrow(data))))
+      colnames(tab) = c("", "")
       if (meanAcc > 0){
         showNotification(paste("Warning: Mean Acceleration in data set", type, 
                                "is > 0. You may installed the Mini-Buoy upside down.", sep = " "),
@@ -488,18 +501,26 @@ shinyServer(function(input, output, session) {
     
     return(tab)
   }
-  
+
   message.upload.failed = "An error occured. Please check your uploaded csv-file (e.g. needs to contain line starting with '*DATA')."
   output$raw.target.sum <- DT::renderDataTable(
     rownames = F,
     {
-      rawDataTable_T = rawData_T()
-      
-      if (is.numeric(rawDataTable_T$Acceleration)){
-        return(get.rawData.sum(rawDataTable_T, "TARGET"))
+      if (!input$raw_default_T & is.null(input$fileTarget$datapath)){
+        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
+                                            color = "blue", backgroundColor = "white"))
+        
       } else {
-        return(tab.with.file.upload.message(message.upload.failed))
+        rawDataTable_T = rawData_T()
+        if (is.numeric(rawDataTable_T$Acceleration)){
+          t = get.rawData.sum(rawDataTable_T, "TARGET")
+          return(t)
+        } else {
+          return(tab.with.file.upload.message(message.upload.failed))
+        }
       }
+
+
     },
     options = list(dom = 't'),
   )
@@ -507,11 +528,17 @@ shinyServer(function(input, output, session) {
   output$raw.reference.sum <- DT::renderDataTable(
     rownames = F,
     {
-      rawDataTable_R = rawData_R()
-      if (is.numeric(rawDataTable_R$Acceleration)){
-        return(get.rawData.sum(rawDataTable_R, "REFERENCE"))
+      if (!input$raw_default_R & is.null(input$fileReference$datapath)){
+        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
+                                            color = "blue", backgroundColor = "white"))
+        
       } else {
-        return(tab.with.file.upload.message(message.upload.failed))
+        rawDataTable_R = rawData_R()
+        if (is.numeric(rawDataTable_R$Acceleration)){
+          return(get.rawData.sum(rawDataTable_R, "REFERENCE"))
+        } else {
+          return(tab.with.file.upload.message(message.upload.failed))
+        }
       }
     },
     options = list(dom = 't'),
@@ -519,10 +546,15 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$setData.T | input$setData.R, {
     if(input$setData.T==0 || input$setData.R==0){
-      return()
+        return()
     }
-    get.time.overlap(data.t = Target(), 
-                     data.r = Reference())
+    Target = Target()
+    Reference = Reference()
+    if (nrow(Target) > 0 & nrow(Reference) > 0){
+      get.time.overlap(data.t = Target(), 
+                       data.r = Reference())
+    }
+
   })
   
 
