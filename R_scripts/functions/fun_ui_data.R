@@ -195,8 +195,9 @@ box.filter.figures = function(){
              conditionalPanel(
                condition = "input.filterPlot_type != `hist`",
                selectInput("filterPlot_window", "Aggregation window",
-                           choices = c("2 hours" = "2 hours",
-                                       "hours" = "hours",
+                           choices = c("hours" = "hours",
+                                       "30 minutes" = "30 minutes",
+                                       "20 minutes" = "20 minutes",
                                        "10 minutes" = "10 minutes",
                                        "minutes" = "minutes"))
 
