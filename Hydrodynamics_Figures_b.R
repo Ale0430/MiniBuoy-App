@@ -8,10 +8,10 @@ Bar.Cahrt.Inu.Duration.Tar = Hydrodynamics_df %>%
   filter(Type == 'Target') %>%
 #Target %>%
     summarise_by_time(
-      Date,
+      datetime,
       'day',
-      InundationMin  = sum(!is.na(Event)) * (.$Date[2] - .$Date[1])) %>%
-    ggplot(aes(Date, InundationMin)) +
+      InundationMin  = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) %>%
+    ggplot(aes(datetime, InundationMin)) +
     geom_bar(stat = 'identity', fill = 'lightblue', colour = 'lightblue') +
     scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
     labs(y = 'Daily inundation (min/day)') + 
@@ -23,10 +23,10 @@ Bar.Cahrt.Inu.Duration.Ref = if (exists('REFERENCE')) {
   filter(Type == 'Reference') %>%
   #Target %>%
   summarise_by_time(
-    Date,
+    datetime,
     'day',
-    InundationMin  = sum(!is.na(Event)) * (.$Date[2] - .$Date[1])) %>%
-  ggplot(aes(Date, InundationMin)) +
+    InundationMin  = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) %>%
+  ggplot(aes(datetime, InundationMin)) +
   geom_bar(stat = 'identity', fill = 'royalblue', colour = 'lightblue') +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
   labs(y = 'Daily inundation (min/day)') + 
@@ -38,10 +38,10 @@ Bar.Cahrt.Inu.Duration.T_and_R = if (exists('REFERENCE')) {
   Hydrodynamics_df %>%
     group_by(Type) %>%
     summarise_by_time(
-      Date,
+      datetime,
       'day',
-      InundationMin  = sum(!is.na(Event)) * (.$Date[2] - .$Date[1])) %>%
-    ggplot(aes(Date, InundationMin, fill = Type)) +
+      InundationMin  = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) %>%
+    ggplot(aes(datetime, InundationMin, fill = Type)) +
     geom_bar(stat = 'identity', position = 'dodge') +
     scale_fill_manual(values = c('lightblue', 'royalblue')) +
     scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
@@ -53,7 +53,7 @@ Bar.Cahrt.Inu.Duration.T_and_R = if (exists('REFERENCE')) {
 
 # Current velocity:
 Med.Curr.Vel.Tar = Target.h %>%
-  ggplot(aes(Date, CurrentVelocity)) +
+  ggplot(aes(datetime, CurrentVelocity)) +
   geom_point(size = 0.2) +
   geom_line(aes(y = rollmean(CurrentVelocity, 20, na.pad = T)), colour = 'blue') +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
@@ -61,7 +61,7 @@ Med.Curr.Vel.Tar = Target.h %>%
   theme(axis.title.x = element_blank())
 
 Med.Curr.Vel.Ref  = Reference.h %>%
-  ggplot(aes(Date, CurrentVelocity)) +
+  ggplot(aes(datetime, CurrentVelocity)) +
   geom_point(size = 0.2) +
   geom_line(aes(y = rollmean(CurrentVelocity, 20, na.pad = T)), colour = 'blue') +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
@@ -88,4 +88,37 @@ Wave.Orb.Vel.Ref = if (DESIGN == 'B4+') {
     labs(y = 'Median wave orbtial velocity (m/s)') + 
     theme(axis.title.x = element_blank())
 } else { message('This Mini Buoy design does not measure wave orbital velocity') }
+
+
+
+###################
+
+Hydrodynamics_df %>%
+  group_by(Type) %>%
+  summarise_by_time(
+    datetime,
+    'day',
+    InundationMin  = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) %>%
+  ggplot(aes(datetime, InundationMin, fill = Type)) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  scale_fill_manual(values = c('lightblue', 'royalblue')) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+  labs(y = 'Daily inundation (min/day)') + 
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank()) 
+
+
+
+Hydrodynamics_df %>%
+  group_by(Type) %>%
+  group_by(datetime =
+    ceiling_date(datetime), 'days')%>%
+    summarize(InundationMin  = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) %>%
+  ggplot(aes(datetime, InundationMin, fill = Type)) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  scale_fill_manual(values = c('lightblue', 'royalblue')) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+  labs(y = 'Daily inundation (min/day)') + 
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank()) 
 
