@@ -59,8 +59,7 @@ hydrodynamics = function(DATA, DESIGN) {
   
   CLASS1 = #DATA %>%
     # Aggregate the data by minutes:
-    # summarise_by_time(
-    #   Date,
+    
     if (DESIGN == 'B4'| DESIGN == 'B4+') {
       setNames(do.call(data.frame, aggregate(Acceleration ~ as.POSIXct(format(as.POSIXct(datetime), "%Y-%m-%d %H:%M"), format = "%Y-%m-%d %H:%M"), 
                                              data=DATA,FUN= function(x) c(Median = median(x), Quant= quantile(x, probs = 0.75) - quantile(x, probs =  0.25)))),
