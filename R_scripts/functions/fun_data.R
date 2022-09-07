@@ -184,37 +184,6 @@ get.rawData.sum = function(data, type){
    return(tab)
 }
 
-#' ########### CLEAN #############
-#'
-#' #' Remove outlier
-#' #' @description Function that removes outlier of a defined variable
-#' #' @param data: data.frame with long-format data
-#' #' @param data.vector: character indicating column name of selected variable
-#' #' @return data.frame
-remove.outlier <- #@Marie: delete? > ask cai and thorsten
-   function(data,
-            data.vector,
-            data.group,
-            group.value) {
-      data.sub = data
-      if (data.group != "none") {
-         data.sub = data %>%
-            filter(get(data.group) == group.value)
-      }
-      
-      d = data.sub %>%
-         select(data.vector) %>% unlist(.)
-      
-      Q <- quantile(d, probs = c(.25, .75), na.rm = T)
-      iqr <- IQR(d, na.rm = T) # = Q[2]-Q[1]
-      up <-  Q[2] + 1.5 * iqr # Upper Range
-      low <- Q[1] - 1.5 * iqr # Lower Range
-      
-      data.sub <- subset(data.sub, data.sub[, data.vector] > low &
-                            data.sub[, data.vector] < up)
-      return(data.sub)
-   }
-
 
 #' Filter
 #' 'replace_na(TRUE)' in filter function avoids removing NA-rows of the
