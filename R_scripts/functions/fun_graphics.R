@@ -129,49 +129,38 @@ data_summary <- function(x) {
 #' @param ui.input: UI-input
 #' @return ggplot-object
 plot.filteredRawData <- function(data, ui.input) {
-   # binwidth = ui.input$filterPlot_binwidth
    bins = ui.input$filterPlot_bins
    type = ui.input$filterPlot_type
-   rollingmean = ui.input$filterPlot_rollmean
-   steps = ui.input$filterPlot_rollmean_steps
+   aggwindow = ui.input$filterPlot_window
 
    if (type == "hist") {
       p = data %>%
          ggplot(aes(x = Acceleration)) +
-         # geom_histogram(binwidth = binwidth, col = "white") +
          geom_histogram(bins = bins, col = "black") +
          
          labs(x = "Acceleration (g)")
-   }
-   
-   if (type == "line") {
-      if (rollingmean){
-         p = data %>%
-            distinct(datetime, rollm = rollmean(Acceleration, steps, na.pad=TRUE)) %>% 
-            ggplot(aes(x = datetime, y = rollm)) +
-            geom_line()  + 
-            labs(x = "Date", 
-                 y = "Acceleration (g)") +
-            theme(axis.title.x=element_blank())
-      } else {
-         p = data %>%
-            ggplot(aes(x = datetime, y = Acceleration)) +
+   } else {
+      data.aggr = data %>% 
+         mutate(date = ceiling_date(datetime, unit = aggwindow)) %>%
+         group_by(date) %>% 
+         summarise(meanAcceleration = mean(Acceleration))
+
+      if (type == "line") {
+         p = data.aggr %>%
+            ggplot(aes(x = date, y = meanAcceleration)) +
             geom_line()  +
             labs(x = "Date",
                  y = "Acceleration (g)") +
+            theme(axis.title.x=element_blank())
+      }
+      if (type == "scatter") {
+         p = data.aggr %>%
+            ggplot(aes(x = date, y = meanAcceleration)) +
+            geom_point()  + # fast option to create scatter plots but very small dots: pch = '.', 
+            labs(x = "Date", y = "Acceleration (g)") +
             theme(axis.title.x = element_blank())
       }
    }
-   if (type == "scatter") {
-      p = data %>%
-         ggplot(aes(x = datetime, y = Acceleration)) +
-         geom_point(pch = '.')  +
-         labs(x = "Date", y = "Acceleration (g)") +
-         theme(axis.title.x = element_blank())
-   }
-   
-
-   
    return(p)
 }
 

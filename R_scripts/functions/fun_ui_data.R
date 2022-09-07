@@ -175,8 +175,7 @@ box.filter.figures = function(){
         "filterPlot_DataSet",
         "View data",
         choices = c("Target" = "TARGET",
-                    "Reference" = "REFERENCE")
-      )),
+                    "Reference" = "REFERENCE"))),
       column(4,
              radioButtons(
                "filterPlot_type",
@@ -187,25 +186,26 @@ box.filter.figures = function(){
                  "Line plot" = "line",
                  "Scatter plot" = "scatter"
                )), 
-             offset = 1
-    )), 
-    conditionalPanel(
-      condition = "input.filterPlot_type == `hist`",
-      fluidRow(
-        column(3, numericInput("filterPlot_bins", "No. Bins", value = 100))
-        ),
+             offset = 1),
+      column(4,
+             conditionalPanel(
+               condition = "input.filterPlot_type == `hist`",
+               numericInput("filterPlot_bins", "Number of bins for histogram", value = 100)
+             ),
+             conditionalPanel(
+               condition = "input.filterPlot_type != `hist`",
+               selectInput("filterPlot_window", "Aggregation window",
+                           choices = c("2 hours" = "2 hours",
+                                       "hours" = "hours",
+                                       "10 minutes" = "10 minutes",
+                                       "minutes" = "minutes"))
+
+             ))
     ),
-    conditionalPanel(
-      condition = "input.filterPlot_type == `line`",
-      fluidRow(
-        column(3, checkboxInput("filterPlot_rollmean", "Apply rolling average (only line plot)", T)),
-        column(3, numericInput("filterPlot_rollmean_steps", "Width rolling window", 10))
-      )
-    ), 
 
     fluidRow(
       column(2, actButton("filterPlot_renderPlot", "Render figure", "update")),
-      column(1, actButton("save_dat_filter", "Save filtered data", "saveCsv")),
+      column(2, actButton("save_dat_filter", "Save filtered data", "saveCsv")),
       column(1, actButton("save_dat_filter_fig", "Save figure", "saveFigure"))
     ),
     conditionalPanel(
