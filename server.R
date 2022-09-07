@@ -154,6 +154,22 @@ shinyServer(function(input, output, session) {
   #### UPLOAD ####
   ##### Variables #####
 
+  #' Variable indicating which Mini Buoy Design is selected
+  get.design.T <- reactive({
+    if (input$raw_default_T){
+      return("B4")
+    } else {
+      return(input$inputType_T)
+    }
+  })
+  
+  get.design.R <- reactive({
+    if (input$raw_default_R){
+      return("B4")
+    } else {
+      return(input$inputType_R)
+    }
+  })
   
   #' Indicates if data were uploaded
   bool.file.upload.target = reactive({
@@ -174,10 +190,11 @@ shinyServer(function(input, output, session) {
       defaultData_T = "./data/default_target.csv"
       print("Default TARGET data")
       dataT = get.ACCy(defaultData_T)
-    } 
-    if (bool.file.upload.target()){
-      print("User TARGET data")
-      dataT = get.rawData_T(input) 
+    } else {
+      if (bool.file.upload.target()){
+        print("User TARGET data")
+        dataT = get.rawData_T(input) 
+      }
     }
     return(dataT)
   })
@@ -189,10 +206,11 @@ shinyServer(function(input, output, session) {
       defaultData_R = "./data/default_reference.csv"
       print("Default REFERENCE data")
       dataR = get.ACCy(defaultData_R)
-    } 
-    if (bool.file.upload.reference()){
-      print("User REFERENCE data")
-      dataR = get.rawData_R(input)
+    } else {
+      if (bool.file.upload.reference()){
+        print("User REFERENCE data")
+        dataR = get.rawData_R(input)
+      }
     }
     return(dataR)
   })
@@ -232,7 +250,9 @@ shinyServer(function(input, output, session) {
   #' Create empty reactive value with a placeholder for the
   #' data sets belonging to Target and reference sites
   values <- reactiveValues(Target = NULL,
-                           Reference = NULL)
+                           TargetHydro = NULL,
+                           Reference = NULL,
+                           ReferenceHydro = NULL)
   
   
   #' Reactive variable holding data
@@ -336,17 +356,33 @@ shinyServer(function(input, output, session) {
   #' Buttons to load filter options
   #' Assigns unfiltered  target data as reactive
   #' value 'Target'
-  
-  #' Eventlistener to built Filter-UI
-  #' Calling helper function, same as delete filter
   observeEvent(input$LoadFilter.T, {
-    values$Target <- rawData_T()
-    filter_helper.T(input, output)
+    if (is.null(values$Target) | identical(values$Target, data.frame())) {
+      showNotification(
+        message.upload.no.data("TARGET"),
+        type = "error",
+        duration = NULL,
+        closeButton = T
+      )
+    } else {
+      values$Target <- rawData_T()
+      filter_helper.T(input, output)
+    }
+
   })
   
   observeEvent(input$LoadFilter.R, {
-    values$Reference <- rawData_R()
-    filter_helper.R(input, output)
+    if (is.null(values$Reference) | identical(values$Reference, data.frame())) {
+      showNotification(
+        message.upload.no.data("REFERENCE"),
+        type = "error",
+        duration = NULL,
+        closeButton = T
+      )
+    } else {
+      values$Reference <- rawData_R()
+      filter_helper.R(input, output)
+    }
   })
   
   #' Buttons to apply filter

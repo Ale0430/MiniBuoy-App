@@ -14,7 +14,7 @@ get.rawData_R = function(input) {
 
 get.rawData = function(inputType, file) { # @Marie: needs to be checked when we receive raw data
    an.error.occured = F
-   if (inputType == "MB1") {
+   if (inputType == "B4") {
       tryCatch({
          rawData  = get.ACCy(file = file)
       },
@@ -22,8 +22,8 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
          an.error.occured <<- TRUE
       })
    }
-   if (inputType == "MB2" |
-       inputType == "MB3") {
+   if (inputType == "B4+" |
+       inputType == "Pendant") {
       tryCatch({
          rawData  = get.ACCy(file = file)
       },

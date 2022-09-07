@@ -25,24 +25,21 @@ dataUplOutput = function(){
 
 box.dat_upl.upload.tar = function() {
   return(list(
-    # Input: Select a file ----
-    fluidRow(column(
-      4, selectInput(
-        "inputType_T",
-        "Select Mini Buoy design used",
-        c(
-          "Please select" = "empty",
-          "B4" = "MB1",
-          "B4+" = "MB2",
-          "Pendant" = "MB3"
-        )
-      )
-    ),
-    column(
-      6,
-      offset = 2,
-      checkboxInput("raw_default_T", "Use default data set", F)
-    )),
+    checkboxInput("raw_default_T", "Use default data set", F),
+    conditionalPanel(
+      condition = "input.raw_default_T == false",
+      br(),
+      # Input: Select a file ----
+      selectInput(
+          "inputType_T",
+          "Select Mini Buoy design used",
+          c(
+            "Please select" = "empty",
+            "B4" = "B4",
+            "B4+" = "B4+",
+            "Pendant" = "Pendant"
+          )
+      )),
     conditionalPanel(
       condition = "input.inputType_T != `empty` & input.raw_default_T == false",
       
@@ -82,24 +79,21 @@ box.dat_upl.upload.tar = function() {
 
 box.dat_upl.upload.ref = function(){
   return(list(
-    # Input: Select a file ----
-    fluidRow(column(
-      4, selectInput(
+    checkboxInput("raw_default_R", "Use default data set", F),
+    conditionalPanel(
+      condition = "input.raw_default_R == false",
+      br(),
+      # Input: Select a file ----
+      selectInput(
         "inputType_R",
         "Select Mini Buoy design used",
         c(
           "Please select" = "empty",
-          "B4" = "MB1",
-          "B4+" = "MB2",
-          "Pendant" = "MB3"
+          "B4" = "B4",
+          "B4+" = "B4+",
+          "Pendant" = "Pendant"
         )
-      )
-    ),
-    column(
-      6,
-      offset = 2,
-      checkboxInput("raw_default_R", "Use default data set", F)
-    )),
+      )),
     conditionalPanel(
       condition = "input.inputType_R != `empty` & input.raw_default_R == false",
       
