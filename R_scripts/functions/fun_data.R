@@ -184,8 +184,9 @@ get.rawData.sum = function(data, type){
    return(tab)
 }
 
+#' ########### FILTER #############
 
-#' Filter
+#' Filter by time
 #' 'replace_na(TRUE)' in filter function avoids removing NA-rows of the
 #' variable under consideration
 #' @description Function to filter uploaded data set
@@ -219,17 +220,21 @@ get.filteredData <- function(data, ui.input, filetype) {
 #' #' @param ui.output: UI-output
 #' #' @param filetype: "R" or "T"
 #' #' @return UI-output
-update.filter.ui = function(ui.output, ui.input, filetype) {
+update.filter.ui = function(ui.output, ui.input, filetype, minMaxDatetime) {
    fO = paste("filterOptions", filetype, sep = ".")
+   
+   time.start = as.character(format(minMaxDatetime[1], format = "%H:%M:%S"))
+   time.end = as.character(format(minMaxDatetime[2], format = "%H:%M:%S"))
+
    ui.output[[fO]] <- renderUI({
       #req(ui.input$LoadFilter)
       print("In load filters")
       tagList(
          checkboxInput(paste("removeNA", filetype, sep = ".")
-                       , "Remove NA-rows", T),
+                       , "Remove blank rows", T),
          
          # Date and time range
-         h5(strong("Time filters")),
+         h5(strong("Select the start and end dates/times of the survey")),
          
          fluidRow(# Date
             column(2, p(
@@ -243,14 +248,10 @@ update.filter.ui = function(ui.output, ui.input, filetype) {
          fluidRow(
             # Time of day
             column(2, p(strong('Time'))),
-            # column(5, numericInput(paste("timerangeStart", filetype, sep = ".")
-            #                        , "Start", value = 0)),
-            # column(5, numericInput(paste("timerangeEnd", filetype, sep = ".")
-            #                        , "End", value = 24)),
             column(5, textInput(paste("timerangeStart", filetype, sep = "."),
-                                "Start", value = "00:00:00", placeholder = "00:00:00")),
+                                "Start", value = time.start, placeholder = time.start)),
             column(5, textInput(paste("timerangeEnd", filetype, sep = "."),
-                                "End", value = "00:00:00", placeholder = "23:59:00"))
+                                "End", value = time.end, placeholder = time.end))
          ),
          
          

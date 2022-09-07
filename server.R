@@ -381,8 +381,8 @@ shinyServer(function(input, output, session) {
       req(input$setData.T)
     }
     d = Target()
-    minDate = min(d$date)
-    maxDate = max(d$date)
+    minDate = min(d$datetime)
+    maxDate = max(d$datetime)
     return(c(minDate, maxDate))
   })
   
@@ -401,10 +401,9 @@ shinyServer(function(input, output, session) {
     if (!is.null(input$fileTarget)) {
       req(input$setData.T)
     }
-    output = update.filter.ui(ui.output = output, ui.input = input,
-                              filetype = "T")
     minMaxDatetime = minMaxDatetime.T()
-    print(minMaxDatetime)
+    output = update.filter.ui(ui.output = output, ui.input = input,
+                              filetype = "T", minMaxDatetime = minMaxDatetime)
     updateDateRangeInput(
       session,
       "daterange.T",
@@ -418,9 +417,9 @@ shinyServer(function(input, output, session) {
     if (!is.null(input$fileReference)) {
       req(input$setData.R)
     }
-    output = update.filter.ui(ui.output = output, ui.input = input,
-                              filetype = "R")
     minMaxDatetime = minMaxDatetime.R()
+    output = update.filter.ui(ui.output = output, ui.input = input,
+                              filetype = "R", minMaxDatetime = minMaxDatetime)
     updateDateRangeInput(
       session,
       "daterange.R", #@Marie: bug - not updated when T loaded before
