@@ -70,9 +70,10 @@ hydrodynamics = function(DATA, DESIGN) {
       # Calculate N and F cases:
       Status = predict(SVML.NF, newdata = tibble(Median, Quant)), 
       # make status numerical
-      Event  = recode(Status, 'N' = 0, 'F' = 1),
+      #EventBin  = recode(Status, 'N' = 0, 'F' = 1),
+      EventBin  = recode(Status, 'N' = 0, 'F' = 1),
       # count events consecutively
-      Event  = replace(cumsum(!Event), !Event, NA),
+      Event  = replace(cumsum(!EventBin), !EventBin, NA),
       # Change event to factor level (i.e. 1, 2, 3...):
       Event = as.integer(factor((Event)))) %>%
     
@@ -88,8 +89,9 @@ hydrodynamics = function(DATA, DESIGN) {
       # Calculate N, P and F cases:
       Status = predict(SVML.NPF, newdata = tibble(Median, Quant, Prox2N)),
       # Recode events in case some mismatch with the new classification:
-      Event  = recode(Status, 'N' = 0, 'P' = 1, 'F' = 1),
-      Event  = replace(cumsum(!Event), !Event, NA),
+      #Event  = recode(Status, 'N' = 0, 'P' = 1, 'F' = 1),
+      EventBin  = recode(Status, 'N' = 0, 'P' = 1, 'F' = 1),
+      Event  = replace(cumsum(!EventBin), !EventBin, NA),
       Event = as.integer(factor((Event))),
       # Separate into flood and ebb tides:
       Tide = as.factor(ifelse(Status == 'N', NA, c(rep('Flood', round((n() / 2), 0)), rep('Ebb', n() - round((n() / 2), 0))))),
@@ -198,7 +200,7 @@ Target.h    = hydrodynamics(Target, DESIGN) %>%
 
 Reference.h = if (exists('REFERENCE')) { hydrodynamics(Reference, DESIGN) } %>%
   mutate(Type = 'Reference')
-print(Sys.time()-t)
+
 
 Hydrodynamics_df = if (exists('REFERENCE')) { bind_rows(Target.h, Reference.h) 
 } else { Target.h }

@@ -1,17 +1,17 @@
 
 
-source("Hydrodynamics functions.R")
+source("Hydrodynamics functions_c.R")
 
 # Daily inundation duration:
 #### Figure for Target page"
 Bar.Cahrt.Inu.Duration.Tar = Hydrodynamics_df %>%
   filter(Type == 'Target') %>%
 #Target %>%
-    summarise_by_time(
-      datetime,
-      'day',
-      InundationMin  = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) %>%
-    ggplot(aes(datetime, InundationMin)) +
+  mutate(date = ceiling_date(datetime, unit = 'days')) %>%
+  group_by(date) %>%
+  #group_by(date) %>% 
+  summarise(InundationMin = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1]))%>%
+    ggplot(aes(date, InundationMin)) +
     geom_bar(stat = 'identity', fill = 'lightblue', colour = 'lightblue') +
     scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
     labs(y = 'Daily inundation (min/day)') + 
@@ -22,11 +22,11 @@ Bar.Cahrt.Inu.Duration.Ref = if (exists('REFERENCE')) {
   Hydrodynamics_df %>%
   filter(Type == 'Reference') %>%
   #Target %>%
-  summarise_by_time(
-    datetime,
-    'day',
-    InundationMin  = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) %>%
-  ggplot(aes(datetime, InundationMin)) +
+    mutate(date = ceiling_date(datetime, unit = 'days')) %>%
+    group_by(date) %>%
+    #group_by(date) %>% 
+    summarise(InundationMin = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1]))%>%
+    ggplot(aes(date, InundationMin)) +
   geom_bar(stat = 'identity', fill = 'royalblue', colour = 'lightblue') +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
   labs(y = 'Daily inundation (min/day)') + 
@@ -35,13 +35,12 @@ Bar.Cahrt.Inu.Duration.Ref = if (exists('REFERENCE')) {
 
 #### Figure for comparison page ####
 Bar.Cahrt.Inu.Duration.T_and_R = if (exists('REFERENCE')) { 
-  Hydrodynamics_df %>%
-    group_by(Type) %>%
-    summarise_by_time(
-      datetime,
-      'day',
-      InundationMin  = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) %>%
-    ggplot(aes(datetime, InundationMin, fill = Type)) +
+  Hydrodynamics_df%>%
+    mutate(date = ceiling_date(datetime, unit = 'days')) %>%
+    group_by(Type, date) %>%
+    #group_by(date) %>% 
+    summarise(InundationMin = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1]))%>%
+    ggplot(aes(date, InundationMin, fill = Type)) +
     geom_bar(stat = 'identity', position = 'dodge') +
     scale_fill_manual(values = c('lightblue', 'royalblue')) +
     scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
@@ -50,6 +49,13 @@ Bar.Cahrt.Inu.Duration.T_and_R = if (exists('REFERENCE')) {
           legend.title = element_blank()) 
 } else { message('No reference site data supplied: only analysing the target site')}
 #This warning message can be yellow- not mistake, just warning
+
+
+
+
+
+
+
 
 # Current velocity:
 Med.Curr.Vel.Tar = Target.h %>%
@@ -92,33 +98,4 @@ Wave.Orb.Vel.Ref = if (DESIGN == 'B4+') {
 
 
 ###################
-
-Hydrodynamics_df %>%
-  group_by(Type) %>%
-  summarise_by_time(
-    datetime,
-    'day',
-    InundationMin  = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) %>%
-  ggplot(aes(datetime, InundationMin, fill = Type)) +
-  geom_bar(stat = 'identity', position = 'dodge') +
-  scale_fill_manual(values = c('lightblue', 'royalblue')) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
-  labs(y = 'Daily inundation (min/day)') + 
-  theme(axis.title.x = element_blank(),
-        legend.title = element_blank()) 
-
-
-
-Hydrodynamics_df %>%
-  group_by(Type) %>%
-  group_by(datetime =
-    ceiling_date(datetime), 'days')%>%
-    summarize(InundationMin  = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) %>%
-  ggplot(aes(datetime, InundationMin, fill = Type)) +
-  geom_bar(stat = 'identity', position = 'dodge') +
-  scale_fill_manual(values = c('lightblue', 'royalblue')) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
-  labs(y = 'Daily inundation (min/day)') + 
-  theme(axis.title.x = element_blank(),
-        legend.title = element_blank()) 
 
