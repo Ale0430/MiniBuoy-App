@@ -11,7 +11,7 @@ source("Hydrodynamics set-up.R")
 # User input 
 #@Ale A functioning variation of this is already Already implemented on shinyR - still need warning message "No Reference data has been uploaded"
 
-DESIGN = 'B4+' # Choose 'B4', 'B4+', or 'Pendant'
+DESIGN = 'B4' # Choose 'B4', 'B4+', or 'Pendant'
 
 TARGET    = './data/TestSet/B4+/Target.csv'
 REFERENCE = './data/TestSet/B4+/Reference.csv'

@@ -50,13 +50,6 @@ Bar.Cahrt.Inu.Duration.T_and_R = if (exists('REFERENCE')) {
 } else { message('No reference site data supplied: only analysing the target site')}
 #This warning message can be yellow- not mistake, just warning
 
-
-
-
-
-
-
-
 # Current velocity:
 Med.Curr.Vel.Tar = Target.h %>%
   ggplot(aes(datetime, CurrentVelocity)) +
@@ -97,5 +90,5 @@ Wave.Orb.Vel.Ref = if (DESIGN == 'B4+') {
 
 
 
-###################
+
 
