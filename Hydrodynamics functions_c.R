@@ -5,7 +5,7 @@ source("Hydrodynamics set-up.R")
 #Lubridate as_date() is faster than POSIXct->
 
 #ceiling_date in the "hydrodynamics function" and then try as_date()  (both form lubridate) on stats function
-head(lubridate::as_date(Target$Date))
+#head(lubridate::as_date(Target$datetime))
 #### Load Data ####
 
 # User input 
@@ -57,34 +57,15 @@ hydrodynamics = function(DATA, DESIGN) {
     } else { message('Error: Did you enter the wrong Mini Buoy type?') 
     }
   
-  CLASS1 = #DATA %>%
+
+  data.classified = DATA %>%
     # Aggregate the data by minutes:
-    
-    if (DESIGN == 'B4'| DESIGN == 'B4+') {
-      setNames(do.call(data.frame, aggregate(Acceleration ~ as.POSIXct(format(as.POSIXct(datetime), "%Y-%m-%d %H:%M"), format = "%Y-%m-%d %H:%M"), 
-                                             data=DATA,FUN= function(x) c(Median = median(x), Quant= quantile(x, probs = 0.75) - quantile(x, probs =  0.25)))),
-               c("datetime","Median","Quant"))
-      
-    }
-  else if  (DESIGN == 'Pendant') {
-    
-    MinTime<-min(DATA$datetime)
-    MaxTime<-max(DATA$datetime)
-    
-    minute(MinTime)<-floor(minute(MinTime)/10)*10
-    minute(MaxTime)<-ceiling(minute(MaxTime)/10)*10
-    second(MinTime)<-0
-    second(MaxTime)<-0
-    breakpoints <- seq.POSIXt(MinTime, MaxTime, by = 600)
-    
-    setNames(do.call(data.frame, aggregate(Acceleration ~ cut(datetime, breaks = breakpoints), 
-                                           data=DATA,FUN= function(x) c(Median = median(x), Quant= quantile(x, probs = 0.75) - quantile(x, probs =  0.25)))),
-             c("datetime","Median","Quant"))
-    
-  } else message("Error: No applicable method, did you selected the corret Mini Buoy type?")
-  
-  CLASS=#@Ale: change CLASS to data.classified 
-    CLASS1 %>%
+    group_by(datetime =
+               if (DESIGN == 'Pendant') {ceiling_date(datetime, unit = "10 minutes")}
+             else if (DESIGN == 'B4' | DESIGN == 'B4+') {ceiling_date(datetime, unit = "minute")}
+             else message('Error: No applicable method, did you select the right mini buoy type?')) %>%
+    summarise(Median = median(Acceleration),
+              Quant  = quantile(Acceleration, 0.75, names = F) - quantile(Acceleration, 0.25, names = F))%>%
     mutate(
       # Calculate N and F cases:
       Status = predict(SVML.NF, newdata = tibble(Median, Quant)), 
@@ -129,7 +110,7 @@ hydrodynamics = function(DATA, DESIGN) {
     
     dplyr::select(-Prox2N)
   
-  return(CLASS)
+  return(data.classified)
 }
 
 
@@ -147,13 +128,26 @@ statistics = function(DATA) {
     summarise(SumMinInundated  = sum(MinInundated),
               `Average flooding duration (min/d)` = mean(MinInundated))
   
-  # daily flood frequency:
-  s.days = setNames(do.call(data.frame, aggregate(Event ~ as.POSIXct(format(as.POSIXct(datetime), "%Y-%m-%d %H:%M"), format = "%Y-%m-%d"), 
-                                                 data=DATA, FUN= function(x)  length(unique(x)))),
-                   c("Date","dailyEvents"))%>%
-    summarise(`Flooding frequency (f/d)` = round(mean(dailyEvents), 2))
-  #colnames(s.day)<-"`Flooding frequency (f/d)`"
+  
+  
+  # # daily flood frequency:
+  # s.days = setNames(do.call(data.frame, aggregate(Event ~ as.POSIXct(format(as.POSIXct(datetime), "%Y-%m-%d %H:%M"), format = "%Y-%m-%d"),
+  #                                                data=DATA, FUN= function(x)  length(unique(x)))),
+  #                  c("Date","dailyEvents"))%>%
+  #   summarise(`Flooding frequency (f/d)` = round(mean(dailyEvents), 2))
 
+  
+  # # daily flood frequency:
+  s.days = DATA %>%
+    dplyr::select(datetime, Event) %>%
+    na.omit() %>%
+    group_by(datetime = as_date(datetime))%>%
+    # Date,
+    # 'days',
+    #    Frequency = length(unique(Event, na.rm = T))) %>%
+    summarise(Frequency = mean(length(unique(Event))))%>%
+    summarise(`Flooding frequency (f/d)` = mean(Frequency))
+  
   # survey days, total length of survey (min), current and wave orbital velocities (median and upper quantile values):
   s.all = DATA %>%
     summarise(`Monitoring period (d)`   = difftime(last(datetime), first(datetime), units = 'days')[[1]],
@@ -235,7 +229,7 @@ Site_Comparison = if (exists('REFERENCE')) { Target.stats %>%
     mutate(Difference = Target - Reference) 
 } else { Target.stats }
 
-Site_Comparison #using anyFunction for hydrodynammics-> a bit slow
+Site_Comparison 
 
 
 
