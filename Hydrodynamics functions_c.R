@@ -186,13 +186,16 @@ statistics = function(DATA) {
 
 
 # Calculate hydrodynamics and store in data frame @Ale: This does not need user inputs
-t = Sys.time()
+
+#### TABLES ####
+
+## not published but used for ploting
+
 Target.h    = hydrodynamics(Target, DESIGN) %>%
   mutate(Type = 'Target')
-print(Sys.time()-t)
 
 
-t = Sys.time()
+
 Reference.h = if (exists('REFERENCE')) { hydrodynamics(Reference, DESIGN) } %>%
   mutate(Type = 'Reference')
 print(Sys.time()-t)
@@ -207,12 +210,6 @@ Hydrodynamics_df = if (exists('REFERENCE')) { bind_rows(Target.h, Reference.h)
 #### DATA FRAMES TO RENDER TABLES ####
 Target.stats    = statistics(Target.h) 
 Reference.stats = if (exists('REFERENCE')) { statistics(Reference.h) }
-
-# @% time flooded (min flooded/ minutes surveyed) - more informative mean % time flooded per day?
-
-
-
-
 
 # Statistics table:@ Comparison table, only produced when Reference site is uploaded, and located in the cmparisson section of App's menu
 Site_Comparison = if (exists('REFERENCE')) { Target.stats %>% 
