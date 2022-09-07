@@ -144,13 +144,13 @@ box.dat_upl.upload.ref = function(){
 dataFilterOutput = function(){
   return(list(
     fluidRow(
-      column(6, box(title = "Deployment time TARGET",
+      column(6, box(title = "Target",
                     collapsible = T,  width = "100%",
                     status = "warning",
                     actButton("LoadFilter.T", "Load filter options", "update"),
                     uiOutput("filterOptions.T")
       )),
-      column(6, box(title = "Deployment time REFERENCE",
+      column(6, box(title = "Reference",
                     collapsible = T,  width = "100%",
                     status = "warning",
                     actButton("LoadFilter.R", "Load filter options", "update"),
@@ -158,7 +158,7 @@ dataFilterOutput = function(){
       ))
     ),
     fluidRow(
-      column(12, box(title = "Raw data figures",
+      column(12, box(title = "Check the raw acceleration data",
                      collapsible = T, width = "100%",
                      status = "success",
                      box.filter.figures(),
@@ -175,9 +175,9 @@ box.filter.figures = function(){
     fluidRow(
       column(3, selectInput(
         "filterPlot_DataSet",
-        "View data set",
-        choices = c("Target" = "Target",
-                    "Reference" = "Reference")
+        "View data",
+        choices = c("Target" = "TARGET",
+                    "Reference" = "REFERENCE")
       )),
       column(4,
              radioButtons(
