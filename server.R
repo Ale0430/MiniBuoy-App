@@ -448,59 +448,7 @@ shinyServer(function(input, output, session) {
     )
   }
   
-  get.rawData.sum = function(data, type){
-    no.days = round(max(data$datetime) - min(data$datetime), 2)
-    if (no.days < 2){
-      showNotification(paste("Error:", type, "data set too small to analyze (< 2 days)!", sep = " "),
-                       type = "error", duration = NULL, closeButton = T)
-      tab = tab.with.file.upload.message("Error: Data set too small to analyze (< 2 days)!")
-    } else {
-      if (ncol(data) > 4){
-        showNotification(paste("Warning:", type, 
-                               "data set contains > 2 columns. Only columns 1 (datetime) and 2 (Acceleration) are used for further processing.",
-                               sep = " "),
-                         type = "warning", duration = NULL, closeButton = T)
-      }
-      if (no.days < 15){
-        showNotification(paste("Warning:", type, "data set too small to analyze properly (< 15 days)!", sep = " "),
-                         type = "warning", duration = NULL, closeButton = T)
-      }
-      
-      coln = paste(colnames(data), collapse = ", ")
-      meanAcc = mean(data$Acceleration)
-      mAmm = paste(as.character(round(meanAcc, 2)), " (",
-                   as.character(round(min(data$Acceleration), 2)), ", ",
-                   as.character(round(max(data$Acceleration), 2)), ")", 
-                   collapse = "")
-      mAqq = paste(as.character(round(median(data$Acceleration), 2)), " (",
-                   as.character(round(quantile(data$Acceleration, 0.25), 2)), ", ",
-                   as.character(round(quantile(data$Acceleration, 0.55), 2)), ")", 
-                   collapse = "")
-      
-      tab = data.frame(Variable = c("Column names",
-                                    "Survey length (days)",
-                                    "First date", "Last date",
-                                    "Mean Acc. (Min, Max)",
-                                    "Median acceleration (1st and 3rd quantile)",
-                                    "Number of recordings"),
-                       Value = c(coln,
-                                 as.character(no.days),
-                                 as.character(min(data$datetime)),
-                                 as.character(max(data$datetime)),
-                                 mAmm,
-                                 mAqq,
-                                 as.character(nrow(data))))
-      colnames(tab) = c("", "")
-      if (meanAcc > 0){
-        showNotification(paste("Warning: Mean Acceleration in data set", type, 
-                               "is > 0. You may installed the Mini-Buoy upside down.", sep = " "),
-                         type = "warning",
-                         duration = NULL, closeButton = T)
-      }
-    }
-    
-    return(tab)
-  }
+  
 
   message.upload.failed = "An error occured. Please check your uploaded csv-file (e.g. needs to contain line starting with '*DATA')."
   output$raw.target.sum <- DT::renderDataTable(
