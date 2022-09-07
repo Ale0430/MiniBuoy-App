@@ -179,7 +179,7 @@ box.filter.figures = function(){
       column(4,
              radioButtons(
                "filterPlot_type",
-               "Diagram type",
+               HTML("<abbr title='Line and scatter plot use acceleration averaged over a selected time window.'>Diagram type</abbr>"),
                inline = T,
                choices = c(
                  "Histogram" = "hist",
