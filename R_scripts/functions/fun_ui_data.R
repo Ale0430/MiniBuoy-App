@@ -161,9 +161,7 @@ dataFilterOutput = function(){
       column(12, box(title = "Check the raw acceleration data",
                      collapsible = T, width = "100%",
                      status = "success",
-                     box.filter.figures(),
-                     actButton("save_dat_filter", "Save csv", "saveCsv"),
-                     actButton("save_dat_filter_fig", "Save figure", "saveFigure")))
+                     box.filter.figures()))
     ))
   )
 }
@@ -205,9 +203,15 @@ box.filter.figures = function(){
       )
     ), 
 
-    actButton("filterPlot_renderPlot", "Render figure", "update"),
-    
-    output.figure("filterPlot")
+    fluidRow(
+      column(2, actButton("filterPlot_renderPlot", "Render figure", "update")),
+      column(1, actButton("save_dat_filter", "Save filtered data", "saveCsv")),
+      column(1, actButton("save_dat_filter_fig", "Save figure", "saveFigure"))
+    ),
+    conditionalPanel(
+      condition = "input.filterPlot_renderPlot != 0",
+      output.figure("filterPlot")
+    )
   ))
 }
 
