@@ -167,60 +167,6 @@ get.rawData.sum = function(data, type){
    return(tab)
 }
 
-#' ########### CLEAN #############
-#'
-#' #' Remove outlier
-#' #' @description Function that removes outlier of a defined variable
-#' #' @param data: data.frame with long-format data
-#' #' @param data.vector: character indicating column name of selected variable
-#' #' @return data.frame
-remove.outlier <- #@Marie: delete? > ask cai and thorsten
-   function(data,
-            data.vector,
-            data.group,
-            group.value) {
-      data.sub = data
-      if (data.group != "none") {
-         data.sub = data %>%
-            filter(get(data.group) == group.value)
->>>>>>> move data summary function to fun_data + add comments
-      }
-      
-      coln = paste(colnames(data), collapse = ", ")
-      meanAcc = mean(data$Acceleration)
-      mAmm = paste(as.character(round(meanAcc, 2)), " (",
-                   as.character(round(min(data$Acceleration), 2)), ", ",
-                   as.character(round(max(data$Acceleration), 2)), ")", 
-                   collapse = "")
-      mAqq = paste(as.character(round(median(data$Acceleration), 2)), " (",
-                   as.character(round(quantile(data$Acceleration, 0.25), 2)), ", ",
-                   as.character(round(quantile(data$Acceleration, 0.55), 2)), ")", 
-                   collapse = "")
-      
-      tab = data.frame(Variable = c("Column names",
-                                    "Survey length (days)",
-                                    "First date", "Last date",
-                                    "Mean Acc. (Min, Max)",
-                                    "Median acceleration (1st and 3rd quantile)",
-                                    "Number of recordings"),
-                       Value = c(coln,
-                                 as.character(no.days),
-                                 as.character(min(data$datetime)),
-                                 as.character(max(data$datetime)),
-                                 mAmm,
-                                 mAqq,
-                                 as.character(nrow(data))))
-      colnames(tab) = c("", "")
-      if (meanAcc > 0){
-         showNotification(paste("Warning: Mean Acceleration in data set", type, 
-                                "is > 0. You may installed the Mini-Buoy upside down.", sep = " "),
-                          type = "warning",
-                          duration = NULL, closeButton = T)
-      }
-   }
-   
-   return(tab)
-}
 
 #' ########### FILTER #############
 
