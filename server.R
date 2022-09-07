@@ -238,22 +238,24 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding data
   #' Assigned to reactive value if empty
   Target <- reactive({
-    if (is.null(values$Target)) {
+    if (is.null(values$Target) | identical(values$Target, data.frame())) {
+      print("Assign raw data to TARGET data")
       values$Target <- rawData_T()
     }
     if (!input$raw_default_T & !bool.file.upload.target()){
-      print("No TARGET data")
+      print("Delete TARGET data")
       values$Target = data.frame()
     }
     return(values$Target)
   })
   
   Reference <- reactive({
-    if (is.null(values$Reference)) {
+    if (is.null(values$Reference | identical(values$Reference, data.frame()))) {
+      print("Assign raw data to REFERENCE data")
       values$Reference <- rawData_R()
     }
     if (!input$raw_default_R & !bool.file.upload.reference()){
-      print("No REFERENCE data")
+      print("Delete REFERENCE data")
       values$Reference = data.frame()
     }
     return(values$Reference)
@@ -264,7 +266,9 @@ shinyServer(function(input, output, session) {
   #' button is pressed
   #' Updates data for the whole App
   message.upload.fail = "Error: Could not read file. Is the file in the correct format? Please refer to the Mini Buoy Handbook how to download data in the correct format for this App."
-  message.upload.no.data = "Error: No data were uploaded. "
+  message.upload.no.data = function(type){
+    return(paste("Error: No ", type, " data were uploaded.", sep = ""))
+  }
   
   observeEvent(input$setData.T, {
     print("Set data TARGET")
@@ -278,7 +282,7 @@ shinyServer(function(input, output, session) {
         )
       } else {
         showNotification(
-          message.upload.no.data,
+          message.upload.no.data("TARGET"),
           type = "error",
           duration = NULL,
           closeButton = T
@@ -308,7 +312,7 @@ shinyServer(function(input, output, session) {
         )
       } else {
         showNotification(
-          message.upload.no.data,
+          message.upload.no.data("REFERENCE"),
           type = "error",
           duration = NULL,
           closeButton = T
@@ -416,8 +420,6 @@ shinyServer(function(input, output, session) {
     output = update.filter.ui(ui.output = output, ui.input = input,
                               filetype = "R")
     minMaxDatetime = minMaxDatetime.R()
-    print(minMaxDatetime)
-    print("Update daterange in R")
     updateDateRangeInput(
       session,
       "daterange.R", #@Marie: bug - not updated when T loaded before
@@ -534,36 +536,47 @@ shinyServer(function(input, output, session) {
   #### Graphics ####
   
   #' Reactive variable holding the
-  #' plot with (filtered) data
+  #' data set with (filtered) data
+  #' Show notification if no data were uploaded
   DataSetInput <- reactive({
-    if (input$filterPlot_DataSet == "Target") {
+    if (input$filterPlot_DataSet == "TARGET") {
       dataset <- data.frame(Target())
     }
-    else if (input$filterPlot_DataSet == "Reference") {
+    if (input$filterPlot_DataSet == "REFERENCE") {
       dataset <- data.frame(Reference())
     }
+    if (identical(dataset, data.frame())) {
+      showNotification(
+        message.upload.no.data(input$filterPlot_DataSet),
+        type = "error",
+        duration = NULL,
+        closeButton = T
+      )
+    }
+    
     return(dataset)
   })
   
-  
+  #' Reactive variable holding the
+  #' plot shown in data > filter
   filterPlot <- eventReactive(input$filterPlot_renderPlot, {
-    plot.filteredRawData(data = DataSetInput(),
-                         ui.input = input)
-  })
-  
-  
-  output$filterPlot <- renderPlot({
-    if (!bool.file.upload.target() & !input$raw_default_T) {
+    req(input$filterPlot_renderPlot)
+    data = DataSetInput()
+    if (identical(data, data.frame())) {
       plot.emptyMessage("No figure available. Please upload data.")
-      
     } else {
       if (input$filterPlot_renderPlot == 0) {
         plot.emptyMessage("Customize your figure.")
       } else {
-        filterPlot()
+        plot.filteredRawData(data = data,
+                             ui.input = input)
       }
-      
     }
+  })
+
+  #' Render plot shown in data > filter
+  output$filterPlot <- renderPlot({
+    filterPlot()
   })
   
   
@@ -571,8 +584,8 @@ shinyServer(function(input, output, session) {
   
   #### Buttons ####
 
-  #' Eventlistener to save filtered, long-format data
-  #' (Data > Filter > Figures)
+  #' Eventlistener to save filtered data
+  #' (Data > Filter)
   observeEvent(input$save_dat_filter, {
     save.csv(
       path = projectPath(),
@@ -587,7 +600,7 @@ shinyServer(function(input, output, session) {
   })
   
   #' Eventlistener to save plot with filtered data
-  #' (Data > Filter > Figures)
+  #' (Data > Filter)
   observeEvent(input$save_dat_filter_fig, {
     name = paste(
       "g_filtered",
