@@ -250,7 +250,7 @@ shinyServer(function(input, output, session) {
   })
   
   Reference <- reactive({
-    if (is.null(values$Reference | identical(values$Reference, data.frame()))) {
+    if (is.null(values$Reference) | identical(values$Reference, data.frame())) {
       print("Assign raw data to REFERENCE data")
       values$Reference <- rawData_R()
     }
@@ -319,7 +319,6 @@ shinyServer(function(input, output, session) {
         )
       }
     } else {
-      Reference = Reference()
       showNotification(
         "Upload of Reference data successful.",
         type = "message",
@@ -327,6 +326,8 @@ shinyServer(function(input, output, session) {
         closeButton = T
       )
     }
+    Reference = Reference()
+    
   })
 
   
