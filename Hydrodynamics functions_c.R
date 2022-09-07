@@ -1,6 +1,11 @@
 source("Hydrodynamics set-up.R")
 
+#### NOTES:
 
+#Lubridate as_date() is faster than POSIXct->
+
+#ceiling_date in the "hydrodynamics function" and then try as_date()  (both form lubridate) on stats function
+head(lubridate::as_date(Target$Date))
 #### Load Data ####
 
 # User input 
@@ -8,18 +13,20 @@ source("Hydrodynamics set-up.R")
 
 DESIGN = 'B4+' # Choose 'B4', 'B4+', or 'Pendant'
 
-TARGET    = './TestSet/B4+/Target.csv'
-REFERENCE = './TestSet/B4+/Reference.csv'
+TARGET    = './data/TestSet/B4+/Target.csv'
+REFERENCE = './data/TestSet/B4+/Reference.csv'
 
 # Read the data: @already ready to analyze data-set (this is after filtering start and end dates)
 Target = read_csv(TARGET, col_types = cols()) %>%
   mutate_if(is.character, as.factor) %>%
-  dplyr::select(Date, Acceleration)
+  dplyr::select(Date, Acceleration)%>%
+  rename(datetime = Date)
 
 Reference = if (exists('REFERENCE')) { 
   read_csv(REFERENCE, col_types = cols()) %>%
     mutate_if(is.character, as.factor) %>%
-    dplyr::select(Date, Acceleration) } else { 
+    dplyr::select(Date, Acceleration) %>%
+    rename(datetime = Date)} else { 
       message('No reference site data supplied: only analysing the target site') }
 
 
@@ -55,15 +62,15 @@ hydrodynamics = function(DATA, DESIGN) {
     # summarise_by_time(
     #   Date,
     if (DESIGN == 'B4'| DESIGN == 'B4+') {
-      setNames(do.call(data.frame, aggregate(Acceleration ~ as.POSIXct(format(as.POSIXct(Date), "%Y-%m-%d %H:%M"), format = "%Y-%m-%d %H:%M"), 
+      setNames(do.call(data.frame, aggregate(Acceleration ~ as.POSIXct(format(as.POSIXct(datetime), "%Y-%m-%d %H:%M"), format = "%Y-%m-%d %H:%M"), 
                                              data=DATA,FUN= function(x) c(Median = median(x), Quant= quantile(x, probs = 0.75) - quantile(x, probs =  0.25)))),
-               c("Date","Median","Quant"))
+               c("datetime","Median","Quant"))
       
     }
   else if  (DESIGN == 'Pendant') {
     
-    MinTime<-min(DATA$Date)
-    MaxTime<-max(DATA$Date)
+    MinTime<-min(DATA$datetime)
+    MaxTime<-max(DATA$datetime)
     
     minute(MinTime)<-floor(minute(MinTime)/10)*10
     minute(MaxTime)<-ceiling(minute(MaxTime)/10)*10
@@ -71,13 +78,13 @@ hydrodynamics = function(DATA, DESIGN) {
     second(MaxTime)<-0
     breakpoints <- seq.POSIXt(MinTime, MaxTime, by = 600)
     
-    setNames(do.call(data.frame, aggregate(Acceleration ~ cut(Date, breaks = breakpoints), 
+    setNames(do.call(data.frame, aggregate(Acceleration ~ cut(datetime, breaks = breakpoints), 
                                            data=DATA,FUN= function(x) c(Median = median(x), Quant= quantile(x, probs = 0.75) - quantile(x, probs =  0.25)))),
-             c("Date","Median","Quant"))
+             c("datetime","Median","Quant"))
     
   } else message("Error: No applicable method, did you selected the corret Mini Buoy type?")
   
-  CLASS=
+  CLASS=#@Ale: change CLASS to data.classified 
     CLASS1 %>%
     mutate(
       # Calculate N and F cases:
@@ -135,14 +142,14 @@ statistics = function(DATA) {
   # total and mean inundation (min):
   s.events = DATA %>%
     group_by(Event) %>%
-    summarise(MinInundated = difftime(last(Date), first(Date), units = 'mins')[[1]]) %>%
+    summarise(MinInundated = difftime(last(datetime), first(datetime), units = 'mins')[[1]]) %>%
     na.omit() %>%
     ungroup() %>%
     summarise(SumMinInundated  = sum(MinInundated),
               `Average flooding duration (min/d)` = mean(MinInundated))
   
   # daily flood frequency:
-  s.days = setNames(do.call(data.frame, aggregate(Event ~ as.POSIXct(format(as.POSIXct(Date), "%Y-%m-%d %H:%M"), format = "%Y-%m-%d"), 
+  s.days = setNames(do.call(data.frame, aggregate(Event ~ as.POSIXct(format(as.POSIXct(datetime), "%Y-%m-%d %H:%M"), format = "%Y-%m-%d"), 
                                                  data=DATA, FUN= function(x)  length(unique(x)))),
                    c("Date","dailyEvents"))%>%
     summarise(`Flooding frequency (f/d)` = round(mean(dailyEvents), 2))
@@ -150,8 +157,8 @@ statistics = function(DATA) {
 
   # survey days, total length of survey (min), current and wave orbital velocities (median and upper quantile values):
   s.all = DATA %>%
-    summarise(`Monitoring period (d)`   = difftime(last(Date), first(Date), units = 'days')[[1]],
-              SurveyMins   = difftime(last(Date), first(Date), units = 'mins')[[1]],
+    summarise(`Monitoring period (d)`   = difftime(last(datetime), first(datetime), units = 'days')[[1]],
+              SurveyMins   = difftime(last(datetime), first(datetime), units = 'mins')[[1]],
               `Median Current Vel. (m/s)`= median(CurrentVelocity, na.rm = T),
               `75 percentile Vel (m/s)` = quantile(CurrentVelocity, 0.75, names = F, na.rm = T),
               `Median wave orbital vel. (m/s)`    = median(WaveOrbitalVelocity, na.rm = T),
@@ -163,8 +170,8 @@ statistics = function(DATA) {
            WoO = replace(cumsum(!WoO), !WoO, NA),
            WoO = as.integer(factor((WoO)))) %>%
     group_by(WoO) %>%
-    summarise(start = first(Date),
-              end   = last(Date), 
+    summarise(start = first(datetime),
+              end   = last(datetime), 
               length = n()) %>%
     na.omit() %>%
     filter(length == max(length)) %>%
@@ -194,10 +201,16 @@ statistics = function(DATA) {
 
 
 # Calculate hydrodynamics and store in data frame @Ale: This does not need user inputs
+t = Sys.time()
 Target.h    = hydrodynamics(Target, DESIGN) %>%
   mutate(Type = 'Target')
+print(Sys.time()-t)
+
+
+t = Sys.time()
 Reference.h = if (exists('REFERENCE')) { hydrodynamics(Reference, DESIGN) } %>%
   mutate(Type = 'Reference')
+print(Sys.time()-t)
 
 Hydrodynamics_df = if (exists('REFERENCE')) { bind_rows(Target.h, Reference.h) 
 } else { Target.h }
@@ -207,7 +220,7 @@ Hydrodynamics_df = if (exists('REFERENCE')) { bind_rows(Target.h, Reference.h)
 # Get summary statistics: @Ale: Create tables that need render to display in the hydrodynamics heading of the Mini Buoy App menu
 
 #### DATA FRAMES TO RENDER TABLES ####
-Target.stats    = statistics(Target.h)
+Target.stats    = statistics(Target.h) 
 Reference.stats = if (exists('REFERENCE')) { statistics(Reference.h) }
 
 # @% time flooded (min flooded/ minutes surveyed) - more informative mean % time flooded per day?
