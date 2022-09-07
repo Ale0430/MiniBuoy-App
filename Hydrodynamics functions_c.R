@@ -127,14 +127,6 @@ statistics = function(DATA) {
     ungroup() %>%
     summarise(SumMinInundated  = sum(MinInundated),
               `Average flooding duration (min/d)` = mean(MinInundated))
-  
-  
-  
-  # # daily flood frequency:
-  # s.days = setNames(do.call(data.frame, aggregate(Event ~ as.POSIXct(format(as.POSIXct(datetime), "%Y-%m-%d %H:%M"), format = "%Y-%m-%d"),
-  #                                                data=DATA, FUN= function(x)  length(unique(x)))),
-  #                  c("Date","dailyEvents"))%>%
-  #   summarise(`Flooding frequency (f/d)` = round(mean(dailyEvents), 2))
 
   
   # # daily flood frequency:
