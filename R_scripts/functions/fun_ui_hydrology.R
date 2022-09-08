@@ -52,8 +52,24 @@ hyd.target.box.table = function(){
 }
 
 hyd.target.box.figures = function(){
-  return(
-    p("FIGURES in tabs")
+  return(list(
+    tabsetPanel(
+      tabPanel("Daily inundation", br(),
+               output.figure("fig.inundation.target"),
+               actButton("save.fig.inundation.target",
+                         "Save figure", 
+                         "saveFigure")),
+      tabPanel("Current velocity", br(),
+               output.figure("fig.velocity"),
+               actButton("save.fig.velocity",
+                         "Save figure", 
+                         "saveFigure")),
+      tabPanel("Wave orbital velocity", br(),
+               output.figure("fig.wave.velocity"),
+               actButton("save.fig.wave.velocity",
+                         "Save figure", 
+                         "saveFigure"))
+    ))
   )
 }
 

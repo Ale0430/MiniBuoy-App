@@ -167,5 +167,49 @@ plot.filteredRawData <- function(data, ui.input) {
 
 ######## HYDRO: TARGET + REFERENCE ########
 
+#' Inundation
+plot.inundation = function(data) {
+   return(
+      data %>%
+         mutate(date = ceiling_date(datetime, unit = 'days')) %>%
+         group_by(date) %>%
+         summarise(InundationMin = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) %>%
+         ggplot(aes(x = date, y = InundationMin)) +
+         geom_bar(
+            stat = 'identity',
+            fill = 'lightblue',
+            colour = 'lightblue'
+         ) +
+         scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+         labs(y = 'Daily inundation (min/day)') +
+         theme(axis.title.x = element_blank())
+   )
+}
+
+#' Current velocity
+plot.velocity = function(data) {
+   return(
+      data %>%
+         ggplot(aes(x = datetime, y = CurrentVelocity)) +
+         geom_point(size = 0.2) +
+         geom_line(aes(y = rollmean(CurrentVelocity, 20, na.pad = T)), colour = 'blue') +
+         scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+         labs(y = 'Median current velocity (m/s)') + 
+         theme(axis.title.x = element_blank())
+   )
+}
+
+#' Wave orbital velocity
+plot.waveVelocity = function(data) {
+   return(
+      data %>%
+         ggplot(aes(x = datetime, y = WaveOrbitalVelocity)) +
+         geom_point(size = 0.2) +
+         geom_line(aes(y = rollmean(WaveOrbitalVelocity, 20, na.pad = T)), colour = 'blue') +
+         scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+         labs(y = 'Median wave orbtial velocity (m/s)') + 
+         theme(axis.title.x = element_blank())
+   )
+}
 
 ######## HYDRO: COMPARISON ########

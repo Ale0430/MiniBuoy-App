@@ -793,4 +793,101 @@ shinyServer(function(input, output, session) {
       ui.input = input
     )
   })
+
+  #### Figures ####
+  #### Inundation #####
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.inundation.target <- reactive({
+    if (is.null(values$Target) | identical(values$Target, data.frame())){
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else {
+      plot.inundation(data = values$TargetHydro)
+    }
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.inundation.target <- renderPlot({
+    fig.inundation.target()
+  })
+  
+  #' Eventlistener to save plot with inundation data
+  #' (Hydrodynamics > Target)
+  observeEvent(input$save.fig.inundation.target, {
+    name = "DailyInundation_Target"
+    save.figure(
+      path = projectPath(),
+      name = name,
+      plotObject = fig.inundation.target(),
+      ui.input = input
+    )
+  })
+  
+  #### Current velocity #####
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.velocity <- reactive({
+    if (is.null(values$Target) | identical(values$Target, data.frame())){
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else {
+      plot.velocity(data = values$TargetHydro)
+    }
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.velocity <- renderPlot({
+    fig.velocity()
+  })
+  
+  #' Eventlistener to save plot with inundation data
+  #' (Hydrodynamics > Target)
+  observeEvent(input$save.fig.velocity, {
+    name = "CurrentVelocity_Target"
+    save.figure(
+      path = projectPath(),
+      name = name,
+      plotObject = fig.velocity(),
+      ui.input = input
+    )
+  })
+  
+  
+  #### Wave orbital velocity #####
+
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.wave.velocity <- reactive({
+    design = get.design.T()
+    if (design == "B4+"){
+      if (is.null(values$Target) | identical(values$Target, data.frame())){
+        plot.emptyMessage("No figure available. Please upload data.")
+      } else {
+        plot.waveVelocity(data = values$TargetHydro)
+      }
+    } else {
+      plot.emptyMessage(paste("'", design, "' Mini Buoy design does not measure wave orbital velocity",
+                              sep = ""))
+    }
+
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.wave.velocity <- renderPlot({
+    fig.wave.velocity()
+  })
+  
+  #' Eventlistener to save plot with inundation data
+  #' (Hydrodynamics > Target)
+  observeEvent(input$save.fig.wave.velocity, {
+    name = "WaveOrbitalVelocity_Target"
+    save.figure(
+      path = projectPath(),
+      name = name,
+      plotObject = fig.wave.velocity(),
+      ui.input = input
+    )
+  })
+  
 })
