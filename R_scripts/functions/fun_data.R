@@ -112,8 +112,8 @@ convertTimeToDeci <- function(time) { #@Marie: delete?
 #' @param data.r data.frame containing reference data
 #' @return vector with start and end of overlapping time window
 get.time.overlap = function(data.t, data.r){
-   timerange.t = c(min(data.t$datetime), max(data.t$datetime))
-   timerange.r = c(min(data.r$datetime), max(data.r$datetime))
+   timerange.t = c(min(data.t$datetime, na.rm = T), max(data.t$datetime, na.rm = T))
+   timerange.r = c(min(data.r$datetime, na.rm = T), max(data.r$datetime, na.rm = T))
 
    # Test if recordings of reference and target overlap
    if ((min(timerange.t) <= max(timerange.r)) & (max(timerange.t) >= min(timerange.r))){
@@ -126,9 +126,9 @@ get.time.overlap = function(data.t, data.r){
                        duration = 10, closeButton = T)
       
    } else {
-      showNotification("Warning: Time windows of TARGET and REFERENCE overlap",
+      showNotification("Warning: Time windows of TARGET and REFERENCE do not overlap",
                        type = "warning",
-                       duration = NULL, closeButton = T)
+                       duration = 10, closeButton = T)
       sorted.times = c()
    }
    return(sorted.times)
@@ -141,7 +141,7 @@ get.time.overlap = function(data.t, data.r){
 #' @param type reference or target
 #' @return dataframe with summary
 get.rawData.sum = function(data, type){
-   no.days = round(max(data$datetime) - min(data$datetime), 2)
+   no.days = round(max(data$datetime, na.rm = T) - min(data$datetime, na.rm = T), 2)
    if (no.days < 2){
       showNotification(paste("Error:", type, "data set too small to analyze (< 2 days)!", sep = " "),
                        type = "error", duration = NULL, closeButton = T)
@@ -151,7 +151,7 @@ get.rawData.sum = function(data, type){
          showNotification(paste("Warning:", type, 
                                 "data set contains > 2 columns. Only columns 1 (datetime) and 2 (Acceleration) are used for further processing.",
                                 sep = " "),
-                          type = "warning", duration = NULL, closeButton = T)
+                          type = "warning", duration = 10, closeButton = T)
       }
       if (no.days < 15){
          showNotification(paste("Warning:", type, "data set too small to analyze properly (< 15 days)!", sep = " "),
@@ -161,8 +161,8 @@ get.rawData.sum = function(data, type){
       coln = paste(colnames(data), collapse = ", ")
       meanAcc = mean(data$Acceleration)
       mAmm = paste(as.character(round(meanAcc, 2)), " (",
-                   as.character(round(min(data$Acceleration), 2)), ", ",
-                   as.character(round(max(data$Acceleration), 2)), ")", 
+                   as.character(round(min(data$Acceleration, na.rm = T), 2)), ", ",
+                   as.character(round(max(data$Acceleration, na.rm = T), 2)), ")", 
                    collapse = "")
       mAqq = paste(as.character(round(median(data$Acceleration), 2)), " (",
                    as.character(round(quantile(data$Acceleration, 0.25), 2)), ", ",
@@ -177,8 +177,8 @@ get.rawData.sum = function(data, type){
                                     "Number of recordings"),
                        Value = c(coln,
                                  as.character(no.days),
-                                 as.character(min(data$datetime)),
-                                 as.character(max(data$datetime)),
+                                 as.character(min(data$datetime, na.rm = T)),
+                                 as.character(max(data$datetime, na.rm = T)),
                                  mAmm,
                                  mAqq,
                                  as.character(nrow(data))))
