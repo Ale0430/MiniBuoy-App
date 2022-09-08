@@ -50,7 +50,7 @@ get.ACCy = function(file) {
    colnames(rawData)[c(1,2)] <- c("datetime", "Acceleration")
    rawData$Acceleration = as.numeric(rawData$Acceleration)
    
-   rawData = suppressWarnings(unify.datetime(rawData))
+   #rawData = suppressWarnings(unify.datetime(rawData))
    
    return(rawData)
 }
