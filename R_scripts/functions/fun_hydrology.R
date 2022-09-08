@@ -7,8 +7,8 @@ CVC <- Current_Vel_Constant_Values
 
 #### Functions to calculate Hydrodynamic indicators ####
 
-# Function to predict inundation status (N,F,P) and calculate velocities:
-hydrodynamics = function(data, design) {
+#' Function to predict inundation status (N,F,P) and calculate velocities:
+get.hydrodynamics = function(data, design) {
   
   # Load the linear SVM for classification of F and N cases:
   SVML.NF = 
@@ -90,8 +90,8 @@ hydrodynamics = function(data, design) {
 
 
 
-# Function to generate  hydrodynamics data summary statistics:
-statistics = function(data) {
+#' Function to generate  hydrodynamics data summary statistics:
+get.statistics = function(data) {
   
   # total and mean inundation (min):
   s.events = data %>%

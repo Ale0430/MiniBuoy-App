@@ -467,8 +467,11 @@ shinyServer(function(input, output, session) {
     options = list(dom = 't'),
   )
   
+  #' Eventlistener: if both, target and reference data, are set
+  #' calculate overlapping time window and show warning or error
+  #' message
   observeEvent(input$setData.T | input$setData.R, {
-    if(input$setData.T==0 || input$setData.R==0){
+    if (input$setData.T == 0 || input$setData.R == 0) {
       return()
     }
     Target = Target()
