@@ -276,7 +276,7 @@ shinyServer(function(input, output, session) {
       print("Assign raw data to TARGET data")
       values$Target <- rawData_T()
     }
-    if (!input$raw_default_T & !bool.file.upload.target()){
+    if (!input$raw_default_T & ! bool.file.upload.target()){
       print("Delete TARGET data")
       values$Target = NULL 
     }
@@ -348,7 +348,6 @@ shinyServer(function(input, output, session) {
     print("Set data REFERENCE")
     rawData_R = rawData_R()
     if (is.null(rawData_R)) {
-      print("In IF")
       if (bool.file.upload.reference()) {
         showNotification(
           message.upload.fail,
@@ -365,7 +364,6 @@ shinyServer(function(input, output, session) {
         )
       }
     } else {
-      print("In ELSE")
       if (all(is.na(rawData_R$Acceleration))){
         showNotification(
           message.upload.fail,
@@ -385,6 +383,19 @@ shinyServer(function(input, output, session) {
     Reference = Reference()
   })
   
+  
+  #' Reactive variable indicating if Target data is available
+  bool.no.target <- reactive({
+    Target = Target()
+    return((is.null(Target) | identical(Target, data.frame())))
+  })
+  
+  
+  #' Reactive variable indicating if Reference data is available
+  bool.no.reference <- reactive({
+    Reference = Reference()
+    return((is.null(Reference) | identical(Reference, data.frame())))
+  })
   
   #### TABLE OUTPUTS ####
   
