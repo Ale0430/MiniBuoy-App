@@ -118,17 +118,7 @@ get.time.overlap = function(data.t, data.r){
    # Test if recordings of reference and target overlap
    if ((min(timerange.t) <= max(timerange.r)) & (max(timerange.t) >= min(timerange.r))){
       sorted.times = sort(c(timerange.t, timerange.r))[c(2,3)]
-      showNotification(paste("Time windows of TARGET and REFERENCE overlap",
-                             round(sorted.times[2] - sorted.times[1], 2),
-                             "days.",
-                             sep = " "),
-                       type = "message",
-                       duration = 10, closeButton = T)
-      
    } else {
-      showNotification("Warning: Time windows of TARGET and REFERENCE do not overlap",
-                       type = "warning",
-                       duration = 10, closeButton = T)
       sorted.times = c()
    }
    return(sorted.times)

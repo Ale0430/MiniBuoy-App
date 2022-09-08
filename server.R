@@ -395,6 +395,16 @@ shinyServer(function(input, output, session) {
     return((is.null(Reference) | identical(Reference, data.frame())))
   })
   
+  bool.overlap <- reactive({
+    tar.exists = !bool.no.target()
+    ref.exists = !bool.no.reference()
+    time.overlap = F
+    if (tar.exists & ref.exists){
+      time.overlap = !is.null(get.time.overlap(Reference(), Target()))
+    }
+    return(time.overlap)
+  })
+  
   #### TABLE OUTPUTS ####
   
   tab.with.file.upload.message = function(message, color = "#cc0000",
@@ -463,10 +473,36 @@ shinyServer(function(input, output, session) {
     }
     Target = Target()
     Reference = Reference()
+<<<<<<< HEAD
     
     if (!is.null(Target) & !is.null(Reference)){
       get.time.overlap(data.t = Target(), 
                        data.r = Reference())
+=======
+    if (nrow(Target) > 0 & nrow(Reference) > 0) {
+      time.overlap = get.time.overlap(data.t = Target(),
+                                      data.r = Reference())
+      if (is.null(time.overlap)) {
+        showNotification(
+          "Warning: Time windows of TARGET and REFERENCE do not overlap",
+          type = "warning",
+          duration = 5,
+          closeButton = T
+        )
+      } else {
+        showNotification(
+          paste(
+            "Time windows of TARGET and REFERENCE overlap",
+            round(time.overlap[2] - time.overlap[1], 2),
+            "days.",
+            sep = " "
+          ),
+          type = "message",
+          duration = 5,
+          closeButton = T
+        )
+      }
+>>>>>>> update notification about overlapping time window
     }
     
   })
