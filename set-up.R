@@ -21,6 +21,8 @@ if(!require("data.table")) install.packages("data.table")
 if(!require("lubridate")) install.packages("lubridate")
 # Package to deal with time serien -> rollmean()
 if(!require("zoo")) install.packages("zoo") 
+# Package to speed up date time transformation -> fastPOSIXct()
+if(!require("fasttime")) install.packages("fasttime") 
 # ???
 if(!require("caTools")) install.packages("caTools")  #from Cai's code
 
