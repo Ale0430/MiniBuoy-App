@@ -71,9 +71,9 @@ hydrodynamics = function(DATA, DESIGN) {
       Status = predict(SVML.NF, newdata = tibble(Median, Quant)), 
       # make status numerical
       #EventBin  = recode(Status, 'N' = 0, 'F' = 1),
-      EventBin  = recode(Status, 'N' = 0, 'F' = 1),
+      Event  = recode(Status, 'N' = 0, 'F' = 1),
       # count events consecutively
-      Event  = replace(cumsum(!EventBin), !EventBin, NA),
+      Event  = replace(cumsum(!Event), !Event, NA),
       # Change event to factor level (i.e. 1, 2, 3...):
       Event = as.integer(factor((Event)))) %>%
     
@@ -90,8 +90,8 @@ hydrodynamics = function(DATA, DESIGN) {
       Status = predict(SVML.NPF, newdata = tibble(Median, Quant, Prox2N)),
       # Recode events in case some mismatch with the new classification:
       #Event  = recode(Status, 'N' = 0, 'P' = 1, 'F' = 1),
-      EventBin  = recode(Status, 'N' = 0, 'P' = 1, 'F' = 1),
-      Event  = replace(cumsum(!EventBin), !EventBin, NA),
+      Event  = recode(Status, 'N' = 0, 'P' = 1, 'F' = 1),
+      Event  = replace(cumsum(!Event), !Event, NA),
       Event = as.integer(factor((Event))),
       # Separate into flood and ebb tides:
       Tide = as.factor(ifelse(Status == 'N', NA, c(rep('Flood', round((n() / 2), 0)), rep('Ebb', n() - round((n() / 2), 0))))),
