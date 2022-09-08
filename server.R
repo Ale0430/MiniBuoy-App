@@ -740,7 +740,7 @@ shinyServer(function(input, output, session) {
   
   ##### TARGET ####
   ##### Variables ####
-  
+
   #' Reactive variable holding data
   #' If Target() excists, hydrodynamics are calculated
   TargetHydro <- reactive({
@@ -748,15 +748,43 @@ shinyServer(function(input, output, session) {
       print("Delete TARGET hydro")
       TargetHydro = data.frame()
     } else {
-      print("Create TARGET hydro")
+      print("Create TARGET hydro ...")
       TargetHydro <- get.hydrodynamics(data = Target(),
                                        design = get.design.T())
     }
     return(TargetHydro)
   })
   
+  TargetHydroOverlap <- reactive({
+    TargetHydroOverlap = NULL
+    if (bool.no.target() & bool.no.reference()) {
+      showNotification(
+        "Error: No Reference data available",
+        type = "error",
+        duration = NULL,
+        closeButton = T
+      )
+    } else {
+      time.overlap = get.time.overlap(data.t = Target(),
+                                      data.r = Reference())
+      if (!is.null(time.overlap)){
+        Target.filtered = Target() %>%
+          filter(datetime >= time.overlap[1] &
+                   datetime <= time.overlap[2])
+        
+        TargetHydroOverlap = get.hydrodynamics(data = Target.filtered,
+                                               design = get.design.T())
+      }
+    }
+    return(TargetHydroOverlap)
+  })
+  
   TargetHydroStats <- reactive({
-    TargetHydroStats = get.statistics(TargetHydro())
+    if (input$hydro.window.target){
+      TargetHydroStats = get.statistics(TargetHydroOverlap())
+    } else {
+      TargetHydroStats = get.statistics(TargetHydro())
+    }
     return(TargetHydroStats)
   })
   
@@ -896,14 +924,42 @@ shinyServer(function(input, output, session) {
       ReferenceHydro = data.frame()
     } else {
       print("Create Reference hydro")
-      ReferenceHydro <- hydrodynamics(data = Reference(),
-                                      design = get.design.R())
+      ReferenceHydro <- get.hydrodynamics(data = Reference(),
+                                        design = get.design.R())
     }
     return(ReferenceHydro)
   })
   
+  ReferenceHydroOverlap <- reactive({
+    ReferenceHydroOverlap = NULL
+    if (bool.no.target() & bool.no.reference()) {
+      showNotification(
+        "Error: No Target data available",
+        type = "error",
+        duration = NULL,
+        closeButton = T
+      )
+    } else {
+      time.overlap = get.time.overlap(data.t = Target(),
+                                      data.r = Reference())
+      if (!is.null(time.overlap)){
+        Reference.filtered = Reference() %>%
+          filter(datetime >= time.overlap[1] &
+                   datetime <= time.overlap[2])
+        
+        ReferenceHydroOverlap = get.hydrodynamics(data = Reference.filtered,
+                                                  design = get.design.T())
+      }
+    }
+    return(ReferenceHydroOverlap)
+  })
+  
   ReferenceHydroStats <- reactive({
-    ReferenceHydroStats = get.statistics(ReferenceHydro())
+    if (input$hydro.window.reference){
+      ReferenceHydroStats = get.statistics(ReferenceHydroOverlap())
+    } else {
+      ReferenceHydroStats = get.statistics(ReferenceHydro())
+    }
     return(ReferenceHydroStats)
   })
   
