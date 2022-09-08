@@ -706,23 +706,22 @@ shinyServer(function(input, output, session) {
   ##### Variables ####
   
   #' Reactive variable holding data
-  #' Assigned to reactive value if empty
+  #' If Target() excists, hydrodynamics are calculated
   TargetHydro <- reactive({
-    if (is.null(values$TargetHydro) | identical(values$TargetHydro, data.frame())) {
-      print("Create TARGET hydro")
-      values$TargetHydro <- hydrodynamics(data = values$Target,
-                                          design = get.design.T())
-    }
-    if (identical(values$Target, data.frame())){
+    if (bool.no.target()) {
       print("Delete TARGET hydro")
-      values$Target = data.frame()
+      TargetHydro = data.frame()
+    } else {
+      print("Create TARGET hydro")
+      TargetHydro <- get.hydrodynamics(data = Target(),
+                                       design = get.design.T())
     }
-    return(values$TargetHydro)
+    return(TargetHydro)
   })
   
-  TargetStatsHydro <- reactive({
-    TargetHydro = TargetHydro()
-    return(statistics(TargetHydro))
+  TargetHydroStats <- reactive({
+    TargetHydroStats = get.statistics(TargetHydro())
+    return(TargetHydroStats)
   })
   
   
@@ -732,11 +731,11 @@ shinyServer(function(input, output, session) {
   output$hydro.table.target <- DT::renderDataTable(
     rownames = F,
     {
-      if (is.null(values$Target) | identical(values$Target, data.frame())){
+      if (bool.no.target()){
         return(tab.with.file.upload.message("Please upload your data or select a default data set.",
                                             color = "blue", backgroundColor = "white"))
       } else {
-        return(TargetStatsHydro() %>% 
+        return(TargetHydroStats() %>%
                  mutate_if(is.numeric, round, 2))
       }
     },
@@ -749,7 +748,7 @@ shinyServer(function(input, output, session) {
     save.csv(
       path = projectPath(),
       name = "Hydrodynamics_Target",
-      csvObject = TargetStatsHydro(),
+      csvObject = TargetHydroStats(),
       ui.input = input
     )
   })
@@ -760,10 +759,10 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
   fig.inundation.target <- reactive({
-    if (is.null(values$Target) | identical(values$Target, data.frame())){
+    if (bool.no.target()){
       plot.emptyMessage("No figure available. Please upload data.")
     } else {
-      plot.inundation(data = values$TargetHydro)
+      plot.inundation(data = TargetHydro())
     }
   })
   
@@ -789,10 +788,10 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
   fig.velocity <- reactive({
-    if (is.null(values$Target) | identical(values$Target, data.frame())){
+    if (bool.no.target()) {
       plot.emptyMessage("No figure available. Please upload data.")
     } else {
-      plot.velocity(data = values$TargetHydro)
+      plot.velocity(data = TargetHydro())
     }
   })
   
@@ -820,17 +819,16 @@ shinyServer(function(input, output, session) {
   #' plot shown in Hydrodynamics > Target
   fig.wave.velocity <- reactive({
     design = get.design.T()
-    if (design == "B4+"){
-      if (is.null(values$Target) | identical(values$Target, data.frame())){
-        plot.emptyMessage("No figure available. Please upload data.")
-      } else {
-        plot.waveVelocity(data = values$TargetHydro)
-      }
+    if (bool.no.target()) {
+      plot.emptyMessage("No figure available. Please upload data.")
     } else {
-      plot.emptyMessage(paste("'", design, "' Mini Buoy design does not measure wave orbital velocity",
-                              sep = ""))
+      if (design == "B4+"){
+        plot.waveVelocity(data = TargetHydro())
+      } else {
+        plot.emptyMessage(paste("'", design, "' Mini Buoy design does not measure wave orbital velocity",
+                                sep = ""))
+      }
     }
-
   })
   
   #' Render plot shown in Hydrodynamics > Target
