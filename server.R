@@ -848,4 +848,55 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  
+  ##### REFERENCE ####
+  ##### Variables ####
+  
+  #' Reactive variable holding data
+  #' If Reference() excists, hydrodynamics are calculated
+  ReferenceHydro <- reactive({
+    if (bool.no.reference()) {
+      print("Delete Reference hydro")
+      ReferenceHydro = data.frame()
+    } else {
+      print("Create Reference hydro")
+      ReferenceHydro <- hydrodynamics(data = Reference(),
+                                      design = get.design.R())
+    }
+    return(ReferenceHydro)
+  })
+  
+  ReferenceHydroStats <- reactive({
+    ReferenceHydroStats = get.statistics(ReferenceHydro())
+    return(ReferenceHydroStats)
+  })
+  
+  ##### Table ####
+  
+  #' Render table showing hydrodynamics of reference data
+  output$hydro.table.reference <- DT::renderDataTable(
+    rownames = F,
+    {
+      if (bool.no.reference()){
+        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
+                                            color = "blue", backgroundColor = "white"))
+      } else {
+        return(ReferenceHydroStats() %>%
+                 mutate_if(is.numeric, round, 2))
+      }
+    },
+    options = list(dom = 't'),
+  )
+  
+  #' Eventlistener to save hydrodynamics summary reference
+  #' (Hydrodynamics > Summary table)
+  observeEvent(input$hydro.table.reference.save, {
+    save.csv(
+      path = projectPath(),
+      name = "Hydrodynamics_Referencet",
+      csvObject = ReferenceHydroStats(),
+      ui.input = input
+    )
+  })
+  
 })

@@ -118,8 +118,11 @@ hyd.reference.box.text = function(){
 
 hyd.reference.box.table = function(){
   return(
-    p("TABLE")
-  )
+    list(
+      checkboxInput("hydro.window.reference", "Use common time window of target and reference data", F),
+      output.table("hydro.table.reference"),
+      actButton("hydro.table.reference.save", "Save table", "saveCsv")
+    )  )
 }
 
 hyd.reference.box.figures = function(){
