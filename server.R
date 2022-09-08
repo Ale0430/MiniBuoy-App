@@ -765,4 +765,32 @@ shinyServer(function(input, output, session) {
     return(statistics(TargetHydro))
   })
   
+  
+  ##### Table ####
+
+  #' Render table showing hydrodynamics of target data
+  output$hydro.table.target <- DT::renderDataTable(
+    rownames = F,
+    {
+      if (is.null(values$Target) | identical(values$Target, data.frame())){
+        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
+                                            color = "blue", backgroundColor = "white"))
+      } else {
+        return(TargetStatsHydro() %>% 
+                 mutate_if(is.numeric, round, 2))
+      }
+    },
+    options = list(dom = 't'),
+  )
+  
+  #' Eventlistener to save hydrodynamics summary target
+  #' (Hydrodynamics > Summary table)
+  observeEvent(input$hydro.table.target.save, {
+    save.csv(
+      path = projectPath(),
+      name = "Hydrodynamics_Target",
+      csvObject = TargetStatsHydro(),
+      ui.input = input
+    )
+  })
 })
