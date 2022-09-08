@@ -7,6 +7,9 @@ if(!require("shinycssloaders")) install.packages("shinycssloaders")
 if(!require("shinyFiles")) install.packages("shinyFiles") 
 if(!require("markdown")) install.packages("markdown")  
 if(!require("DT")) install.packages("DT")  
+if(!require("data.table")) install.packages("data.table")  # fread function to load csv files faster
+if(!require("fasttime")) install.packages("fasttime")  # fastPOSIXct  function to increase of datetime column creation
+if(!require("lubridate")) install.packages("lubridate")  # as_date  function to increase of time column creation
 if(!require("zoo")) install.packages("zoo") # rollapplyfunction  #from the first Mini Buoy app (needed?)
 if(!require("tidyverse")) install.packages("tidyverse") 
 if(!require("ggpubr")) install.packages("ggpubr") # draw regression line in ggplot

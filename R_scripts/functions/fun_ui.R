@@ -71,10 +71,14 @@ numericInputRow <- function(inputId, label, value = ""){
 menuItemOutput = function() {
   return(list(
     menuItem("About", tabName="about", icon = icon("th")),
-    menuItem("Project settings", tabName = "sett", icon = icon("gear")),
+    menuItem("Settings", tabName = "sett", icon = icon("gear")),
     menuItem("Data", tabName = "data", icon = icon("circle-notch"),
-             menuSubItem("Upload data", tabName = "dat_upl", icon= icon("upload")),
-             menuSubItem("Filters", tabName = "dat_filter", icon = icon("filter"))),
-    menuItem("Hydrodynamics", tabName = "hidr_res", icon = icon("water"))
+             menuSubItem("Upload", tabName = "dat_upl", icon= icon("upload")),
+             menuSubItem("Filter", tabName = "dat_filter", icon = icon("filter"))),
+    menuItem("Hydrodynamics", tabName = "hyd_res", icon = icon("water"),
+             menuSubItem("Target", tabName = "hyd_target", icon= icon("bullseye")),
+             menuSubItem("Reference", tabName = "hyd_reference", icon= icon("asterisk")),
+             menuSubItem("Comparison", tabName = "hyd_comparison", icon= icon("not-equal"))
+             )
   ))
 }

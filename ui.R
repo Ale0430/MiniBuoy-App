@@ -9,11 +9,12 @@ shinyUI(
     dashboardSidebar(
       br(), br(), br(),
       sidebarMenu(menuItemOutput()),
+                  # style = "position: fixed; overflow: visible;"),
       br(), br(), br(),
       br(), br(), br(), tags$hr(),
       tags$footer("Geographical and Earth Sciences", align = "center"),
       tags$footer("University of Glasgow", align = "center"),
-      tags$footer("2021 -2023", align = "center"),
+      tags$footer("2021 - 2023", align = "center"),
       tags$hr()
     ),
     dashboardBody(
@@ -27,8 +28,15 @@ shinyUI(
                 dataUplOutput()),
         tabItem(tabName = "dat_filter",
                dataFilterOutput()),
-        tabItem(tabName = "hidr_res",
-                HidrologyOutput())
+        
+        # tabItem(tabName = "hydr_res",
+        #         HydrologyOutput())
+        tabItem(tabName = "hyd_target",
+                hydTargetOutput()),
+        tabItem(tabName = "hyd_reference",
+                hydReferenceOutput()),
+        tabItem(tabName = "hyd_comparison",
+                hydComparisonOutput())
       
     ),
     
