@@ -742,4 +742,27 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  ##### TARGET ####
+  ##### Variables ####
+  
+  #' Reactive variable holding data
+  #' Assigned to reactive value if empty
+  TargetHydro <- reactive({
+    if (is.null(values$TargetHydro) | identical(values$TargetHydro, data.frame())) {
+      print("Create TARGET hydro")
+      values$TargetHydro <- hydrodynamics(data = values$Target,
+                                          design = get.design.T())
+    }
+    if (identical(values$Target, data.frame())){
+      print("Delete TARGET hydro")
+      values$Target = data.frame()
+    }
+    return(values$TargetHydro)
+  })
+  
+  TargetStatsHydro <- reactive({
+    TargetHydro = TargetHydro()
+    return(statistics(TargetHydro))
+  })
+  
 })
