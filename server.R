@@ -189,7 +189,7 @@ shinyServer(function(input, output, session) {
     if (input$raw_default_T){
       defaultData_T = "./data/default_target.csv"
       print("Default TARGET data")
-      dataT = get.ACCy(defaultData_T)
+      dataT = get.ACCy.B4(defaultData_T)
     } else {
       if (bool.file.upload.target()){
         print("User TARGET data")
@@ -205,7 +205,7 @@ shinyServer(function(input, output, session) {
     if (input$raw_default_R){
       defaultData_R = "./data/default_reference.csv"
       print("Default REFERENCE data")
-      dataR = get.ACCy(defaultData_R)
+      dataR = get.ACCy.B4(defaultData_R)
     } else {
       if (bool.file.upload.reference()){
         print("User REFERENCE data")
@@ -292,7 +292,8 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$setData.T, {
     print("Set data TARGET")
-    if (identical(rawData_T(), data.frame())) {
+    rawData_T = rawData_T()
+    if (identical(rawData_T, data.frame())) {
       if (bool.file.upload.target()) {
         showNotification(
           message.upload.fail,
@@ -309,12 +310,21 @@ shinyServer(function(input, output, session) {
         )
       }
     } else {
-      showNotification(
-        "Upload of Target data successful.",
-        type = "message",
-        duration = 3,
-        closeButton = T
-      )
+      if (all(is.na(rawData_T$Acceleration))){
+        showNotification(
+          message.upload.fail,
+          type = "error",
+          duration = NULL,
+          closeButton = T
+        )
+      } else {
+        showNotification(
+          "Upload of Target data successful.",
+          type = "message",
+          duration = 3,
+          closeButton = T
+        )
+      }
     }
     Target = Target()
     
@@ -322,7 +332,9 @@ shinyServer(function(input, output, session) {
 
   observeEvent(input$setData.R, {
     print("Set data REFERENCE")
-    if (identical(rawData_R(), data.frame())) {
+    rawData_R = rawData_R()
+    if (identical(rawData_R, data.frame())) {
+      print("In IF")
       if (bool.file.upload.reference()) {
         showNotification(
           message.upload.fail,
@@ -339,11 +351,25 @@ shinyServer(function(input, output, session) {
         )
       }
     } else {
-      showNotification(
-        "Upload of Reference data successful.",
-        type = "message",
-        duration = 3,
-        closeButton = T
+      print("In ELSE")
+      if (all(is.na(rawData_R$Acceleration))){
+        showNotification(
+          message.upload.fail,
+          type = "error",
+          duration = NULL,
+          closeButton = T
+        )
+      } else {
+        showNotification(
+          "Upload of Reference data successful.",
+          type = "message",
+          duration = 3,
+          closeButton = T
+        )
+      }
+    }
+    Reference = Reference()
+  })
       )
     }
     Reference = Reference()

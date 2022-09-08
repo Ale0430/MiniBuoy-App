@@ -14,18 +14,18 @@ get.rawData_R = function(input) {
 
 get.rawData = function(inputType, file) { # @Marie: needs to be checked when we receive raw data
    an.error.occured = F
-   if (inputType == "B4") {
+   if (inputType == "B4" |
+       inputType == "B4+") {
       tryCatch({
-         rawData  = get.ACCy(file = file)
+         rawData  = get.ACCy.B4(file = file)
       },
       error = function(e) {
          an.error.occured <<- TRUE
       })
    }
-   if (inputType == "B4+" |
-       inputType == "Pendant") {
+   if (inputType == "Pendant") {
       tryCatch({
-         rawData  = get.ACCy(file = file)
+         rawData  = get.ACCy.Pendant(file = file)
       },
       error = function(e) {
          an.error.occured <<- TRUE
@@ -42,19 +42,46 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
 #' Reads raw data (datetime & Acceleration (ACCy)) .
 #' @param file: uploaded file
 #' @return data.frame
-get.ACCy = function(file) {
+get.ACCy.B4 = function(file) {
    rawData <- suppressWarnings(fread(file, 
                                      skip = "*DATA"))
    # Assign column names to the first 2 columns
    # If more columns exist a error is thrown (managed in Server.R)
    colnames(rawData)[c(1,2)] <- c("datetime", "Acceleration")
    rawData$Acceleration = as.numeric(rawData$Acceleration)
-   
-   #rawData = suppressWarnings(unify.datetime(rawData))
-   
    return(rawData)
 }
 
+
+#' Reads raw data (datetime & Acceleration (ACCy)) .
+#' @param file: uploaded file
+#' @return data.frame
+get.ACCy.Pendant = function(file) {
+   rawData <- suppressWarnings(fread(file, 
+                                     skip = "#"))[, -1]
+   # Assign column names to the first 2 columns
+   # If more columns exist a error is thrown (managed in Server.R)
+   colnames(rawData)[c(1,2)] <- c("datetime", "Acceleration")
+   # Assign column names to the first 2 columns
+   # If more columns exist a error is thrown (managed in Server.R)
+   rawData$Acceleration = as.numeric(rawData$Acceleration)
+   # Remove rows blank Acc. rows
+   rawData = rawData[!is.na(rawData$Acceleration),]
+   # Find columns that are empty
+   columns <- sapply(rawData, function(x) all(is.na(x) | x == ""))
+   empty_columns = names(columns[columns])
+   # Remove empty columns
+   rawData = rawData %>% select(-all_of(empty_columns)) 
+   if (length(empty_columns) > 0){
+      showNotification(paste("Warning:", length(empty_columns),
+                             "empty columns were removed.",
+                             sep = " "),
+                       type = "warning", duration = 5, closeButton = T)
+   }
+   # Transform datetime
+   rawData = unify.datetime(rawData)
+   return(rawData)
+}
 
 unify.datetime = function(rawData){
    print("Transform datetime to date and time")
