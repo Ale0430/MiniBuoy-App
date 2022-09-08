@@ -52,7 +52,7 @@ box.settings_sensors = function(){
       
       br(),
       p(strong("Schematic representation of Mini Buoy 1 (aka: original) [add here a brief description of MB1 attributes]")),
-      img(src='B4.png', width = "80%")),
+      img(src='B4_2000.png', width = "100%")),
     
     conditionalPanel(
       condition = "input.sensorType == 'B4+'",
@@ -61,7 +61,7 @@ box.settings_sensors = function(){
       
       br(),
       p(strong("Schematic representation of Mini Buoy B4+ (aka: black) [add here a brief description of MB2 attributes]")),
-      img(src='B4+.png', width = "80%")),
+      img(src='B4+_2000.png', width = "100%")),
     
     conditionalPanel(
       condition = "input.sensorType == 'Pendant'",
@@ -70,7 +70,7 @@ box.settings_sensors = function(){
       
       br(),
       p(strong("Schematic representation of Pendant Buoy (aka: Hobo) [add here a brief description of MB3 attributes]")),
-      img(src='Pendant.png', width = "80%")),
+      img(src='Pendant_2000.png', width = "100%")),
     
     br(),br()
     
