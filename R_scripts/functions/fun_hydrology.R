@@ -15,7 +15,7 @@ get.hydrodynamics = function(data, design) {
     if (design == 'B4')   { 
       readRDS('./models/SVML_NF_B4.rds')
     } else if (design == 'B4+')   { 
-      readRDS('./models/SVML_NF_B4+.rds') 
+      readRDS('./models/SVML_NF_B4plus.rds') 
     } else if (design == 'Pendant') { 
       readRDS('./models/SVML_NF_Pendant.rds') 
     } else { message('Error: Did you enter the wrong Mini Buoy type?') #@Ale: delete errors? as no other designs can be selected
@@ -26,7 +26,7 @@ get.hydrodynamics = function(data, design) {
     if (design == 'B4')   { 
       readRDS('./models/SVML_NPF_B4.rds')
     } else if (design == 'B4+')   { 
-      readRDS('./models/SVML_NPF_B4+.rds') 
+      readRDS('./models/SVML_NPF_B4plus.rds') 
     } else if (design == 'Pendant') { 
       readRDS('./models/SVML_NPF_Pendant.rds') 
     } else { message('Error: Did you enter the wrong Mini Buoy type?') 
