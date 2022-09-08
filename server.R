@@ -264,9 +264,7 @@ shinyServer(function(input, output, session) {
   #' Create empty reactive value with a placeholder for the
   #' data sets belonging to Target and reference sites
   values <- reactiveValues(Target = NULL,
-                           TargetHydro = NULL,
-                           Reference = NULL,
-                           ReferenceHydro = NULL)
+                           Reference = NULL)
   
   
   #' Reactive variable holding data
@@ -703,55 +701,6 @@ shinyServer(function(input, output, session) {
   ########################
   ##### HYDRODYNAMICS ####
   ########################
-  
-  ##### TARGET ####
-
-  #' Reactive variable holding data
-  #' Assigned to reactive value if empty
-  TargetHydro <- reactive({
-    if (is.null(values$TargetHydro) | identical(values$TargetHydro, data.frame())) {
-      print("Create TARGET hydro")
-      values$TargetHydro <- hydrodynamics(data = values$Target,
-                                          design = get.design.T())
-    }
-    if (identical(values$Target, data.frame())){
-      print("Delete TARGET hydro")
-      values$Target = data.frame()
-    }
-    return(values$TargetHydro)
-  })
-  
-  TargetStatsHydro <- reactive({
-    TargetHydro = TargetHydro()
-    return(statistics(TargetHydro))
-  })
-  
-  output$hydro.table.target <- DT::renderDataTable(
-    rownames = F,
-    {
-      if (is.null(values$Target) | identical(values$Target, data.frame())){
-        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
-                                            color = "blue", backgroundColor = "white"))
-      } else {
-        return(TargetStatsHydro() %>% 
-                 mutate_if(is.numeric, round, 2))
-      }
-    },
-    options = list(dom = 't'),
-  )
-  
-  #### Buttons ####
-  
-  #' Eventlistener to save filtered data
-  #' (Data > Filter)
-  observeEvent(input$hydro.table.target.save, {
-    save.csv(
-      path = projectPath(),
-      name = "Hydrodynamics_Target",
-      csvObject = TargetStatsHydro(),
-      ui.input = input
-    )
-  })
   
   ##### TARGET ####
   ##### Variables ####
