@@ -168,3 +168,15 @@ get.statistics = function(data) {
 
   return(hydro.tab)
 }
+
+
+#' Function for site comparison
+get.comparison = function(stats.t, stats.r){ 
+  comparison = stats.t %>% 
+    left_join(., stats.r, 'Parameter') %>%
+    rename(Target = Value.x, Reference = Value.y) %>%
+    mutate('Difference Absolute' = Target - Reference, 
+           'Difference (%)' = (Target - Reference) / Reference * 100) 
+  
+  return(comparison)
+} 

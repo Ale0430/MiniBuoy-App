@@ -994,4 +994,55 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  ##### COMPARISON ####
+  ##### Variables ####
+  
+  
+  ComparisonStats <- reactive({
+    TargetHydroStats = get.statistics(data = TargetHydroOverlap())
+    ReferenceHydroStats = get.statistics(data = ReferenceHydroOverlap())
+    
+    ComparisonStats = get.comparison(stats.t = TargetHydroStats,
+                                            stats.r = ReferenceHydroStats)
+    return(ComparisonStats)
+  })
+  
+  
+  ##### Table ####
+  
+  #' Render table showing hydrodynamics of target data
+  output$comparison.table.target <- DT::renderDataTable(
+    rownames = F,
+    {
+      
+      print(paste("bool.overlap: ", bool.overlap()))
+      if (bool.overlap()) {
+        return(ComparisonStats() %>% 
+                 mutate_if(is.numeric,round, 2))
+      } else {
+        if (bool.no.reference() | bool.no.target()){
+          tab.with.file.upload.message("Please upload your target AND reference data or select default data sets.",
+                                       color = "blue", backgroundColor = "white")
+        } else {
+          tab.with.file.upload.message("No overlapping time window.",
+                                       color = "blue", backgroundColor = "white")
+        }
+
+      }
+    },
+    options = list(dom = 't'),
+  )
+  
+  #' Eventlistener to save hydrodynamics summary target
+  #' (Hydrodynamics > Summary table)
+  observeEvent(input$comparison.table.target.save, {
+    save.csv(
+      path = projectPath(),
+      name = "Hydrodynamics_Target",
+      csvObject = TargetHydroStats(),
+      ui.input = input
+    )
+  })
+  
+  
 })

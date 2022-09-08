@@ -177,7 +177,10 @@ hyd.comparison.box.text = function(){
 
 hyd.comparison.box.table = function(){
   return(
-    p("TABLE")
+    list(
+      output.table("comparison.table.target"),
+      actButton("comparison.table.target.save", "Save table", "saveCsv")
+    )
   )
 }
 
