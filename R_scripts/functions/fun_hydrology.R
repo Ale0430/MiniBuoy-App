@@ -164,8 +164,7 @@ statistics = function(data) {
     gather(Parameter,
            Value,
            `Monitoring period (d)`:`75 percentile wave orbital vel. (m/s)`) %>%
-    na.omit()
-  
+    na.omit() %>% distinct(.)
+
   return(hydro.tab)
-  
 }
