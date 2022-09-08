@@ -370,12 +370,84 @@ shinyServer(function(input, output, session) {
     }
     Reference = Reference()
   })
+  
+  
+  #### TABLE OUTPUTS ####
+  
+  tab.with.file.upload.message = function(message, color = "#cc0000",
+                                          backgroundColor = '#ffcccc'){
+    m = matrix(
+      data = c(
+        message
       )
+    )
+    return(
+      datatable(m, options = list(dom = 't'), colnames=NULL) %>%
+        formatStyle(
+          1,
+          color = color,
+          backgroundColor = backgroundColor,
+          fontWeight = 'bold'
+        )
+    )
+  }
+  
+  
+  output$raw.target.sum <- DT::renderDataTable(
+    rownames = F,
+    {
+      if (!input$raw_default_T & is.null(input$fileTarget$datapath)){
+        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
+                                            color = "blue", backgroundColor = "white"))
+        
+      } else {
+        rawDataTable_T = rawData_T()
+        if (is.numeric(rawDataTable_T$Acceleration) & !all(is.na(rawDataTable_T$Acceleration))){
+          t = get.rawData.sum(rawDataTable_T, "TARGET")
+          return(t)
+        } else {
+          return(tab.with.file.upload.message(message.upload.fail))
+        }
+      }
+      
+      
+    },
+    options = list(dom = 't'),
+  )
+  
+  output$raw.reference.sum <- DT::renderDataTable(
+    rownames = F,
+    {
+      if (!input$raw_default_R & is.null(input$fileReference$datapath)){
+        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
+                                            color = "blue", backgroundColor = "white"))
+        
+      } else {
+        rawDataTable_R = rawData_R()
+        if (is.numeric(rawDataTable_R$Acceleration)){
+          return(get.rawData.sum(rawDataTable_R, "REFERENCE"))
+        } else {
+          return(tab.with.file.upload.message(message.upload.fail))
+        }
+      }
+    },
+    options = list(dom = 't'),
+  )
+  
+  observeEvent(input$setData.T | input$setData.R, {
+    if(input$setData.T==0 || input$setData.R==0){
+      return()
     }
+    Target = Target()
     Reference = Reference()
+    if (nrow(Target) > 0 & nrow(Reference) > 0){
+      get.time.overlap(data.t = Target(), 
+                       data.r = Reference())
+    }
     
   })
-
+  
+  
   
   #### FILTER ####
   
@@ -491,83 +563,6 @@ shinyServer(function(input, output, session) {
       max = minMaxDatetime[2]
     )
   }
-  
-  #### TABLE OUTPUTS ####
-  
-  tab.with.file.upload.message = function(message, color = "red",
-                                          backgroundColor = 'orange'){
-    m = matrix(
-      data = c(
-        message
-      )
-    )
-    return(
-      datatable(m, options = list(dom = 't'), colnames=NULL) %>%
-        formatStyle(
-          1,
-          color = color,
-          backgroundColor = backgroundColor,
-          fontWeight = 'bold'
-        )
-    )
-  }
-  
-  
-
-  message.upload.failed = "An error occured. Please check your uploaded csv-file (e.g. needs to contain line starting with '*DATA')."
-  output$raw.target.sum <- DT::renderDataTable(
-    rownames = F,
-    {
-      if (!input$raw_default_T & is.null(input$fileTarget$datapath)){
-        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
-                                            color = "blue", backgroundColor = "white"))
-        
-      } else {
-        rawDataTable_T = rawData_T()
-        if (is.numeric(rawDataTable_T$Acceleration)){
-          t = get.rawData.sum(rawDataTable_T, "TARGET")
-          return(t)
-        } else {
-          return(tab.with.file.upload.message(message.upload.failed))
-        }
-      }
-
-
-    },
-    options = list(dom = 't'),
-  )
-  
-  output$raw.reference.sum <- DT::renderDataTable(
-    rownames = F,
-    {
-      if (!input$raw_default_R & is.null(input$fileReference$datapath)){
-        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
-                                            color = "blue", backgroundColor = "white"))
-        
-      } else {
-        rawDataTable_R = rawData_R()
-        if (is.numeric(rawDataTable_R$Acceleration)){
-          return(get.rawData.sum(rawDataTable_R, "REFERENCE"))
-        } else {
-          return(tab.with.file.upload.message(message.upload.failed))
-        }
-      }
-    },
-    options = list(dom = 't'),
-  )
-  
-  observeEvent(input$setData.T | input$setData.R, {
-    if(input$setData.T==0 || input$setData.R==0){
-        return()
-    }
-    Target = Target()
-    Reference = Reference()
-    if (nrow(Target) > 0 & nrow(Reference) > 0){
-      get.time.overlap(data.t = Target(), 
-                       data.r = Reference())
-    }
-
-  })
   
 
   #### Text output ####
