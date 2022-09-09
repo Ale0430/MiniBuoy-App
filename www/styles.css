@@ -1,6 +1,10 @@
-/*#TargetName, #ReferenceName{
-    display: none;
-}*/
+/*
+ * Bootstrap Column fix
+ */
+.row{
+  display: flex;
+  flex-wrap: wrap;
+}
 .box.box-info {
     border-top-color: #3c8dbc;
 }

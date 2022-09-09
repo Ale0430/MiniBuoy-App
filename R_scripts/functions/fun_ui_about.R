@@ -2,32 +2,25 @@
 
 #### ABOUT ####
 
-introOutput = function() {
-  fluidRow(column(
-    6,
-    box(
-      title = "The Mini Buoy" ,
-      status = "info",
-      solidHeader = F,
-      width = "100%",
-      collapsible = T,
-      includeMarkdown("./man/MinibuoyIntro.md"),
-      column(12, img(src = 'MiniBuoyMotion.png', width = "100%"), align = "center")
-    )
-    
-    
-  ),
-  column(
-    6,
-    box(
-      title = "Mini Buoy Models",
-      status = "warning",
-      solidHeader = F,
-      collapsible = T,
-      width = "100%",
-      box.settings_sensors()
-    )
-  ))
+introOutput = function(){
+  fluidRow(
+    box(title = "The Mini Buoy" ,
+        status = "info", 
+        solidHeader = F, 
+        width = 6, 
+        height = "100%",
+        collapsible = T,
+        includeMarkdown("./man/MinibuoyIntro.md"),
+        column(12, img(src = 'MiniBuoyMotion.png', width = "100%"), align = "center")
+    ),
+    box(title = "Mini Buoy Models",
+        status = "warning", 
+        solidHeader = F,
+        collapsible = T, 
+        width = 6, 
+        height = "100%",
+        box.settings_sensors())
+  )
 }
 
 
