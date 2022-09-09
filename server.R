@@ -185,23 +185,31 @@ shinyServer(function(input, output, session) {
   #' Reactive variables holding raw data
   #' If no data set is defined, use default data set
   rawData_T <- reactive({
-    dataT = data.frame()
+    dataT = NULL
+    # Load default file
     if (input$raw_default_T){
       defaultData_T = "./data/default_target.csv"
       print("Default TARGET data")
       dataT = get.ACCy.B4(defaultData_T)
     } else {
+      # Load user file if file type is choosen and file path provided
       if (bool.file.upload.target()){
         print("User TARGET data")
         dataT = get.rawData_T(input) 
       }
+    }
+    # If column Acceleration is not numeric or is all NA
+    # delete data frame
+    if (!is.numeric(dataT$Acceleration) | all(is.na(dataT$Acceleration))){
+      print("Raw data upload TARGET failed")
+      dataT = NULL
     }
     return(dataT)
   })
   
   
   rawData_R <- reactive({
-    dataR = data.frame()
+    dataR = NULL
     if (input$raw_default_R){
       defaultData_R = "./data/default_reference.csv"
       print("Default REFERENCE data")
@@ -211,6 +219,12 @@ shinyServer(function(input, output, session) {
         print("User REFERENCE data")
         dataR = get.rawData_R(input)
       }
+    }
+    # If column Acceleration is not numeric or is all NA
+    # delete data frame
+    if (!is.numeric(dataR$Acceleration) | all(is.na(dataR$Acceleration))){
+      print("Raw data upload TARGET failed")
+      dataR = NULL
     }
     return(dataR)
   })
