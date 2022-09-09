@@ -102,26 +102,27 @@ get.statistics = function(data) {
     na.omit() %>%
     ungroup() %>%
     summarise(SumMinInundated  = sum(MinInundated),
-              `Average flooding duration (min/d)` = mean(MinInundated))
+              AverageFloodingDuration = mean(MinInundated))
   
   
-  # # daily flood frequency:
+  # daily flood frequency:
   s.days = data %>%
     dplyr::select(datetime, Event) %>%
     na.omit() %>%
     group_by(datetime = as_date(datetime))%>%
     summarise(Frequency = mean(length(unique(Event))))%>%
-    summarise(`Flooding frequency (f/d)` = mean(Frequency))
+    summarise(FloodingFrequency = mean(Frequency))
+  # summarise(`Flooding frequency (f/d)` = mean(Frequency))
   
   # survey days, total length of survey (min), current and wave orbital velocities (median and upper quantile values):
   s.all = data %>%
     summarise(
-      `Monitoring period (d)` = difftime(last(datetime), first(datetime), units = 'days')[[1]],
+      MonitoringPeriod = difftime(last(datetime), first(datetime), units = 'days')[[1]],
       SurveyMins = difftime(last(datetime), first(datetime), units = 'mins')[[1]],
-      `Median Current Vel. (m/s)` = median(CurrentVelocity, na.rm = T),
-      `75 percentile Vel (m/s)` = quantile(CurrentVelocity, 0.75, names = F, na.rm = T),
-      `Median wave orbital vel. (m/s)` = median(WaveOrbitalVelocity, na.rm = T),
-      `75 percentile wave orbital vel. (m/s)` = quantile(WaveOrbitalVelocity, 0.75, names = F, na.rm = T))
+      MedianCurrentVel = median(CurrentVelocity, na.rm = T),
+      MedianCurrentVel75 = quantile(CurrentVelocity, 0.75, names = F, na.rm = T),
+      MedianWaveOrbitalVel = median(WaveOrbitalVelocity, na.rm = T),
+      MedianWaveOrbitalVel75 = quantile(WaveOrbitalVelocity, 0.75, names = F, na.rm = T))
   
   # maximum WoO length (days):
   max.WoO = data %>%
@@ -134,36 +135,44 @@ get.statistics = function(data) {
               length = n()) %>%
     na.omit() %>%
     filter(length == max(length)) %>%
-    mutate(`Max. WoO duration (d)` = difftime(end, start, units = 'days')[[1]]) %>%
-    dplyr::select(`Max. WoO duration (d)`)
+    mutate(maxWoO = difftime(end, start, units = 'days')[[1]]) %>%
+    dplyr::select(maxWoO)
   
   # flood-ebb velocity:
   flood.ebb = data %>%
     group_by(Tide) %>%
-    summarise(`Flood Ebb Median velocity (m/s)` = median(CurrentVelocity, na.rm = T)) %>%
+    summarise(FloodEbbMedianVelocity = median(CurrentVelocity, na.rm = T)) %>%
     na.omit() %>%
-    spread(Tide, `Flood Ebb Median velocity (m/s)`) %>%
-    summarise(`Flood Ebb Median velocity (m/s)` = Flood - Ebb)
+    spread(Tide, FloodEbbMedianVelocity) %>%
+    summarise(FloodEbbMedianVelocity = Flood - Ebb)
   
   # Merge:
   hydro.tab = bind_cols(s.events, s.days, s.all, max.WoO, flood.ebb) %>%
-    mutate(`Time flooded during survey (%)` = SumMinInundated / SurveyMins * 100,
-           `Flooding frequency (f/d)`) %>%
+    mutate(TimeFloodedDuringSurvey = SumMinInundated / SurveyMins * 100) %>% 
     dplyr::select(
-      `Monitoring period (d)`,
-      `Average flooding duration (min/d)`,
-      `Time flooded during survey (%)`,
-      `Flooding frequency (f/d)`,
-      `Max. WoO duration (d)`,
-      `Median Current Vel. (m/s)`,
-      `75 percentile Vel (m/s)`,
-      `Flood Ebb Median velocity (m/s)`,
-      `Median wave orbital vel. (m/s)`,
-      `75 percentile wave orbital vel. (m/s)`
-    ) %>%
+      MonitoringPeriod,
+      AverageFloodingDuration,
+      TimeFloodedDuringSurvey,
+      FloodingFrequency,
+      maxWoO,
+      MedianCurrentVel,
+      MedianCurrentVel75,
+      FloodEbbMedianVelocity,
+      MedianWaveOrbitalVel,
+      MedianWaveOrbitalVel75) %>% 
+    `colnames<-`(c("Monitoring period (d)", 
+                   "Average flooding duration (min/d)",
+                   "Time flooded during survey (%)",
+                   "Flooding frequency (f/d)",
+                   "Max. Window of opportunity duration (d)",
+                   "Median current velocity (m/s)",
+                   "75 percentile current velocity (m/s)",
+                   "Flood ebb median velocity (m/s)",
+                   "Median wave orbital velocity (m/s)",
+                   "75 percentile wave orbital velocity (m/s)")) %>%
     gather(Parameter,
-           Value,
-           `Monitoring period (d)`:`75 percentile wave orbital vel. (m/s)`) %>%
+           Value) %>% 
+    # `Monitoring period (d)`:`75 percentile wave orbital vel. (m/s)`) %>%
     na.omit() %>% distinct(.)
 
   return(hydro.tab)
