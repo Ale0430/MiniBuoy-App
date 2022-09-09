@@ -1,6 +1,9 @@
 /*#TargetName, #ReferenceName{
     display: none;
 }*/
+.box.box-info {
+    border-top-color: #3c8dbc;
+}
 #shiny-notification-panel {
     position: fixed;
     top: 60px;
