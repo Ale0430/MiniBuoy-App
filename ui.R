@@ -28,9 +28,7 @@ shinyUI(
                 dataUplOutput()),
         tabItem(tabName = "dat_filter",
                dataFilterOutput()),
-        
-        # tabItem(tabName = "hydr_res",
-        #         HydrologyOutput())
+
         tabItem(tabName = "hyd_target",
                 hydTargetOutput()),
         tabItem(tabName = "hyd_reference",

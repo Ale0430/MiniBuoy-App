@@ -45,12 +45,6 @@ body > .wrapper > header{
     top: 0
 }
 
-#kDepthSelect {
-    padding: 10px;
-    background-color: #f5f5f5;
-    border-radius: 4px;
-}
-
 .skin-black .sidebar-menu>li.active>a,
 .skin-black .sidebar-menu>li:hover>a {
     color: #fff;
