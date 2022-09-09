@@ -384,14 +384,14 @@ shinyServer(function(input, output, session) {
   
   #' Reactive variable indicating if Target data is available
   bool.no.target <- reactive({
-    Target = Target()
+    Target = values$Target
     return((is.null(Target) | identical(Target, data.frame())))
   })
   
   
   #' Reactive variable indicating if Reference data is available
   bool.no.reference <- reactive({
-    Reference = Reference()
+    Reference = values$Reference
     return((is.null(Reference) | identical(Reference, data.frame())))
   })
   
@@ -400,7 +400,7 @@ shinyServer(function(input, output, session) {
     ref.exists = !bool.no.reference()
     time.overlap = F
     if (tar.exists & ref.exists){
-      time.overlap = !is.null(get.time.overlap(Reference(), Target()))
+      time.overlap = !is.null(get.time.overlap(values$Reference, values$Target))
     }
     return(time.overlap)
   })
@@ -474,17 +474,11 @@ shinyServer(function(input, output, session) {
     if (input$setData.T == 0 || input$setData.R == 0) {
       return()
     }
-    Target = Target()
-    Reference = Reference()
-<<<<<<< HEAD
-    
+    Target = values$Target
+    Reference = values$Reference
     if (!is.null(Target) & !is.null(Reference)){
-      get.time.overlap(data.t = Target(), 
-                       data.r = Reference())
-=======
-    if (nrow(Target) > 0 & nrow(Reference) > 0) {
-      time.overlap = get.time.overlap(data.t = Target(),
-                                      data.r = Reference())
+      time.overlap = get.time.overlap(data.t = values$Target,
+                                      data.r = values$Reference)
       if (is.null(time.overlap)) {
         showNotification(
           "Warning: Time windows of TARGET and REFERENCE do not overlap",
@@ -505,7 +499,6 @@ shinyServer(function(input, output, session) {
           closeButton = T
         )
       }
->>>>>>> update notification about overlapping time window
     }
     
   })
@@ -577,7 +570,7 @@ shinyServer(function(input, output, session) {
     if (!is.null(input$fileTarget)) {
       req(input$setData.T)
     }
-    d = Target()
+    d = values$Target
     minDate = min(d$datetime)
     maxDate = max(d$datetime)
     return(c(minDate, maxDate))
@@ -587,7 +580,7 @@ shinyServer(function(input, output, session) {
     if (!is.null(input$fileReference)) {
       req(input$setData.R)
     }
-    d = Reference()
+    d = values$Reference
     minDate = min(d$date)
     maxDate = max(d$date)
     return(c(minDate, maxDate))
@@ -645,12 +638,12 @@ shinyServer(function(input, output, session) {
   
   output$dataPoints.T <- renderText({ 
     get.deleted.points.text(data_before = rawData_T(),
-                            data_after = Target())
+                            data_after = values$Target)
   })
   
   output$dataPoints.R <- renderText({
     get.deleted.points.text(data_before = rawData_R(),
-                            data_after = Reference())
+                            data_after = values$Reference)
   })
   
   #### Graphics ####
@@ -660,10 +653,10 @@ shinyServer(function(input, output, session) {
   #' Show notification if no data were uploaded
   DataSetInput <- reactive({
     if (input$filterPlot_DataSet == "TARGET") {
-      dataset <- data.frame(Target())
+      dataset <- data.frame(values$Target)
     }
     if (input$filterPlot_DataSet == "REFERENCE") {
-      dataset <- data.frame(Reference())
+      dataset <- data.frame(values$Reference)
     }
     if (identical(dataset, data.frame())) {
       showNotification(
@@ -767,7 +760,7 @@ shinyServer(function(input, output, session) {
       TargetHydro = data.frame()
     } else {
       print("Create TARGET hydro ...")
-      TargetHydro <- get.hydrodynamics(data = Target(),
+      TargetHydro <- get.hydrodynamics(data = values$Target, 
                                        design = get.design.T())
     }
     return(TargetHydro)
@@ -783,10 +776,10 @@ shinyServer(function(input, output, session) {
         closeButton = T
       )
     } else {
-      time.overlap = get.time.overlap(data.t = Target(),
-                                      data.r = Reference())
+      time.overlap = get.time.overlap(data.t = values$Target,
+                                      data.r = values$Reference)
       if (!is.null(time.overlap)){
-        Target.filtered = Target() %>%
+        Target.filtered = values$Target %>%
           filter(datetime >= time.overlap[1] &
                    datetime <= time.overlap[2])
         
@@ -966,10 +959,10 @@ shinyServer(function(input, output, session) {
         closeButton = T
       )
     } else {
-      time.overlap = get.time.overlap(data.t = Target(),
-                                      data.r = Reference())
+      time.overlap = get.time.overlap(data.t = values$Target,
+                                      data.r = values$Reference)
       if (!is.null(time.overlap)){
-        Reference.filtered = Reference() %>%
+        Reference.filtered = values$Reference %>%
           filter(datetime >= time.overlap[1] &
                    datetime <= time.overlap[2])
         
@@ -980,6 +973,7 @@ shinyServer(function(input, output, session) {
     return(ReferenceHydroOverlap)
   })
   
+
   # Return statistics
   ReferenceHydroStats <- reactive({
     # If checkbox available ...
@@ -1020,7 +1014,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$hydro.table.reference.save, {
     save.csv(
       path = projectPath(),
-      name = "Hydrodynamics_Referencet",
+      name = "Hydrodynamics_Reference",
       csvObject = ReferenceHydroStats(),
       ui.input = input
     )
@@ -1083,7 +1077,7 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
   fig.inundation.comparison <- reactive({
-    if (bool.no.target()){
+    if (bool.no.target() | bool.no.reference()){
       plot.emptyMessage("No figure available. Please upload data.")
     } else {
       plot.inundationComparison(data.t = TargetHydroOverlap(),
