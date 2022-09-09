@@ -60,13 +60,13 @@ hyd.target.box.figures = function(){
                          "Save figure", 
                          "saveFigure")),
       tabPanel("Current velocity", br(),
-               output.figure("fig.velocity"),
-               actButton("save.fig.velocity",
+               output.figure("fig.velocity.target"),
+               actButton("save.fig.velocity.target",
                          "Save figure", 
                          "saveFigure")),
       tabPanel("Wave orbital velocity", br(),
-               output.figure("fig.wave.velocity"),
-               actButton("save.fig.wave.velocity",
+               output.figure("fig.wave.velocity.target"),
+               actButton("save.fig.wave.velocity.target",
                          "Save figure", 
                          "saveFigure"))
     ))
@@ -126,8 +126,24 @@ hyd.reference.box.table = function(){
 }
 
 hyd.reference.box.figures = function(){
-  return(
-    p("FIGURES in tabs")
+  return(list(
+    tabsetPanel(
+      tabPanel("Daily inundation", br(),
+               output.figure("fig.inundation.reference"),
+               actButton("save.fig.inundation.reference",
+                         "Save figure", 
+                         "saveFigure")),
+      tabPanel("Current velocity", br(),
+               output.figure("fig.velocity.reference"),
+               actButton("save.fig.velocity.reference",
+                         "Save figure", 
+                         "saveFigure")),
+      tabPanel("Wave orbital velocity", br(),
+               output.figure("fig.wave.velocity.reference"),
+               actButton("save.fig.wave.velocity.reference",
+                         "Save figure", 
+                         "saveFigure"))
+    ))
   )
 }
 
