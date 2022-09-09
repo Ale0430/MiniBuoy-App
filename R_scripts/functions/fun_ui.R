@@ -32,8 +32,9 @@ actButton <- function(ID, label, type){
   }
   if (type == "create"){
     return(actionButton(ID, label,
-                        style = paste(buttonStyles("red"), "margin-bottom: 2rem", sep = ";"),
-                        icon("folder-plus")))
+                        style = paste(buttonStyles("leafgreen"), "margin-bottom: 2rem",
+                                      sep = ";"),
+                        icon("tag",style="margin-right:.5em")))
   }
   if (type == "update"){
     return(actionButton(ID, label,
@@ -48,7 +49,7 @@ buttonStyles = function(type = "blue"){
   { ##14B3EE#337ab7
     return("color: #fff; background-color: #14B3EE; border-color: #2e6da4; margin-bottom: 2rem; margin-top: 2rem")
   }
-  if (type == "red")
+  if (type == "leafgreen")
   {#orange: #F07221 #red:cc0000 (#0F8B6E - Aqua fill, darker border #175C4C)
     return("color: #fff; background-color: #0F8B6E; border-color:  #175C4C; margin-bottom: 2rem; margin-top: 2rem")
   }
