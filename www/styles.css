@@ -4,6 +4,12 @@
 .box.box-info {
     border-top-color: #3c8dbc;
 }
+.box.box-warning {
+    border-top-color: #3583B0;
+}
+.box.box-success {
+    border-top-color: #9CD8FA;
+}
 #shiny-notification-panel {
     position: fixed;
     top: 60px;
