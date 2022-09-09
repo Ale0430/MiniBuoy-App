@@ -141,13 +141,13 @@ hydComparisonOutput = function(){
   return(
     list(
       fluidRow(
-        column(6, 
+        column(3, 
                box(title = "Results ....",
                    width = "100%",
                    collapsible = T, status = "success",
                    hyd.comparison.box.text())),
         
-        column(6,
+        column(9,
                box(title = "Summary table",
                    width = "100%",
                    collapsible = T, status = "success",
