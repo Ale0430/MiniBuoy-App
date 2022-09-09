@@ -141,13 +141,13 @@ dataFilterOutput = function(){
       column(6, box(title = "Target",
                     collapsible = T,  width = "100%",
                     status = "warning",
-                    actButton("LoadFilter.T", "Load filter options", "update"),
+                    actButton("LoadFilter.T", "Open filter options", "update"),
                     uiOutput("filterOptions.T")
       )),
       column(6, box(title = "Reference",
                     collapsible = T,  width = "100%",
                     status = "warning",
-                    actButton("LoadFilter.R", "Load filter options", "update"),
+                    actButton("LoadFilter.R", "Open filter options", "update"),
                     uiOutput("filterOptions.R")
       ))
     ),

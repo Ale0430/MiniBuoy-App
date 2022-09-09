@@ -738,14 +738,14 @@ shinyServer(function(input, output, session) {
   output$hydro.window.target.show = renderUI({
     if (!bool.no.target() & !bool.no.reference()){
       checkboxInput("hydro.window.target", 
-                    "Use common time window of target and reference data", F)
+                    "Use only overlapping times of the target and reference data", F)
     }
   })
   
   output$hydro.window.reference.show = renderUI({
     if (!bool.no.target() & !bool.no.reference()){
       checkboxInput("hydro.window.reference", 
-                    "Use common time window of target and reference data", F)
+                    "Use only overlapping times of the target and reference data", F)
     }
   })
   
