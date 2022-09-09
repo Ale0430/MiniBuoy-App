@@ -185,7 +185,13 @@ hyd.comparison.box.table = function(){
 }
 
 hyd.comparison.box.figures = function(){
-  return(
-    p("FIGURES in tabs")
+  return(list(
+    tabsetPanel(
+      tabPanel("Daily inundation", br(),
+               output.figure("fig.inundation.comparison"),
+               actButton("save.fig.inundation.comparison",
+                         "Save figure", 
+                         "saveFigure"))
+    ))
   )
 }

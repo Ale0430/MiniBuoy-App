@@ -213,3 +213,25 @@ plot.waveVelocity = function(data) {
 }
 
 ######## HYDRO: COMPARISON ########
+
+#' Inundation
+plot.inundationComparison = function(data.t, data.r){
+   hydro = data.t %>% 
+      mutate(Type = "Target") %>% 
+      bind_rows(data.r %>% 
+                   mutate(Type = "Reference")) %>% 
+      mutate(date = ceiling_date(datetime, unit = 'days')) %>%
+      group_by(Type, date) %>%
+      summarise(InundationMin = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1]))
+   
+   return(hydro %>% 
+             ggplot(aes(x = date, y = InundationMin, fill = Type)) +
+             geom_bar(stat = 'identity', position = 'dodge') +
+             scale_fill_manual(values = c('lightblue', 'royalblue')) +
+             scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+             labs(y = 'Daily inundation (min/day)',
+                  fill = "Site") + 
+             theme(axis.title.x = element_blank())#,
+                   # legend.title = element_blank()) 
+          )
+}

@@ -1045,4 +1045,35 @@ shinyServer(function(input, output, session) {
   })
   
   
+  #### Figures ####
+  #### Inundation #####
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.inundation.comparison <- reactive({
+    if (bool.no.target()){
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else {
+      plot.inundationComparison(data.t = TargetHydroOverlap(),
+                                data.r = ReferenceHydroOverlap())
+    }
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.inundation.comparison <- renderPlot({
+    fig.inundation.comparison()
+  })
+  
+  #' Eventlistener to save plot with inundation data
+  #' (Hydrodynamics > Target)
+  observeEvent(input$save.fig.inundation.comparison, {
+    name = "DailyInundation_Comparison"
+    save.figure(
+      path = projectPath(),
+      name = name,
+      plotObject = fig.inundation.comparison(),
+      ui.input = input
+    )
+  })
+  
 })
