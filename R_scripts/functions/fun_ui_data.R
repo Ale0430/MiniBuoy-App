@@ -7,112 +7,126 @@ dataUplOutput = function(){
   return(
     fluidRow(
       column(6,
-             box(title = "Upload data files",
+             box(title = "Target",
                  collapsible = T, width = "100%",
                  status = "warning",
-                 box.dat_upl.upload1(),
-                 box.dat_upl.upload2()
+                 box.dat_upl.upload.tar()
              )
       ),
       column(6,
-             box(title = "Description", collapsed = T,
+             box(title = "Reference",
                  collapsible = T, width = "100%",
-                 status = "info",
-                 includeMarkdown("./man/des_data.md")),
-             box(title = "Preview data",
-                 collapsible = T, width = "100%",
-                 status = "success",
-                 
-                 tabsetPanel(
-                   tabPanel("Target", br(),
-                            output.table("raw.target")),
-                   tabPanel("Reference", br(),
-                            #actButton("save_dat_upl", "Save csv", "saveCsv"),
-                            br(),
-                            output.table("raw.reference")))))
+                 status = "warning",
+                 box.dat_upl.upload.ref()
+             )
+      )
     ))
 }
 
-box.dat_upl.upload1 = function(){
+box.dat_upl.upload.tar = function() {
   return(list(
-    # Input: Select a file ----
-    fluidRow(
-      column(6, fileInput("file1", "Choose Target site CSV file",
-                          buttonLabel = HTML("<span 
-                class='btn btn-primary' 
-                style='margin: -8px -13px;
-                  position: relative;
-                  top: -2px;
-                  border-radius: 0;margin: -8px -13px;
-                   position: relative;
-                   top: -2px;
-                   border-radius: 0;'>
-                                   Browse...
-                                   </span>"),
-                          multiple = F,
-                          accept = c("text/csv",
-                                     "text/comma-separated-values,text/plain",
-                                     ".csv"))),
-      column(6,  selectInput("sep", "Separator", 
-                             choices = c("Comma" = ",",
-                                         "Semicolon" = ";",
-                                         "Tab" = "\t")))
+    checkboxInput("raw_default_T", "Use default data set", F),
+    conditionalPanel(
+      condition = "input.raw_default_T == false",
+      br(),
+      # Input: Select a file ----
+      selectInput(
+          "inputType_T",
+          "Select Mini Buoy design used",
+          c(
+            "Please select" = "empty",
+            "B4" = "B4",
+            "B4+" = "B4+",
+            "Pendant" = "Pendant"
+          )
+      )),
+    conditionalPanel(
+      condition = "input.inputType_T != `empty` & input.raw_default_T == false",
+      
+      fileInput(
+        "fileTarget",
+        "Choose the target site data (.csv file)",
+        buttonLabel = HTML(
+          "<span
+      class='btn btn-primary'
+      style='margin: -8px -13px;
+        position: relative;
+        top: -2px;
+        border-radius: 0;margin: -8px -13px;
+         position: relative;
+         top: -2px;
+         border-radius: 0;'>
+                         Browse...
+                         </span>"
+        ),
+        multiple = F,
+        accept = c(
+          "text/csv",
+          "text/comma-separated-values,text/plain",
+          ".csv"
+        )
+      )
     ),
     
-    selectInput("inputType", "Input file type",
-                c("Mini Buoy 1" = "MB1", 
-                  "Mini Buoy 2" = "MB2",
-                  "Mini Buoy 3" = "MB3")),
-    numericInput("skip", "Skip:", min = 0, max = 100, 1),
+    br(),
+    h5(strong("Summary of the data")),
+    output.table("raw.target.sum"),
+    actButton("setData.T", "Use data", "create"),
+    span(textOutput("TargetName"), style="color:white")
     
-    # Input: Checkbox if file has header ----
-    # checkboxInput("header", "Header", TRUE),
-    # Input: Select separator ----
-    
-    actButton("setData", "Use data", "create")
-   
   ))
 }
 
-box.dat_upl.upload2 = function(){
+box.dat_upl.upload.ref = function(){
   return(list(
-    # Input: Select a file ----
-    fluidRow(
-      column(6, fileInput("file2", "Choose Reference site CSV file",
-                          buttonLabel = HTML("<span 
-                class='btn btn-primary' 
-                style='margin: -8px -13px;
-                  position: relative;
-                  top: -2px;
-                  border-radius: 0;margin: -8px -13px;
-                   position: relative;
-                   top: -2px;
-                   border-radius: 0;'>
-                                   Browse...
-                                   </span>"),
-                          multiple = F,
-                          accept = c("text/csv",
-                                     "text/comma-separated-values,text/plain",
-                                     ".csv"))),
-      column(6,  selectInput("sep", "Separator", 
-                             choices = c("Comma" = ",",
-                                         "Semicolon" = ";",
-                                         "Tab" = "\t")))
+    checkboxInput("raw_default_R", "Use default data set", F),
+    conditionalPanel(
+      condition = "input.raw_default_R == false",
+      br(),
+      # Input: Select a file ----
+      selectInput(
+        "inputType_R",
+        "Select Mini Buoy design used",
+        c(
+          "Please select" = "empty",
+          "B4" = "B4",
+          "B4+" = "B4+",
+          "Pendant" = "Pendant"
+        )
+      )),
+    conditionalPanel(
+      condition = "input.inputType_R != `empty` & input.raw_default_R == false",
+      
+      fileInput(
+        "fileReference",
+        "(Optional) Choose the reference site data (.csv file)",
+        buttonLabel = HTML(
+          "<span
+      class='btn btn-primary'
+      style='margin: -8px -13px;
+        position: relative;
+        top: -2px;
+        border-radius: 0;margin: -8px -13px;
+         position: relative;
+         top: -2px;
+         border-radius: 0;'>
+                         Browse...
+                         </span>"
+        ),
+        multiple = F,
+        accept = c(
+          "text/csv",
+          "text/comma-separated-values,text/plain",
+          ".csv"
+        )
+      )
     ),
-    
-    selectInput("inputType", "Input file type",
-                c("Mini Buoy 1" = "MB1", 
-                  "Mini Buoy 2" = "MB2",
-                  "Mini Buoy 3" = "MB3")),
-    numericInput("skip", "Skip:", min = 0, max = 100, 1),
-    
-    # Input: Checkbox if file has header ----
-    # checkboxInput("header", "Header", TRUE),
-    # Input: Select separator ----
-    
-    actButton("setData", "Use data", "create"),
-    p(em("<Note> If your data set contains non-numeric rows, e.g. logger warnings,
-           they are converted to NA values. Remove them in the 'Data > Filter' section."))
+
+    br(),
+    h5(strong("Summary of the data")),
+    output.table("raw.reference.sum"),
+    actButton("setData.R", "Use data", "create"),
+    span(textOutput("ReferenceName"), style="color:white")
   ))
 }
 
@@ -122,55 +136,77 @@ box.dat_upl.upload2 = function(){
 ### Filter ###
 
 dataFilterOutput = function(){
-  return(
+  return(list(
     fluidRow(
-      column(4, box(title = "Filter options",
+      column(6, box(title = "Target",
                     collapsible = T,  width = "100%",
                     status = "warning",
-                    actButton("LoadFilter", "Load filter options", "update"),
-                    uiOutput("filterOptions")
+                    actButton("LoadFilter.T", "Load filter options", "update"),
+                    uiOutput("filterOptions.T")
       )),
-      column(8,
-             box(title = "Raw data figures",
-                 collapsible = T, width = "100%",
-                 status = "success",
-                 box.filter.figures(),
-                 actButton("save_dat_filter", "Save csv", "saveCsv"),
-                 actButton("save_dat_filter_fig", "Save figure", "saveFigure")),
-             box(title = "Info",
-                 collapsible = T, width = "100%",
-                 status = "info")#,
-                 #includeMarkdown("./man/des_data_filter.md"))
-             
+      column(6, box(title = "Reference",
+                    collapsible = T,  width = "100%",
+                    status = "warning",
+                    actButton("LoadFilter.R", "Load filter options", "update"),
+                    uiOutput("filterOptions.R")
       ))
+    ),
+    fluidRow(
+      column(12, box(title = "Check the raw acceleration data",
+                     collapsible = T, width = "100%",
+                     status = "success",
+                     box.filter.figures()))
+    ))
   )
 }
 
 
 box.filter.figures = function(){
   return(list(
-    fluidRow(
-      column(4, checkboxInput("filterPlot_facetGrid", 
-                              "Facet grid (Acceleration ~ date)", F))
-    ),
-    
-    radioButtons("filterPlot_type", "Diagram type", inline = T,
-                 choices = c("Scatter plot" = "scatter",
-                             "Histogram" = "hist")),
     
     fluidRow(
-      column(4, selectInput("DataSet", "View",
-                           choices = c("Reference" = "Reference",
-                                        "Target" = "Target"))),
-       column(4, selectInput("filterPlot_col", "Color/ Group",
-                             choices = c("Acceleration" = "Acceleration",
-                                         "doy" = "doy",
-                                         "none" = "none",
-                                         "date" = "date"))),
-      column(4, numericInput("filterPlot_binwidth", "Binwidth", value = 0.1))
+      column(3, selectInput(
+        "filterPlot_DataSet",
+        "View data",
+        choices = c("Target" = "TARGET",
+                    "Reference" = "REFERENCE"))),
+      column(4,
+             radioButtons(
+               "filterPlot_type",
+               "Diagram type",
+               inline = T,
+               choices = c(
+                 "Histogram" = "hist",
+                 "Line plot" = "line",
+                 "Scatter plot" = "scatter"
+               )), 
+             offset = 1),
+      column(4,
+             conditionalPanel(
+               condition = "input.filterPlot_type == `hist`",
+               numericInput("filterPlot_bins", "Number of bins for histogram", value = 100)
+             ),
+             conditionalPanel(
+               condition = "input.filterPlot_type != `hist`",
+               selectInput("filterPlot_window", "Aggregation window",
+                           choices = c("hours" = "hours",
+                                       "30 minutes" = "30 minutes",
+                                       "20 minutes" = "20 minutes",
+                                       "10 minutes" = "10 minutes",
+                                       "minutes" = "minutes"))
+
+             ))
     ),
-    
-    output.figure("filterPlot")
+
+    fluidRow(
+      column(2, actButton("filterPlot_renderPlot", "Render figure", "update")),
+      column(2, actButton("save_dat_filter", "Save filtered data", "saveCsv")),
+      column(1, actButton("save_dat_filter_fig", "Save figure", "saveFigure"))
+    ),
+    conditionalPanel(
+      condition = "input.filterPlot_renderPlot != 0",
+      output.figure("filterPlot")
+    )
   ))
 }
 

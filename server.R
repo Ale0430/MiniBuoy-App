@@ -1,14 +1,13 @@
 # Define file upload limit, now 15 MB
-options(shiny.maxRequestSize = 15*1024^4)
+options(shiny.maxRequestSize = 15 * 1024 ^ 4)
 
 shinyServer(function(input, output, session) {
-  
   ########################
   ### PROJECT SETTINGS ###
   ########################
   
   #### Variables ####
-  
+
   #' Shiny function that returns 'available volumes on the system'
   volumes = getVolumes()
   
@@ -17,8 +16,9 @@ shinyServer(function(input, output, session) {
             system = volumes())
   
   #' Shiny function to 'to navigate the filesystem'
-  folderInput1 <- shinyDirChoose(input, 'folder',
-                                roots = roots, 
+  folderInput1 <- shinyDirChoose(input,
+                                 'folder',
+                                 roots = roots,
                                  filetypes = c('', 'txt'))
   
   
@@ -26,20 +26,25 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the current project path
   #' If not project is selected it returns the root directory
   projectPath <- reactive({
-    if (!isTruthy(input$folder)){
+    if (!isTruthy(input$folder)) {
       roots[[1]]
     } else {
-      parseDirPath(roots = roots, selection = input$folder)      
+      parseDirPath(roots = roots, selection = input$folder)
     }
   })
   
   #' Reactive variable holding the current project name
   projectName <- reactive({
-    return(tail(unlist(strsplit(as.character(projectPath()), "/")), 1))
+    return(tail(unlist(strsplit(
+      as.character(projectPath()), "/"
+    )), 1))
   })
   
+  output$prjName <- renderPrint({
+    cat("No project chosen")
+  })
   
-  #' Reactive variable holding the name of plot titles 
+  #' Reactive variable holding the name of plot titles
   #' (for saved plots)
   #' If not defined in the UI it returns "", i.e. no title appears
   figTitle <- reactive({
@@ -47,7 +52,7 @@ shinyServer(function(input, output, session) {
   })
   
   #' Set default theme
-  theme_set(theme_bw())  
+  theme_set(theme_bw())
   
   #' Reactive variable holding ggplot theme
   #' Can be defined in UI
@@ -55,31 +60,31 @@ shinyServer(function(input, output, session) {
     themes[[input$figTheme]]
   })
   
-  #' Reactive variable holding fill colors to be used in 
+  #' Reactive variable holding fill colors to be used in
   #' all plots with discrete data
   #' Can be defined in UI
   fillcolors_react = reactive({
     return(get.fillcolors(ui.input = input))
   })
   
-  #' Global function (accessible from other scripts) 
+  #' Global function (accessible from other scripts)
   #' that returns a set of N fillcolors
-  fillcolors <<- function(N){
+  fillcolors <<- function(N) {
     col = fillcolors_react()
     len = length(col)
-    return(col[(len-N):len])
+    return(col[(len - N):len])
   }
   
-  #' Reactive variable holding colors to be used in 
+  #' Reactive variable holding colors to be used in
   #' all plots with gradient color scale
   #' Can be defined in UI
   gradientcolors_react = reactive({
     return(get.gradientcolors(ui.input = input))
   })
   
-  #' Global function (accessible from other scripts) 
+  #' Global function (accessible from other scripts)
   #' that returns 2 colors
-  gradientcolors <<- function(){
+  gradientcolors <<- function() {
     col = gradientcolors_react()
     return(col)
   }
@@ -88,7 +93,7 @@ shinyServer(function(input, output, session) {
   
   #### UI output ####
   #' Function to render all ggplots with defined theme
-  output$theme_output <- renderUI({ 
+  output$theme_output <- renderUI({
     #req(input$figTheme)
     theme_set(plot_theme())
     NULL
@@ -97,7 +102,12 @@ shinyServer(function(input, output, session) {
   #' Show project path in Project Settings > Project
   #' if a project folder is selected
   output$prjDir <- renderPrint({
-    projectPath()
+    projectPath = projectPath()
+    if (identical(projectPath, character(0))){
+      cat("WARNING: No directory has been selected.")
+    } else {
+      cat(projectPath())
+    }
   })
   
   
@@ -110,376 +120,578 @@ shinyServer(function(input, output, session) {
   #' Sets project name = project folder name
   observeEvent(input$crtPrj, {
     # If no folder have been selected show error
-    if (!isTruthy(input$folder)){
-      showNotification("No folder has been selected yet",
+    if (!isTruthy(input$folder) | is.null(projectName())) {
+      showNotification("WARNING: No project has been created. Please select a folder.",
                        type = "error")
-    } else{
+      output$prjName <- renderPrint({
+        cat("NONE")
+      })
+    } else {
       req(input$folder)
       csvPath = paste(projectPath(),
                       "/csv-files/", sep = "")
       figPath = paste(projectPath(),
                       "/graphics/", sep = "")
-      if (!dir.exists(csvPath)){
+      if (!dir.exists(csvPath)) {
         dir.create(csvPath)
       }
-      if (!dir.exists(figPath)){
+      if (!dir.exists(figPath)) {
         dir.create(figPath)
       }
       showNotification("A project has been created",
                        type = "message")
+      output$prjName <- renderPrint({
+        cat(projectName())
+      })
     }
-    output$prjName <- renderPrint({
-      projectName()
-    })
   })
   
   
+  ##############
+  #### DATA ####
+  ##############
+  
+  #### UPLOAD ####
+  ##### Variables #####
 
-
-
-
-
-
-            #### DATA ####
-
-
-#### Variables ####
-
-#Reactive variables holding raw data
-#If no data set is defined, use default data set
-
-rawData_T <- reactive({
-  if (is.null(input$file1)){
-    defaultData_T = "./data/default_target.csv"
-    print("Default data")
-    dataT = get.ACCy(defaultData_T,
-                                sep = ",",
-                                skip = 27)
-  } else {
-    dataT = get.rawData_T(input)
-  }
-  return(dataT)
-})
-
-  rawData_R <- reactive({
-    if (is.null(input$file1)){
-      defaultData_R = "./data/default_reference.csv"
-      print("Default data")
-      dataR = get.ACCy(defaultData_R,
-                      sep = ",",
-                      skip = 27)
+  #' Variable indicating which Mini Buoy Design is selected
+  get.design.T <- reactive({
+    if (input$raw_default_T){
+      return("B4")
     } else {
-      dataR = get.rawData_R(input)
+      return(input$inputType_T)
+    }
+  })
+  
+  get.design.R <- reactive({
+    if (input$raw_default_R){
+      return("B4")
+    } else {
+      return(input$inputType_R)
+    }
+  })
+  
+  #' Indicates if data were uploaded
+  bool.file.upload.target = reactive({
+    buoy_and_file = (input$inputType_T != "empty" & !is.null(input$fileTarget$datapath))
+    return(!input$raw_default_T & buoy_and_file)
+  })
+  
+  bool.file.upload.reference = reactive({
+    buoy_and_file = (input$inputType_R != "empty" & !is.null(input$fileReference$datapath))
+    return(!input$raw_default_R & buoy_and_file)
+  })
+  
+  #' Reactive variables holding raw data
+  #' If no data set is defined, use default data set
+  rawData_T <- reactive({
+    dataT = NULL
+    # Load default file
+    if (input$raw_default_T){
+      defaultData_T = "./data/default_target.csv"
+      print("Default TARGET data")
+      dataT = get.ACCy.B4(defaultData_T)
+    } else {
+      # Load user file if file type is choosen and file path provided
+      if (bool.file.upload.target()){
+        print("User TARGET data")
+        dataT = get.rawData_T(input) 
+      }
+    }
+    # If column Acceleration is not numeric or is all NA
+    # delete data frame
+    if (!is.numeric(dataT$Acceleration) | all(is.na(dataT$Acceleration))){
+      print("Raw data upload TARGET failed")
+      dataT = NULL
+    }
+    return(dataT)
+  })
+  
+  
+  rawData_R <- reactive({
+    dataR = NULL
+    if (input$raw_default_R){
+      defaultData_R = "./data/default_reference.csv"
+      print("Default REFERENCE data")
+      dataR = get.ACCy.B4(defaultData_R)
+    } else {
+      if (bool.file.upload.reference()){
+        print("User REFERENCE data")
+        dataR = get.rawData_R(input)
+      }
+    }
+    # If column Acceleration is not numeric or is all NA
+    # delete data frame
+    if (!is.numeric(dataR$Acceleration) | all(is.na(dataR$Acceleration))){
+      print("Raw data upload TARGET failed")
+      dataR = NULL
     }
     return(dataR)
   })
   
+  #' Reactive variable holding the target file name
+  get.fileName = function(type, input){
+    if (type == "Target"){
+      if (bool.file.upload.target()){
+        return(strsplit(input$fileTarget$name, "[.]")[[1]][1])
+      } else if (input$raw_default_T){
+        return("Default")
+      } else {
+        return("None")
+      }
+    }
+    if (type == "Reference"){
+      if (bool.file.upload.reference()){
+        return(strsplit(input$fileReference$name, "[.]")[[1]][1])
+      } else if (input$raw_default_R){
+        return("Default")
+      } else {
+        return("None")
+      }
+    }
+  }
+
+  output$TargetName <- renderText({ 
+    get.fileName("Target", input)
+  })
   
-#' Reactive variables holding Mini-Buoy model type- later used 
-#' for hydrological parameter computation
-Target_NoFilter <- reactive({
-  data = rawData_T()
+  output$ReferenceName <- renderText({ 
+    get.fileName("Reference", input)
+  })
+
   
-  if (input$inputType == "MB1" |
-      input$inputType == "MB2"){
-    d = data
-  }
-  if (input$inputType == "MB3"){
-    d = data
-  }
 
-  return(d)
-
-})
-
-Reference_NoFilter <- reactive({
-  data = rawData_R()
+  #' Create empty reactive value with a placeholder for the
+  #' data sets belonging to Target and reference sites
+  values <- reactiveValues(Target = NULL,
+                           TargetHydro = NULL,
+                           Reference = NULL,
+                           ReferenceHydro = NULL)
   
-  if (input$inputType == "MB1" |
-      input$inputType == "MB2"){
-    d = data
-  }
-  if (input$inputType == "MB3"){
-    d = data
+  
+  #' Reactive variable holding data
+  #' Assigned to reactive value if empty
+  Target <- reactive({
+    if (is.null(values$Target)){
+      print("Assign raw data to TARGET data")
+      values$Target <- rawData_T()
+    }
+    if (!input$raw_default_T & !bool.file.upload.target()){
+      print("Delete TARGET data")
+      values$Target = NULL 
+    }
+    return(values$Target)
+  })
+  
+  Reference <- reactive({
+    if (is.null(values$Reference)){
+      print("Assign raw data to REFERENCE data")
+      values$Reference <- rawData_R()
+    }
+    if (!input$raw_default_R & !bool.file.upload.reference()){
+      print("Delete REFERENCE data")
+      values$Reference = NULL
+    }
+    return(values$Reference)
+  })
+  
+
+  #' Trigger to update reactive data when 'Use data'
+  #' button is pressed
+  #' Updates data for the whole App
+  message.upload.fail = "Error: Could not read file. Is the file in the correct format? Please refer to the Mini Buoy Handbook how to download data in the correct format for this App."
+  message.upload.no.data = function(type){
+    return(paste("Error: No ", type, " data were uploaded.", sep = ""))
   }
   
-  return(d)
-  
-})
-
-#' Create empty reactive value with a placeholder for the
-#' data sets belonging to Target and reference sites
-values <- reactiveValues(Target = NULL,
-                         Reference = NULL)
-
-
-#' Reactive variable holding data
-#' Assigned to reactive value if empty
-Target <- reactive({
-  if (is.null(values$Target)){
-    values$Target <- Target_NoFilter()
-  }
-  return(values$Target)
-})
-
-Reference <- reactive({
-  if (is.null(values$Reference)){
-    values$Reference <- Reference_NoFilter()
-  }
-  return(values$Reference)
-})
-
-#' Trigger to update reactive data when 'Use data' 
-#' button is pressed
-#' Updates data for the whole App
-#
-observeEvent(input$setData, {
-   values$Target <- Target_NoFilter()
-   values$Reference <- Reference_NoFilter()
-   
- })
-
-  #### FILTER ####
-
- #' Button to load filter options
-  #' Assigns unfiltered  target data as reactive 
-  #' value 'Target'
-  observeEvent(input$LoadFilter, {
-    values$Target <- Target_NoFilter()
-    values$Reference <- Reference_NoFilter()
+  observeEvent(input$setData.T, {
+    print("Set data TARGET")
+    rawData_T = rawData_T()
+    if (is.null(rawData_T)) {
+      if (bool.file.upload.target()) {
+        showNotification(
+          message.upload.fail,
+          type = "error",
+          duration = NULL,
+          closeButton = T
+        )
+      } else {
+        showNotification(
+          message.upload.no.data("TARGET"),
+          type = "error",
+          duration = NULL,
+          closeButton = T
+        )
+      }
+    } else {
+      if (all(is.na(rawData_T$Acceleration))){
+        showNotification(
+          message.upload.fail,
+          type = "error",
+          duration = NULL,
+          closeButton = T
+        )
+      } else {
+        showNotification(
+          "Upload of Target data successful.",
+          type = "message",
+          duration = 3,
+          closeButton = T
+        )
+      }
+    }
+    Target = Target()
     
   })
-  
-  #' Button to apply filter
-  #' Assigns filter selected options to Target and reference site data sets
-  observeEvent(input$FilterApply, {
-    values$Target <- get.filteredData(data = values$Target,
-                                             ui.input = input)
-    values$Reference<- get.filteredData(data = values$Reference,
-                                        ui.input = input)
-  })
-  
-  #' Button to delete filter
-  #' Assigns unfiltered data for both Target and Reference sites
-  observeEvent(input$FilterDelete, {
-    values$Target <- Target_NoFilter()
-    values$Reference <- Reference_NoFilter()
-  })
-  
-  #### UI ####
-  
-  #' Reactive variable to get start and end data of data set
-  minMaxDatetime <- reactive({
-    if (!is.null(input$file1)){
-      req(input$setData)
-    } 
-    d = rawData_T()
-    minDate = as.Date(d[which.min(as.POSIXct(d$datetime)),
-                        "datetime"])
-    maxDate = as.Date(d[which.max(as.POSIXct(d$datetime)),
-                        "datetime"])
-    return(c(minDate, maxDate))
-  })
-  
-  #' Helper function to built Filter-UI (load or delete)
-  filter_helper = function(input, output){
-    if (!is.null(input$file1)){
-      req(input$setData)
+
+  observeEvent(input$setData.R, {
+    print("Set data REFERENCE")
+    rawData_R = rawData_R()
+    if (is.null(rawData_R)) {
+      print("In IF")
+      if (bool.file.upload.reference()) {
+        showNotification(
+          message.upload.fail,
+          type = "error",
+          duration = NULL,
+          closeButton = T
+        )
+      } else {
+        showNotification(
+          message.upload.no.data("REFERENCE"),
+          type = "error",
+          duration = NULL,
+          closeButton = T
+        )
+      }
+    } else {
+      print("In ELSE")
+      if (all(is.na(rawData_R$Acceleration))){
+        showNotification(
+          message.upload.fail,
+          type = "error",
+          duration = NULL,
+          closeButton = T
+        )
+      } else {
+        showNotification(
+          "Upload of Reference data successful.",
+          type = "message",
+          duration = 3,
+          closeButton = T
+        )
+      }
     }
-    output = update.filter.ui(ui.output = output, ui.input = input)
-    minMaxDatetime = minMaxDatetime()
-    updateDateRangeInput(session, "daterange",
-                         start = minMaxDatetime[1],
-                         end = minMaxDatetime[2],
-                         min = minMaxDatetime[1],
-                         max = minMaxDatetime[2])
-  }
-  
-  #' Eventlistener to built Filter-UI
-  #' Calling helper function, same as delete filter
-  observeEvent(input$LoadFilter, {
-    filter_helper(input, output)
+    Reference = Reference()
   })
-  
-  #' Eventlistener to built Filter-UI
-  #' Calling helper function, same as load filter
-  observeEvent(input$FilterDelete, {
-    filter_helper(input, output)
-  })
-  
-  
   
   
   #### TABLE OUTPUTS ####
   
-  
-  
-  tab.with.file.upload.message = function(){
-    m = matrix(data = c("An error occured. Please check your upload settings (e.g. number of lines skipped) and required column names."))
-    return(datatable(m) %>%
-             formatStyle(1, color = 'red',
-                         backgroundColor = 'orange',
-                         fontWeight = 'bold'))
+  tab.with.file.upload.message = function(message, color = "#cc0000",
+                                          backgroundColor = '#ffcccc'){
+    m = matrix(
+      data = c(
+        message
+      )
+    )
+    return(
+      datatable(m, options = list(dom = 't'), colnames=NULL) %>%
+        formatStyle(
+          1,
+          color = color,
+          backgroundColor = backgroundColor,
+          fontWeight = 'bold'
+        )
+    )
   }
   
   
-  #' UI Target site Table with , wide-format
-  #' (Data > Upload > Preview data)
-  output$raw.target <- DT::renderDataTable(rownames = FALSE, {
-    rawDataTable_T = rawData_T()
-    #if ("dTime" %in% colnames(rawData)){
-     # rawDataTable = rawData %>%
-      #  mutate(dTime = round(dTime, 2))
-    #} else {
-     # rawDataTable = tab.with.file.upload.message()
-   # }
-    return(head(rawDataTable_T, n=1000)) #remove function head() to show all data entries (makes the table render very slow- avoid for now)
-  }, options = list(scrollX = TRUE, searching = F), server=FALSE)
+  output$raw.target.sum <- DT::renderDataTable(
+    rownames = F,
+    {
+      if (!input$raw_default_T & is.null(input$fileTarget$datapath)){
+        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
+                                            color = "blue", backgroundColor = "white"))
+        
+      } else {
+        rawDataTable_T = rawData_T()
+        if (is.numeric(rawDataTable_T$Acceleration) & !all(is.na(rawDataTable_T$Acceleration))){
+          t = get.rawData.sum(rawDataTable_T, "TARGET")
+          return(t)
+        } else {
+          return(tab.with.file.upload.message(message.upload.fail))
+        }
+      }
+      
+      
+    },
+    options = list(dom = 't'),
+  )
+  
+  output$raw.reference.sum <- DT::renderDataTable(
+    rownames = F,
+    {
+      if (!input$raw_default_R & is.null(input$fileReference$datapath)){
+        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
+                                            color = "blue", backgroundColor = "white"))
+        
+      } else {
+        rawDataTable_R = rawData_R()
+        if (is.numeric(rawDataTable_R$Acceleration)){
+          return(get.rawData.sum(rawDataTable_R, "REFERENCE"))
+        } else {
+          return(tab.with.file.upload.message(message.upload.fail))
+        }
+      }
+    },
+    options = list(dom = 't'),
+  )
+  
+  observeEvent(input$setData.T | input$setData.R, {
+    if(input$setData.T==0 || input$setData.R==0){
+      return()
+    }
+    Target = Target()
+    Reference = Reference()
+    
+    if (!is.null(Target) & !is.null(Reference)){
+      get.time.overlap(data.t = Target(), 
+                       data.r = Reference())
+    }
+    
+  })
   
   
-
-output$raw.reference <- DT::renderDataTable(rownames = FALSE, {
-  rawDataTable_R = rawData_R()
   
-  return(head(rawDataTable_R, n=1000))
-}, options = list(scrollX = TRUE, searching = F), server=FALSE)
+  #### FILTER ####
+  
+  #' Buttons to load filter options
+  #' Assigns unfiltered  target data as reactive
+  #' value 'Target'
+  observeEvent(input$LoadFilter.T, {
+    if (is.null(values$Target)){
+      showNotification(
+        message.upload.no.data("TARGET"),
+        type = "error",
+        duration = NULL,
+        closeButton = T
+      )
+    } else {
+      values$Target <- rawData_T()
+      filter_helper.T(input, output)
+    }
 
-
-
-
-
-#### Text output ####
-
-#' UI Text output of remaining data points after filtering
-#' (Data > Filter > Subset data)    
-output$dataPoints <- renderText({
-  filtered_data = Target()
-  n_diff = nrow(Target_NoFilter()) - nrow(filtered_data)
-  if (any(is.na(filtered_data))){
-    paste("Data set contains NA values. <br/><br/>", 
-          n_diff, " data points removed.")
-  } else {
-    paste(n_diff, " data points removed.")
+  })
+  
+  observeEvent(input$LoadFilter.R, {
+    if (is.null(values$Reference)){
+      showNotification(
+        message.upload.no.data("REFERENCE"),
+        type = "error",
+        duration = NULL,
+        closeButton = T
+      )
+    } else {
+      values$Reference <- rawData_R()
+      filter_helper.R(input, output)
+    }
+  })
+  
+  #' Buttons to apply filter
+  #' Assigns filter selected options to Target and reference site data sets
+  observeEvent(input$FilterApply.T, {
+    values$Target <- get.filteredData(data = values$Target,
+                                      ui.input = input,
+                                      filetype = "T")
+  })
+  
+  observeEvent(input$FilterApply.R, {
+    values$Reference <- get.filteredData(data = values$Reference,
+                                      ui.input = input,
+                                      filetype = "R")
+  })
+  
+  #' Buttons to delete filter
+  #' Assigns unfiltered data for both Target and Reference sites
+  observeEvent(input$FilterDelete.T, {
+    values$Target <- rawData_T()
+  })
+  
+  observeEvent(input$FilterDelete.R, {
+    values$Reference <- rawData_R()
+  })
+  
+  #### UI ####
+  
+  #' Reactive variables to get start and end data of data set
+  minMaxDatetime.T <- reactive({
+    if (!is.null(input$fileTarget)) {
+      req(input$setData.T)
+    }
+    d = Target()
+    minDate = min(d$datetime)
+    maxDate = max(d$datetime)
+    return(c(minDate, maxDate))
+  })
+  
+  minMaxDatetime.R <- reactive({
+    if (!is.null(input$fileReference)) {
+      req(input$setData.R)
+    }
+    d = Reference()
+    minDate = min(d$date)
+    maxDate = max(d$date)
+    return(c(minDate, maxDate))
+  })
+  
+  #' Helper function to built Filter-UI (load or delete)
+  filter_helper.T = function(input, output) {
+    if (!is.null(input$fileTarget)) {
+      req(input$setData.T)
+    }
+    minMaxDatetime = minMaxDatetime.T()
+    output = update.filter.ui(ui.output = output, ui.input = input,
+                              filetype = "T", minMaxDatetime = minMaxDatetime)
+    updateDateRangeInput(
+      session,
+      "daterange.T",
+      start = minMaxDatetime[1],
+      end = minMaxDatetime[2],
+      min = minMaxDatetime[1],
+      max = minMaxDatetime[2]
+    )
   }
-})
-#### Graphics ####
-
-#' Reactive variable holding the 
-#' plot with (filtered) data
-#' 
-DataSetInput<-reactive({
-  if (input$DataSet == "Target"){
-    dataset<- Target()
+  filter_helper.R = function(input, output) {
+    if (!is.null(input$fileReference)) {
+      req(input$setData.R)
+    }
+    minMaxDatetime = minMaxDatetime.R()
+    output = update.filter.ui(ui.output = output, ui.input = input,
+                              filetype = "R", minMaxDatetime = minMaxDatetime)
+    updateDateRangeInput(
+      session,
+      "daterange.R", #@Marie: bug - not updated when T loaded before
+      start = minMaxDatetime[1],
+      end = minMaxDatetime[2],
+      min = minMaxDatetime[1],
+      max = minMaxDatetime[2]
+    )
   }
-  else if (input$DataSet == "Reference"){
-    dataset<- Reference()
+  
+
+  #### Text output ####
+  
+  #' UI Text output of remaining data points after filtering
+  #' (Data > Filter > Subset data)
+  get.deleted.points.text = function(data_before, data_after){
+    n_diff = nrow(data_before) - nrow(data_after)
+    if (any(is.na(data_after))) {
+      paste("Data set contains NA values. <br/><br/>",
+            n_diff,
+            " data points removed.")
+    } else {
+      paste(n_diff, " data points removed.")
+    }
   }
-  return(dataset)
-})
+  
+  output$dataPoints.T <- renderText({ 
+    get.deleted.points.text(data_before = rawData_T(),
+                            data_after = Target())
+  })
+  
+  output$dataPoints.R <- renderText({
+    get.deleted.points.text(data_before = rawData_R(),
+                            data_after = Reference())
+  })
+  
+  #### Graphics ####
+  
+  #' Reactive variable holding the
+  #' data set with (filtered) data
+  #' Show notification if no data were uploaded
+  DataSetInput <- reactive({
+    if (input$filterPlot_DataSet == "TARGET") {
+      dataset <- data.frame(Target())
+    }
+    if (input$filterPlot_DataSet == "REFERENCE") {
+      dataset <- data.frame(Reference())
+    }
+    if (identical(dataset, data.frame())) {
+      showNotification(
+        message.upload.no.data(input$filterPlot_DataSet),
+        type = "error",
+        duration = NULL,
+        closeButton = T
+      )
+    }
+    
+    return(dataset)
+  })
+  
+  #' Reactive variable holding the
+  #' plot shown in data > filter
+  filterPlot <- eventReactive(input$filterPlot_renderPlot, {
+    req(input$filterPlot_renderPlot)
+    data = DataSetInput()
+    if (identical(data, data.frame())) {
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else {
+      if (input$filterPlot_renderPlot == 0) {
+        plot.emptyMessage("Customize your figure.")
+      } else {
+        plot.filteredRawData(data = data,
+                             ui.input = input)
+      }
+    }
+  })
 
+  #' Render plot shown in data > filter
+  output$filterPlot <- renderPlot({
+    filterPlot()
+  })
+  
+  
+  
+  
+  #### Buttons ####
 
-filterPlot <- reactive({
-  plot.histogram(data = DataSetInput(), 
-                 ui.input = input)
-})
-
-
-output$filterPlot <- renderPlot({
-  filterPlot()
-})
-
-
-
-
-
-##### Custom View ####
-
-#' Assign empty reactive value holding ui inputs for
-#' customized figure
-values <- reactiveValues(plotSettings = NULL)
-
-#' Eventlistener assigning ui inputs to customize figure
-#' to reactive value
-observeEvent(input$renderPlot, {
-  values$plotSettings <- get.customizedPlotSettings(ui.input = input)
-})
-
-#' Reactive variable holding ui inputs to customize figure
-plotSettings <- reactive({
-  return(values$plotSettings)
-})
-
-#' Reactive variable holding the plot showing customized
-#' temperature visualizations
-custumPlot <- reactive({
-  req(input$renderPlot)
-  plot.customTemperature(data =  DataSetInput(),
-                         ui.input.processed = plotSettings())
-})
-
-#' #' UI of customized plot
-#' #' (Data > View > Figure)
-output$custumPlot <- renderPlot({
-  if (input$renderPlot == 0){
-    plot.emptyMessage("Customize your figure (settings).")
-  } else {
-    custumPlot()
-  }
-})
-
-
-#### Buttons ####
-
-#' Eventlistener to save unfiltered, long-format data
-#' (Data > Upload > Preview data)
-observeEvent(input$save_dat_upl, {
-  save.csv(path = projectPath(), 
-           name = "g raw",
-           csvObject = DataSet(), 
-           ui.input = input)
+  #' Eventlistener to save filtered data
+  #' (Data > Filter)
+  observeEvent(input$save_dat_filter, {
+    save.csv(
+      path = projectPath(),
+      name = paste(
+        "Acceleration_filtered",
+        as.character(input$DataSet),
+        sep = "_"
+      ),
+      csvObject = DataSetInput(),
+      ui.input = input
+    )
+  })
+  
+  #' Eventlistener to save plot with filtered data
+  #' (Data > Filter)
+  observeEvent(input$save_dat_filter_fig, {
+    name = paste(
+      "g_filtered",
+      as.character(input$DataSet),
+      as.character(input$filterPlot_type),
+      sep = "_"
+    )
+    save.figure(
+      path = projectPath(),
+      name = name,
+      plotObject = filterPlot(),
+      ui.input = input
+    )
+  })
+  
+  
+  ####################
+  #### HYDRODYNAMICS #
+  ####################
+  
   
 })
-
-#' Eventlistener to save plot with customized temperatures
-#' (Data > View > Figure)
-observeEvent(input$save.custumPlot, {
-  name = paste("g",
-               input$rawPlot.xcol, 
-               input$rawPlot.ycol, 
-               input$rawPlot.col,  
-               input$rawPlot.shape,
-               input$rawPlot.facet, sep = "_")
-  save.figure(path = projectPath(),
-              name = name,
-              plotObject = custumPlot(), 
-              ui.input = input)
-})
-
-#' Eventlistener to save filtered, long-format data
-#' (Data > Filter > Figures)
-observeEvent(input$save_dat_filter, {
-  save.csv(path = projectPath(), 
-           name = paste("Acceleration_filtered",
-                        as.character(input$DataSet), sep= "_"),
-           csvObject = DataSetInput(), 
-           ui.input = input)
-})
-
-#' Eventlistener to save plot with filtered data
-#' (Data > Filter > Figures)
-observeEvent(input$save_dat_filter_fig, {
-  name = paste("g_filtered",
-               as.character(input$filterPlot_type),
-               as.character(input$DataSet),
-               as.character(input$filterPlot_col), sep = "_")
-  save.figure(path = projectPath(),
-              name = name,
-              plotObject = filterPlot(), 
-              ui.input = input)
-})
-
-
-
-
-})
-            
