@@ -741,6 +741,21 @@ shinyServer(function(input, output, session) {
   ##### HYDRODYNAMICS ####
   ########################
   
+  #' Render output option depending on data availability
+  output$hydro.window.target.show = renderUI({
+    if (!bool.no.target() & !bool.no.reference()){
+      checkboxInput("hydro.window.target", 
+                    "Use common time window of target and reference data", F)
+    }
+  })
+  
+  output$hydro.window.reference.show = renderUI({
+    if (!bool.no.target() & !bool.no.reference()){
+      checkboxInput("hydro.window.reference", 
+                    "Use common time window of target and reference data", F)
+    }
+  })
+  
   ##### TARGET ####
   ##### Variables ####
 
@@ -783,9 +798,17 @@ shinyServer(function(input, output, session) {
   })
   
   TargetHydroStats <- reactive({
-    if (input$hydro.window.target){
-      TargetHydroStats = get.statistics(TargetHydroOverlap())
+    # If checkbox available ...
+    if (!is.null(input$hydro.window.target)){
+      # ... check if common time window is used to calculate hydrodynamics
+      if (input$hydro.window.target){
+        TargetHydroStats = get.statistics(TargetHydroOverlap())
+      } else {
+        # ... or if complete time window is used
+        TargetHydroStats = get.statistics(TargetHydro())
+      }
     } else {
+      # If only target is available, use complete time window
       TargetHydroStats = get.statistics(TargetHydro())
     }
     return(TargetHydroStats)
@@ -957,10 +980,19 @@ shinyServer(function(input, output, session) {
     return(ReferenceHydroOverlap)
   })
   
+  # Return statistics
   ReferenceHydroStats <- reactive({
-    if (input$hydro.window.reference){
-      ReferenceHydroStats = get.statistics(ReferenceHydroOverlap())
+    # If checkbox available ...
+    if (!is.null(input$hydro.window.reference)){
+      # ... check if common time window is used to calculate hydrodynamics
+      if (input$hydro.window.reference){
+        ReferenceHydroStats = get.statistics(ReferenceHydroOverlap())
+      } else {
+        # ... or if complete time window is used
+        ReferenceHydroStats = get.statistics(ReferenceHydro())
+      }
     } else {
+      # If only target is available, use complete time window
       ReferenceHydroStats = get.statistics(ReferenceHydro())
     }
     return(ReferenceHydroStats)
