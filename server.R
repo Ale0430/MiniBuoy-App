@@ -233,18 +233,27 @@ shinyServer(function(input, output, session) {
   get.fileName = function(type, input){
     if (type == "Target"){
       if (bool.file.upload.target()){
-        return(strsplit(input$fileTarget$name, "[.]")[[1]][1])
+        if (!is.null(values$Target)){
+          return(strsplit(input$fileTarget$name, "[.]")[[1]][1])
+        } else {
+          return("None")
+        }
       } else if (input$raw_default_T){
-        return("Default")
+        return("Default_Target")
       } else {
         return("None")
       }
     }
     if (type == "Reference"){
+      print(bool.file.upload.reference())
       if (bool.file.upload.reference()){
-        return(strsplit(input$fileReference$name, "[.]")[[1]][1])
+        if (!is.null(values$Reference)){
+          return(strsplit(input$fileReference$name, "[.]")[[1]][1])
+        } else {
+          return("None")
+        }
       } else if (input$raw_default_R){
-        return("Default")
+        return("Default_Reference")
       } else {
         return("None")
       }
