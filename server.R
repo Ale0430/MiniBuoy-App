@@ -272,25 +272,25 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding data
   #' Assigned to reactive value if empty
   Target <- reactive({
-    if (is.null(values$Target) | identical(values$Target, data.frame())) {
+    if (is.null(values$Target)){
       print("Assign raw data to TARGET data")
       values$Target <- rawData_T()
     }
     if (!input$raw_default_T & !bool.file.upload.target()){
       print("Delete TARGET data")
-      values$Target = data.frame()
+      values$Target = NULL 
     }
     return(values$Target)
   })
   
   Reference <- reactive({
-    if (is.null(values$Reference) | identical(values$Reference, data.frame())) {
+    if (is.null(values$Reference)){
       print("Assign raw data to REFERENCE data")
       values$Reference <- rawData_R()
     }
     if (!input$raw_default_R & !bool.file.upload.reference()){
       print("Delete REFERENCE data")
-      values$Reference = data.frame()
+      values$Reference = NULL
     }
     return(values$Reference)
   })
@@ -307,7 +307,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$setData.T, {
     print("Set data TARGET")
     rawData_T = rawData_T()
-    if (identical(rawData_T, data.frame())) {
+    if (is.null(rawData_T)) {
       if (bool.file.upload.target()) {
         showNotification(
           message.upload.fail,
@@ -347,7 +347,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$setData.R, {
     print("Set data REFERENCE")
     rawData_R = rawData_R()
-    if (identical(rawData_R, data.frame())) {
+    if (is.null(rawData_R)) {
       print("In IF")
       if (bool.file.upload.reference()) {
         showNotification(
@@ -454,7 +454,8 @@ shinyServer(function(input, output, session) {
     }
     Target = Target()
     Reference = Reference()
-    if (nrow(Target) > 0 & nrow(Reference) > 0){
+    
+    if (!is.null(Target) & !is.null(Reference)){
       get.time.overlap(data.t = Target(), 
                        data.r = Reference())
     }
@@ -469,7 +470,7 @@ shinyServer(function(input, output, session) {
   #' Assigns unfiltered  target data as reactive
   #' value 'Target'
   observeEvent(input$LoadFilter.T, {
-    if (is.null(values$Target) | identical(values$Target, data.frame())) {
+    if (is.null(values$Target)){
       showNotification(
         message.upload.no.data("TARGET"),
         type = "error",
@@ -484,7 +485,7 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$LoadFilter.R, {
-    if (is.null(values$Reference) | identical(values$Reference, data.frame())) {
+    if (is.null(values$Reference)){
       showNotification(
         message.upload.no.data("REFERENCE"),
         type = "error",
