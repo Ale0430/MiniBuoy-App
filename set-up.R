@@ -23,6 +23,8 @@ if(!require("lubridate")) install.packages("lubridate")
 if(!require("zoo")) install.packages("zoo") 
 # Package to speed up date time transformation -> fastPOSIXct()
 if(!require("fasttime")) install.packages("fasttime") 
+# Package to modify ggplot axis -> args in scale_y_continuous
+if(!require("scales")) install.packages("scales")
 # ???
 if(!require("caTools")) install.packages("caTools")  #from Cai's code
 
