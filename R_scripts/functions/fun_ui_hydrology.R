@@ -7,17 +7,15 @@ hydTargetOutput = function(){
   return(
     list(
       fluidRow(
-        column(6, 
-               box(title = "Results ....",
-                   width = "100%",
+        box(title = "Results",
+                   width = "3", height = "95%",
                    collapsible = T, status = "success",
-                   hyd.target.box.text())),
+                   hyd.target.box.text()),
         
-        column(6,
-               box(title = "Summary table",
-                   width = "100%",
+        box(title = "Summary table",
+                   width = "9", height = "95%",
                    collapsible = T, status = "success",
-                   hyd.target.box.table()))
+                   hyd.target.box.table())
       ),
       
       box(title = "Select a plot",
@@ -37,14 +35,16 @@ hydTargetOutput = function(){
 
 hyd.target.box.text = function(){
   return(
-    p("TEXT")
+    list(
+      uiOutput("hydro.window.target.show"),
+      output.html("hydro.text.target")
+    )
   )
 }
 
 hyd.target.box.table = function(){
   return(
     list(
-      uiOutput("hydro.window.target.show"),
       output.table("hydro.table.target"),
       actButton("hydro.table.target.save", "Save table", "saveCsv")
     )
@@ -82,17 +82,15 @@ hydReferenceOutput = function(){
   return(
     list(
       fluidRow(
-        column(6, 
-               box(title = "Results ....",
-                   width = "100%",
+        box(title = "Results",
+                   width = 3, height = "95%",
                    collapsible = T, status = "success",
-                   hyd.reference.box.text())),
+                   hyd.reference.box.text()),
         
-        column(6,
-               box(title = "Summary table",
-                   width = "100%",
+        box(title = "Summary table",
+                   width = 9, height = "95%",
                    collapsible = T, status = "success",
-                   hyd.reference.box.table()))
+                   hyd.reference.box.table())
       ),
       
       box(title = "Select a plot",
@@ -112,14 +110,16 @@ hydReferenceOutput = function(){
 
 hyd.reference.box.text = function(){
   return(
-    p("TEXT")
+    list(
+      uiOutput("hydro.window.reference.show"),
+      output.html("hydro.text.reference")
+    )
   )
 }
 
 hyd.reference.box.table = function(){
   return(
     list(
-      uiOutput("hydro.window.reference.show"),
       output.table("hydro.table.reference"),
       actButton("hydro.table.reference.save", "Save table", "saveCsv")
     )  )
@@ -157,17 +157,15 @@ hydComparisonOutput = function(){
   return(
     list(
       fluidRow(
-        column(3, 
-               box(title = "Results ....",
-                   width = "100%",
+        box(title = "Results",
+                   width = 3, height = "95%",
                    collapsible = T, status = "success",
-                   hyd.comparison.box.text())),
+                   hyd.comparison.box.text()),
         
-        column(9,
-               box(title = "Summary table",
-                   width = "100%",
+        box(title = "Summary table",
+                   width = 9, height = "95%",
                    collapsible = T, status = "success",
-                   hyd.comparison.box.table()))
+                   hyd.comparison.box.table())
       ),
       
       box(title = "Select a plot",

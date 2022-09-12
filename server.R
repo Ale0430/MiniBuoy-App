@@ -745,16 +745,28 @@ shinyServer(function(input, output, session) {
   
   #' Render output option depending on data availability
   output$hydro.window.target.show = renderUI({
-    if (!bool.no.target() & !bool.no.reference()){
-      checkboxInput("hydro.window.target", 
-                    "Use only overlapping times of the target and reference data", F)
+    if (!bool.no.target() & !bool.no.reference()) {
+      list(
+        checkboxInput(
+          "hydro.window.target",
+          "Use only overlapping times of the target and reference data",
+          F
+        ),
+        hr()
+      )
     }
   })
   
   output$hydro.window.reference.show = renderUI({
-    if (!bool.no.target() & !bool.no.reference()){
-      checkboxInput("hydro.window.reference", 
-                    "Use only overlapping times of the target and reference data", F)
+    if (!bool.no.target() & !bool.no.reference()) {
+      list(
+        checkboxInput(
+          "hydro.window.reference",
+          "Use only overlapping times of the target and reference data",
+          F
+        ),
+        hr()
+      )
     }
   })
   
@@ -816,6 +828,15 @@ shinyServer(function(input, output, session) {
     return(TargetHydroStats)
   })
   
+  ##### Text ####
+  
+  output$hydro.text.target <- renderUI({
+    if (bool.no.target()){
+      print("Please upload your data or select a default data set.")
+    } else {
+      HTML(get.stats.text(TargetHydroStats()))
+    }
+  })
   
   ##### Table ####
 
@@ -1000,6 +1021,18 @@ shinyServer(function(input, output, session) {
     }
     return(ReferenceHydroStats)
   })
+  
+  
+  ##### Text ####
+  
+  output$hydro.text.reference <- renderUI({
+    if (bool.no.reference()){
+      print("Please upload your data or select a default data set.")
+    } else {
+      HTML(get.stats.text(ReferenceHydroStats()))
+    }
+  })
+  
   
   ##### Table ####
   

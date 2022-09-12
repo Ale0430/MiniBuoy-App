@@ -178,7 +178,80 @@ get.statistics = function(data) {
   return(hydro.tab)
 }
 
-
+#' Function to generate results text
+get.stats.text = function(data){
+  
+  Statistics = data %>%
+    filter(
+      Parameter %in% c(
+        "Monitoring period (d)",
+        "Flooding frequency (f/d)",
+        "Median current velocity (m/s)"
+      )
+    )
+  shortnames = data.frame(ParameterShort = c('SurveyDays', 'Frequency', 'MedianCurrent'),
+                          Parameter = c(
+                            "Monitoring period (d)",
+                            "Flooding frequency (f/d)",
+                            "Median current velocity (m/s)"
+                          ))
+  Statistics = Statistics %>% left_join(., shortnames, by = "Parameter") 
+  
+  m = paste(
+    'The deployment length was <b>',
+    Statistics %>%
+      filter(ParameterShort == 'SurveyDays') %>%
+      select(Value) %>% round(., 1),
+    ' days</b>, ',
+    if (Statistics %>%
+        filter(ParameterShort == 'SurveyDays') %>%
+        select(Value) < 15)
+    {
+      'which is too short to provide robust results. Next time, we recommend a longer deployment of at least 15 days to represent a full spring-neap cycle.<br/><br/>'
+    } else {
+      'which is long enough to provide robust results.<br/><br/>'
+    },
+    'Inundation at the site appears to be ',
+    if (Statistics %>%
+        filter(ParameterShort == 'Frequency') %>%
+        select(Value) %>%
+        summarise(round(., digits = 0)) == 0)
+    {
+      '<b>continuous</b>.<br/><br/>'
+    } else
+      if (Statistics %>%
+          filter(ParameterShort == 'Frequency') %>%
+          select(Value) %>%
+          summarise(round(., digits = 0)) == 1)
+      {
+        '<b>tidal (diurnal)</b>.<br/><br/>'
+      } else
+        if (Statistics %>%
+            filter(ParameterShort == 'Frequency') %>%
+            select(Value) %>%
+            summarise(round(., digits = 0)) == 2)
+        {
+          '<b>tidal (semi-diurnal)</b>.<br/><br/>'
+        } else {
+          '<b>mixed (i.e. no clear tidal signal)</b>.<br/><br/><br/>'
+        },
+    'Median current velocities are <b>',
+    Statistics %>%
+      filter(ParameterShort == 'MedianCurrent') %>%
+      select(Value) %>%
+      summarise(round(., digits = 2)),
+    ' m/s</b>, so can be considered',
+    if (Statistics %>%
+        filter(ParameterShort == 'MedianCurrent') %>%
+        select(Value) > 0.1)
+    {
+      ' high enough to cause scour and dislodge seedlings.'
+    } else {
+      ' low enough to allow coastal plants to establish.'
+    }
+  )
+  return(m)
+}
 #' Function for site comparison
 get.comparison = function(stats.t, stats.r){ 
   comparison = stats.t %>% 
