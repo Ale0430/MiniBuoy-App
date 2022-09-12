@@ -2,14 +2,22 @@
 ### GENERAL ###
 ###############
 
+# Layout blue (boxes, spinner): #3c8dbc
+# Button blue: #6CC3F5
+# Button green: #57DEA1
+
 output.table = function(outputID){
   return(list(br(), 
               DT::dataTableOutput(outputID) %>% 
-                withSpinner(color="#0dc5c1")))
+                withSpinner(color="#3c8dbc")))
 }
 
 output.figure = function(outputID){
-  return(plotOutput(outputID) %>% withSpinner(color="#0dc5c1"))
+  return(plotOutput(outputID) %>% withSpinner(color="#3c8dbc"))
+}
+
+output.html = function(outputID){
+  return(htmlOutput(outputID) %>% withSpinner(color="#3c8dbc"))
 }
 
 #### STYLES ####
@@ -17,23 +25,20 @@ output.figure = function(outputID){
 actButton <- function(ID, label, type){
   if (type == "saveCsv"){
     return(actionButton(ID, label,
-                        style = paste(buttonStyles("blue"), "margin-bottom: 2rem", sep = ";"),
+                        style = paste(buttonStyles("blue"), 
+                                      "margin-bottom: 2rem", sep = ";"),
                         icon("file-download")))
   }
   if (type == "saveFigure"){
     return(actionButton(ID, label,
-                        style = paste(buttonStyles("blue"), "margin-bottom: 2rem", sep = ";"),
+                        style = paste(buttonStyles("blue"), 
+                                      "margin-bottom: 2rem", sep = ";"),
                         icon("file-download")))
-  }
-  if (type == "setValue"){
-    return(actionButton(ID, label,
-                        style = paste(buttonStyles("red"), "margin-bottom: 2rem", sep = ";"),
-                        icon("check-circle")))
   }
   if (type == "create"){
     return(actionButton(ID, label,
-                        style = paste(buttonStyles("leafgreen"), "margin-bottom: 2rem",
-                                      sep = ";"),
+                        style = paste(buttonStyles("green"),
+                                      "margin-bottom: 2rem", sep = ";"),
                         icon("tag",style="margin-right:.5em")))
   }
   if (type == "update"){
@@ -46,16 +51,12 @@ actButton <- function(ID, label, type){
 
 buttonStyles = function(type = "blue"){
   if (type == "blue")
-  { ##14B3EE#337ab7
-    return("color: #fff; background-color: #14B3EE; border-color: #2e6da4; margin-bottom: 2rem; margin-top: 2rem")
-  }
-  if (type == "leafgreen")
-  {#orange: #F07221 #red:cc0000 (#0F8B6E - Aqua fill, darker border #175C4C)
-    return("color: #fff; background-color: #0F8B6E; border-color:  #175C4C; margin-bottom: 2rem; margin-top: 2rem")
+  { 
+    return("color: #fff; background-color: #3c8dbc; border-color: #2e6da4; margin-bottom: 2rem; margin-top: 2rem")
   }
   if (type == "green")
   {
-    return("color: #fff; background-color: #42C728; border-color: #38A822; margin-bottom: 2rem; margin-top: 2rem")
+    return("color: #fff; background-color: #0F8B6E; border-color:  #175C4C; margin-bottom: 2rem; margin-top: 2rem")
   }
 }
 

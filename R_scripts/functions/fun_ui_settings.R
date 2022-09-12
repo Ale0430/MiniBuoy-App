@@ -23,7 +23,7 @@ settingsOutput = function(){
                    shinyDirButton('folder', 
                                   'Browse to select a project folder', 
                                   'Please select a folder',
-                                  style = paste(buttonStyles("leafgreen"),
+                                  style = paste(buttonStyles("green"),
                                                 "margin-bottom: 2rem",
                                                 sep = ";"),
                                   icon = icon("folder-open",

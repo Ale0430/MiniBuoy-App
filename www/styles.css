@@ -5,6 +5,9 @@
   display: flex;
   flex-wrap: wrap;
 }
+/*
+ * Color boxes
+ */
 .box.box-info {
     border-top-color: #3c8dbc;
 }
