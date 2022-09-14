@@ -40,7 +40,7 @@ box.settings_sensors = function() {
         p(
           "The original Mini Buoy design featured in Balke et al. (2021) that contains an MSR145 B4 acceleration data logger inside a self-standing centrifuge tube attached to an anchor via a fishing swivel. The B4 measures inundation duration and current velocity only."
         ),
-        column(12, img(src = 'B4.jpg', width = "80%"), align = "center")
+        column(12, img(src = 'B4_2000.png', width = "100%"), align = "center")
       ),
       
       conditionalPanel(
@@ -49,7 +49,7 @@ box.settings_sensors = function() {
         p(
           "A more durable version of the original Mini Buoy ideal for long term deployments. The B4+ has a UV-resistant casing without the skirt and a metal eye bolt connected to a mooring by crimped fishing line rings. In addition to measuring inundation duration and current velocity, the B4+ has been calibrated to measure wave orbital velocities. Whilst the durability and functionality may be improved, the B4+ requires more effort to assemble."
         ),
-        column(12, img(src = 'B4plus.jpeg', width = "80%"), align = "center")
+        column(12, img(src = 'B4+_2000.png', width = "100%"), align = "center")
       ),
       
       conditionalPanel(
@@ -58,7 +58,7 @@ box.settings_sensors = function() {
         p(
           "An integrated accelerometer data logger, float, and anchor point, attached to a pole by a fishing swivel. The Pendant is less expensive and easier to assemble than the B4 and B4+, however memory capacity and sampling rates are lower. Because of the low sampling rate, the Pendant measures inundation duration and current velocity only."
         ),
-        column(12, img(src = 'Pendant.jpg', width = "80%"), align = "center")
+        column(12, img(src = 'Pendant_2000.png', width = "100%"), align = "center")
       ),
       
       br(),
