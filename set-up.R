@@ -27,6 +27,9 @@ if(!require("fasttime")) install.packages("fasttime")
 if(!require("scales")) install.packages("scales")
 # ???
 if(!require("caTools")) install.packages("caTools")  #from Cai's code
+#Packages to run model predictions
+if(!require("kernlab")) install.packages("kernlab")
+if(!require("caret")) install.packages("caret")
 
 # # Check if the following packages are required
 # # Package to speed up processing of date formats -> fastPOSIXct
