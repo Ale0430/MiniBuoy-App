@@ -527,6 +527,7 @@ shinyServer(function(input, output, session) {
         closeButton = T
       )
     } else {
+      print("TARGET data: filter load/delete")
       values$Target <- rawData_T()
       filter_helper.T(input, output)
     }
@@ -542,6 +543,7 @@ shinyServer(function(input, output, session) {
         closeButton = T
       )
     } else {
+      print("REFERENCE data: filter load/delete")
       values$Reference <- rawData_R()
       filter_helper.R(input, output)
     }
@@ -550,14 +552,14 @@ shinyServer(function(input, output, session) {
   #' Buttons to apply filter
   #' Assigns filter selected options to Target and reference site data sets
   observeEvent(input$FilterApply.T, {
-    print("TARGET data: filter")
+    print("TARGET data: filter apply")
     values$Target <- get.filteredData(data = values$Target,
                                       ui.input = input,
                                       filetype = "T")
   })
   
   observeEvent(input$FilterApply.R, {
-    print("REFERENCE data: filter")
+    print("REFERENCE data: filter apply")
     values$Reference <- get.filteredData(data = values$Reference,
                                       ui.input = input,
                                       filetype = "R")
@@ -566,10 +568,12 @@ shinyServer(function(input, output, session) {
   #' Buttons to delete filter
   #' Assigns unfiltered data for both Target and Reference sites
   observeEvent(input$FilterDelete.T, {
+    print("TARGET data: filter delete")
     values$Target <- rawData_T()
   })
   
   observeEvent(input$FilterDelete.R, {
+    print("REFERENCE data: filter delete")
     values$Reference <- rawData_R()
   })
   
@@ -744,6 +748,10 @@ shinyServer(function(input, output, session) {
   ##### HYDRODYNAMICS ####
   ########################
   
+  
+  text.upload.missing = "Please upload your data or select a default data set."
+  text.too.short = "Uploaded/ filtered data set < 2 days."
+  
   #' Render output option depending on data availability
   output$hydro.window.target.show = renderUI({
     if (!bool.no.target() & !bool.no.reference()) {
@@ -771,71 +779,105 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  
+  get.hydrodynamics.overlap = function(dataset) {
+    time.overlap = get.time.overlap(data.t = Target(),
+                                    data.r = Reference())
+    if (dataset == "Target") {
+      Target = Target() %>%
+        filter(datetime >= time.overlap[1] &
+                 datetime <= time.overlap[2])
+      hydroData = get.hydrodynamics(data = Target,
+                                    design = get.design.T())
+    }
+    if (dataset == "Reference") {
+      Reference = Reference() %>%
+        filter(datetime >= time.overlap[1] &
+                 datetime <= time.overlap[2])
+      hydroData = get.hydrodynamics(data = Reference,
+                                    design = get.design.R())
+    }
+    return(hydroData)
+  }
+  
   ##### TARGET ####
   ##### Variables ####
 
-  #' Reactive variable holding data
-  #' If Target() excists, hydrodynamics are calculated
-  TargetHydro <- reactive({
-    if (bool.no.target()) {
-      print("Delete TARGET hydro")
-      TargetHydro = data.frame()
-    } else {
-      print("Create TARGET hydro ...")
-      TargetHydro <- get.hydrodynamics(data = values$Target, 
-                                       design = get.design.T())
+  TargetHydro = reactive({
+    if (is.null(values$TargetHydro)){
+      print("TARGET hydro: create")
+      values$TargetHydro = get.hydrodynamics(data = Target(),
+                                             design = get.design.T())
     }
-    return(TargetHydro)
+    return(values$TargetHydro)
   })
   
-  TargetHydroOverlap <- reactive({
-    TargetHydroOverlap = NULL
-    if (bool.no.target() & bool.no.reference()) {
-      showNotification(
-        "Error: No Reference data available",
-        type = "error",
-        duration = NULL,
-        closeButton = T
-      )
-    } else {
-      time.overlap = get.time.overlap(data.t = values$Target,
-                                      data.r = values$Reference)
-      if (!is.null(time.overlap)){
-        Target.filtered = values$Target %>%
-          filter(datetime >= time.overlap[1] &
-                   datetime <= time.overlap[2])
-        
-        TargetHydroOverlap = get.hydrodynamics(data = Target.filtered,
+  
+  #' Observers to trigger update of hydrodynamic calculation 
+  #' if raw data is filtered or the filter is deleted or a change
+  #' in the 'use overlapping time...' occurs
+  observeEvent(input$FilterApply.T, {
+    if (!is.null(input$FilterApply.T[1])){
+      if (input$FilterApply.T[1] != 0){
+        print("TARGET hydro: update with filtered data")
+        values$TargetHydro = get.hydrodynamics(data = Target(),
+                                               design = get.design.T())
+      }}
+  })
+  
+  observeEvent(input$FilterDelete.T, {
+    if (!is.null(input$FilterDelete.T[1])){
+      if (input$FilterDelete.T[1] != 0){
+        print("TARGET hydro: update with full data")
+        values$TargetHydro = get.hydrodynamics(data = Target(),
+                                               design = get.design.T())
+      }}
+  })
+  
+  observeEvent(input$LoadFilter.T, {
+    if (!is.null(input$LoadFilter.T[1])){
+      if (input$LoadFilter.T[1] > 1){
+        print("TARGET hydro: update with full data")
+        values$TargetHydro = get.hydrodynamics(data = Target(),
+                                               design = get.design.T())
+      }}
+  })
+
+  observeEvent(input$hydro.window.target, {
+    if (!is.null(input$hydro.window.target)){
+      if (input$hydro.window.target) {
+        print("TARGET hydro: update with overlapping data")
+        values$TargetHydro = get.hydrodynamics.overlap(dataset = "Target")
+      } else {
+        print("TARGET hydro: update with full data")
+        values$TargetHydro = get.hydrodynamics(data = Target(),
                                                design = get.design.T())
       }
-    }
-    return(TargetHydroOverlap)
+    } 
   })
   
+ 
   TargetHydroStats <- reactive({
-    # If checkbox available ...
-    if (!is.null(input$hydro.window.target)){
-      # ... check if common time window is used to calculate hydrodynamics
-      if (input$hydro.window.target){
-        TargetHydroStats = get.statistics(TargetHydroOverlap())
-      } else {
-        # ... or if complete time window is used
-        TargetHydroStats = get.statistics(TargetHydro())
-      }
+    TargetHydro = TargetHydro()
+    timewindow = difftime(max(TargetHydro$datetime), min(TargetHydro$datetime), units = "days")
+    if (timewindow < 2){
+      TargetHydroStats = NULL
     } else {
-      # If only target is available, use complete time window
       TargetHydroStats = get.statistics(TargetHydro())
     }
     return(TargetHydroStats)
   })
   
   ##### Text ####
-  
+
   output$hydro.text.target <- renderUI({
+    TargetHydroStats = TargetHydroStats()
     if (bool.no.target()){
-      print("Please upload your data or select a default data set.")
+      print(text.upload.missing)
+    } else if (is.null(TargetHydroStats)){
+      print(text.too.short)
     } else {
-      HTML(get.stats.text(TargetHydroStats()))
+      HTML(get.stats.text(TargetHydroStats))
     }
   })
   
@@ -845,11 +887,15 @@ shinyServer(function(input, output, session) {
   output$hydro.table.target <- DT::renderDataTable(
     rownames = F,
     {
+      TargetHydroStats = TargetHydroStats()
       if (bool.no.target()){
-        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
+        return(tab.with.file.upload.message(text.upload.missing,
+                                            color = "blue", backgroundColor = "white"))
+      } else if (is.null(TargetHydroStats)) {
+        return(tab.with.file.upload.message(text.too.short,
                                             color = "blue", backgroundColor = "white"))
       } else {
-        return(TargetHydroStats() %>%
+        return(TargetHydroStats %>%
                  mutate_if(is.numeric, round, 2))
       }
     },
@@ -875,8 +921,10 @@ shinyServer(function(input, output, session) {
   fig.inundation.target <- reactive({
     if (bool.no.target()){
       plot.emptyMessage("No figure available. Please upload data.")
-    } else {
-      plot.inundation(data = TargetHydro())
+    } else if (is.null(TargetHydroStats())) {
+      plot.emptyMessage(text.too.short)
+      } else {
+        plot.inundation(data = TargetHydro())
     }
   })
   
@@ -904,6 +952,8 @@ shinyServer(function(input, output, session) {
   fig.velocity.target <- reactive({
     if (bool.no.target()) {
       plot.emptyMessage("No figure available. Please upload data.")
+    } else if (is.null(TargetHydroStats())) {
+      plot.emptyMessage(text.too.short)
     } else {
       plot.velocity(data = TargetHydro())
     }
@@ -935,6 +985,8 @@ shinyServer(function(input, output, session) {
     design = get.design.T()
     if (bool.no.target()) {
       plot.emptyMessage("No figure available. Please upload data.")
+    } else if (is.null(TargetHydroStats())) {
+      plot.emptyMessage(text.too.short)
     } else {
       if (design == "B4+"){
         plot.waveVelocity(data = TargetHydro())
@@ -966,60 +1018,67 @@ shinyServer(function(input, output, session) {
   ##### REFERENCE ####
   ##### Variables ####
   
-  #' Reactive variable holding data
-  #' If Reference() excists, hydrodynamics are calculated
-  ReferenceHydro <- reactive({
-    if (bool.no.reference()) {
-      print("Delete Reference hydro")
-      ReferenceHydro = data.frame()
-    } else {
-      print("Create Reference hydro")
-      ReferenceHydro <- get.hydrodynamics(data = Reference(),
-                                        design = get.design.R())
+  ReferenceHydro = reactive({
+    if (is.null(values$ReferenceHydro)){
+      print("REFERENCE hydro: create")
+      values$ReferenceHydro = get.hydrodynamics(data = Reference(),
+                                                design = get.design.T())
     }
-    return(ReferenceHydro)
+    return(values$ReferenceHydro)
   })
   
-  ReferenceHydroOverlap <- reactive({
-    ReferenceHydroOverlap = NULL
-    if (bool.no.target() & bool.no.reference()) {
-      showNotification(
-        "Error: No Target data available",
-        type = "error",
-        duration = NULL,
-        closeButton = T
-      )
-    } else {
-      time.overlap = get.time.overlap(data.t = values$Target,
-                                      data.r = values$Reference)
-      if (!is.null(time.overlap)){
-        Reference.filtered = values$Reference %>%
-          filter(datetime >= time.overlap[1] &
-                   datetime <= time.overlap[2])
-        
-        ReferenceHydroOverlap = get.hydrodynamics(data = Reference.filtered,
-                                                  design = get.design.T())
-      }
-    }
-    return(ReferenceHydroOverlap)
+  observeEvent(input$FilterApply.R, {
+    if (!is.null(input$FilterApply.R[1])){
+      if (input$FilterApply.R[1] != 0){
+        print("REFERENCE hydro: update with filtered data")
+        values$ReferenceHydro = get.hydrodynamics(data = Reference(),
+                                                  design = get.design.R())
+      }}
   })
   
-
-  # Return statistics
-  ReferenceHydroStats <- reactive({
-    # If checkbox available ...
+  observeEvent(input$FilterDelete.R, {
+    if (!is.null(input$FilterDelete.R[1])){
+      if (input$FilterDelete.R[1] != 0){
+        print("REFERENCE hydro: update with full data")
+        values$ReferenceHydro = get.hydrodynamics(data = Reference(),
+                                                  design = get.design.R())
+      }}
+  })
+  
+  observeEvent(input$LoadFilter.R, {
+    if (!is.null(input$LoadFilter.R[1])){
+      if (input$LoadFilter.R[1] > 1){
+        print("REFERENCE hydro: update with full data")
+        values$TargetHydro = get.hydrodynamics(data = Target(),
+                                               design = get.design.T())
+      }}
+  })
+  
+  observeEvent(input$hydro.window.reference, {
     if (!is.null(input$hydro.window.reference)){
-      # ... check if common time window is used to calculate hydrodynamics
-      if (input$hydro.window.reference){
-        ReferenceHydroStats = get.statistics(ReferenceHydroOverlap())
+      if (input$hydro.window.reference) {
+        print("REFERENCE hydro: update with overlapping data")
+        values$ReferenceHydro = get.hydrodynamics.overlap(dataset = "Reference")
+        
       } else {
-        # ... or if complete time window is used
-        ReferenceHydroStats = get.statistics(ReferenceHydro())
+        print("REFERENCE hydro: update with full data")
+        values$ReferenceHydro = get.hydrodynamics(data = Reference(),
+                                                  design = get.design.R())
       }
+    } 
+  })
+  
+  
+  
+  ReferenceHydroStats <- reactive({
+    ReferenceHydro = ReferenceHydro()
+    timewindow = difftime(max(ReferenceHydro$datetime), min(ReferenceHydro$datetime), units = "days")
+    if (timewindow < 2){
+      ReferenceHydroStats = NULL
     } else {
-      # If only target is available, use complete time window
       ReferenceHydroStats = get.statistics(ReferenceHydro())
     }
+    ReferenceHydroStats = get.statistics(values$ReferenceHydro)
     return(ReferenceHydroStats)
   })
   
@@ -1028,7 +1087,9 @@ shinyServer(function(input, output, session) {
   
   output$hydro.text.reference <- renderUI({
     if (bool.no.reference()){
-      print("Please upload your data or select a default data set.")
+      print(text.upload.missing)
+    } else if (is.null(ReferenceHydroStats())){
+      print(text.too.short)
     } else {
       HTML(get.stats.text(ReferenceHydroStats()))
     }
@@ -1042,8 +1103,10 @@ shinyServer(function(input, output, session) {
     rownames = F,
     {
       if (bool.no.reference()){
-        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
+        return(tab.with.file.upload.message(text.upload.missing,
                                             color = "blue", backgroundColor = "white"))
+      } else if (is.null(ReferenceHydroStats())){
+        print(text.too.short)
       } else {
         return(ReferenceHydroStats() %>%
                  mutate_if(is.numeric, round, 2))
@@ -1071,6 +1134,8 @@ shinyServer(function(input, output, session) {
   fig.inundation.reference <- reactive({
     if (bool.no.reference()){
       plot.emptyMessage("No figure available. Please upload data.")
+    } else if (is.null(ReferenceHydroStats())){
+      print(text.too.short)
     } else {
       plot.inundation(data = ReferenceHydro())
     }
@@ -1100,6 +1165,8 @@ shinyServer(function(input, output, session) {
   fig.velocity.reference <- reactive({
     if (bool.no.reference()) {
       plot.emptyMessage("No figure available. Please upload data.")
+    } else if (is.null(ReferenceHydroStats())){
+      print(text.too.short)
     } else {
       plot.velocity(data = ReferenceHydro())
     }
@@ -1131,6 +1198,8 @@ shinyServer(function(input, output, session) {
     design = get.design.R()
     if (bool.no.reference()) {
       plot.emptyMessage("No figure available. Please upload data.")
+    } else if (is.null(ReferenceHydroStats())){
+      print(text.too.short)
     } else {
       if (design == "B4+"){
         plot.waveVelocity(data = ReferenceHydro())
@@ -1165,13 +1234,18 @@ shinyServer(function(input, output, session) {
   
   
   ComparisonStats <- reactive({
-    TargetHydroStats = get.statistics(data = TargetHydroOverlap())
-    ReferenceHydroStats = get.statistics(data = ReferenceHydroOverlap())
+    TargetHydro = get.hydrodynamics.overlap(dataset = "Target")
+    ReferenceHydro = get.hydrodynamics.overlap(dataset = "Reference")
+    
+    TargetHydroStats = get.statistics(data = TargetHydro)
+    ReferenceHydroStats = get.statistics(data = ReferenceHydro)
     
     ComparisonStats = get.comparison(stats.t = TargetHydroStats,
-                                            stats.r = ReferenceHydroStats)
-    return(ComparisonStats)
-  })
+                                     stats.r = ReferenceHydroStats)
+    return(list(Comparison=ComparisonStats, 
+                Target=TargetHydro,
+                Reference=ReferenceHydro)) 
+    })
   
   
   ##### Table ####
@@ -1180,10 +1254,9 @@ shinyServer(function(input, output, session) {
   output$comparison.table.target <- DT::renderDataTable(
     rownames = F,
     {
-      
-      print(paste("bool.overlap: ", bool.overlap()))
       if (bool.overlap()) {
-        return(ComparisonStats() %>% 
+        ComparisonStats = ComparisonStats()[["Comparison"]]
+        return(ComparisonStats %>% 
                  mutate_if(is.numeric,round, 2))
       } else {
         if (bool.no.reference() | bool.no.target()){
@@ -1220,8 +1293,8 @@ shinyServer(function(input, output, session) {
     if (bool.no.target() | bool.no.reference()){
       plot.emptyMessage("No figure available. Please upload data.")
     } else {
-      plot.inundationComparison(data.t = TargetHydroOverlap(),
-                                data.r = ReferenceHydroOverlap())
+      plot.inundationComparison(data.t = ComparisonStats()[["Target"]],
+                                data.r = ComparisonStats()[["Reference"]])
     }
   })
   
