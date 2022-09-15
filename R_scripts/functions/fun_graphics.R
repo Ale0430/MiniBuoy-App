@@ -23,60 +23,6 @@ is.Date <- function(x) {
    inherits(x, c("Date", "POSIXt"))
 }
 
-#' Fill colors
-#' @description Helper function to get fill colors for discrete data. Colors are either default colors or manually obtained from UI.
-#' @param ui.input: UI-input
-#' @return vector
-get.fillcolors = function(ui.input){
-   # If no colors are defined use default set
-   print("Discrete color scheme: default")
-   col = c("#d8b365", "#260C7D", "#5ab4ac", "#7D410C", 
-           "#007D06", '#999999','#E69F00', '#56B4E9')
-   if (ui.input$fillColors != ""){
-      print("Discrete color scheme: customized")
-      cols = ui.input$fillColors
-      cols_split = strsplit(cols, ",")[[1]]
-      if (length(cols_split) == 1){
-         print(cols_split[1])
-         try(col <- RColorBrewer::brewer.pal(n = 100,
-                                             name = cols_split[1]),
-             silent = F)
-         print(col)
-      } else {
-         for (i in 1:length(cols_split)){
-            # remove white spaces
-            c = gsub(" ", "", cols_split[i], fixed = TRUE)
-            col = append(col, c)
-         }
-      }
-   }
-   return(col)
-}
-
-#' Gradient colors
-#' @description Helper function to get gradient colors for continious data. Colors are either default colors or manually obtained from UI.
-#' @param ui.input: UI-input
-#' @return vector
-get.gradientcolors = function(ui.input){
-   # If no colors are defined use default set
-   if (ui.input$gradientColors == ""){
-      print("Gradient color scheme: default")
-      col = c("#d8b365", "#5ab4ac")
-      
-   } else {
-      print("Gradient color scheme: customized")
-      cols = ui.input$gradientColors
-      cols_split = strsplit(cols, ",")[[1]]
-      col = c()
-      for (i in 1:length(cols_split)){
-         # remove white spaces
-         c = gsub(" ", "", cols_split[i], fixed = TRUE)
-         col = append(col, c)
-      }
-   }
-   return(col)
-}
-
 #' Empty diagram
 #' @param message: message to be shown
 #' @return ggplot-object
