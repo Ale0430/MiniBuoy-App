@@ -9,13 +9,13 @@
  * Color boxes
  */
 .box.box-info {
-    border-top-color: #3c8dbc;
+    border-top-color: #3774F5; /* blue */
 }
 .box.box-warning {
-    border-top-color: #3583B0;
+    border-top-color: #6730EB; /* violet */
 }
 .box.box-success {
-    border-top-color: #9CD8FA;
+    border-top-color: #42CCC8; /* turquoise */
 }
 #shiny-notification-panel {
     position: fixed;
