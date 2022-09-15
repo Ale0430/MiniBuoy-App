@@ -141,13 +141,13 @@ dataFilterOutput = function(){
       column(6, box(title = "Target",
                     collapsible = T,  width = "100%",
                     status = "warning",
-                    actButton("LoadFilter.T", "Open filter options", "update"),
+                    actButton("LoadFilter.T", "Open/ reload filter options", "update"),
                     uiOutput("filterOptions.T")
       )),
       column(6, box(title = "Reference",
                     collapsible = T,  width = "100%",
                     status = "warning",
-                    actButton("LoadFilter.R", "Open filter options", "update"),
+                    actButton("LoadFilter.R", "Open/ reload filter options", "update"),
                     uiOutput("filterOptions.R")
       ))
     ),
@@ -176,9 +176,9 @@ box.filter.figures = function(){
                "Diagram type",
                inline = T,
                choices = c(
-                 "Histogram" = "hist",
                  "Line plot" = "line",
-                 "Scatter plot" = "scatter"
+                 "Scatter plot" = "scatter", 
+                 "Histogram" = "hist"
                )), 
              offset = 1),
       column(4,
