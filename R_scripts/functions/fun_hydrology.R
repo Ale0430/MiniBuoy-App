@@ -171,7 +171,6 @@ get.statistics = function(data) {
                    "75 percentile wave orbital velocity (m/s)")) %>%
     gather(Parameter,
            Value) %>% 
-    # `Monitoring period (d)`:`75 percentile wave orbital vel. (m/s)`) %>%
     na.omit() %>% distinct(.)
 
   return(hydro.tab)
@@ -257,7 +256,7 @@ get.comparison = function(stats.t, stats.r){
     left_join(., stats.r, 'Parameter') %>%
     rename(Target = Value.x, Reference = Value.y) %>%
     mutate('Difference Absolute' = Target - Reference, 
-           'Difference (%)' = (Target - Reference) / Reference * 100) 
+           'Difference to Ref. (%)' = (Target - Reference) / Reference * 100) 
   
   return(comparison)
 } 
