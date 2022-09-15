@@ -25,20 +25,10 @@ if(!require("zoo")) install.packages("zoo")
 if(!require("fasttime")) install.packages("fasttime") 
 # Package to modify ggplot axis -> args in scale_y_continuous
 if(!require("scales")) install.packages("scales")
-# ???
-if(!require("caTools")) install.packages("caTools")  #from Cai's code
-#Packages to run model predictions
+# Packages to run model predictions
+if(!require("caTools")) install.packages("caTools")
 if(!require("kernlab")) install.packages("kernlab")
 if(!require("caret")) install.packages("caret")
-
-# # Check if the following packages are required
-# # Package to speed up processing of date formats -> fastPOSIXct
-# if(!require("fasttime")) install.packages("fasttime") 
-# if(!require("ggpubr")) install.packages("ggpubr") # draw regression line in ggplot
-# if(!require("scales")) install.packages("scales") # modify datetime format in ggpplot
-# #if(!require("fontawesome")) install.packages("fontawesome")  #dashboard menu icons (not really needed#)
-# ???
-# if(!require("kernlab")) install.packages("kernlab")   #from Cai's code
 
 
 #### LOAD APP FUNCTIONS ####
