@@ -180,7 +180,10 @@ plot.inundation = function(data) {
             fill = 'lightblue',
             colour = 'lightblue'
          ) +
-         scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+         scale_y_continuous(expand = expansion(mult = c(0, .1)), 
+                            label = comma,
+                            sec.axis = sec_axis(trans=~./60,
+                                                name = 'Daily inundation (hours/day)')) +
          labs(y = 'Daily inundation (min/day)') +
          theme(axis.title.x = element_blank())
    )
@@ -228,7 +231,10 @@ plot.inundationComparison = function(data.t, data.r){
              ggplot(aes(x = date, y = InundationMin, fill = Type)) +
              geom_bar(stat = 'identity', position = 'dodge') +
              scale_fill_manual(values = c('lightblue', 'royalblue')) +
-             scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+             scale_y_continuous(expand = expansion(mult = c(0, .1)),
+                                label = comma,
+                                sec.axis = sec_axis(trans=~./60,
+                                                    name = 'Daily inundation (hours/day)')) +
              labs(y = 'Daily inundation (min/day)',
                   fill = "Site") + 
              theme(axis.title.x = element_blank())#,
