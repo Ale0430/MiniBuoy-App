@@ -871,13 +871,12 @@ shinyServer(function(input, output, session) {
   ##### Text ####
 
   output$hydro.text.target <- renderUI({
-    TargetHydroStats = TargetHydroStats()
     if (bool.no.target()){
       print(text.upload.missing)
-    } else if (is.null(TargetHydroStats)){
+    } else if (is.null(TargetHydroStats())){
       print(text.too.short)
     } else {
-      HTML(get.stats.text(TargetHydroStats))
+      HTML(get.stats.text(TargetHydroStats()))
     }
   })
   
@@ -887,15 +886,14 @@ shinyServer(function(input, output, session) {
   output$hydro.table.target <- DT::renderDataTable(
     rownames = F,
     {
-      TargetHydroStats = TargetHydroStats()
       if (bool.no.target()){
         return(tab.with.file.upload.message(text.upload.missing,
                                             color = "blue", backgroundColor = "white"))
-      } else if (is.null(TargetHydroStats)) {
+      } else if (is.null(TargetHydroStats())) {
         return(tab.with.file.upload.message(text.too.short,
                                             color = "blue", backgroundColor = "white"))
       } else {
-        return(TargetHydroStats %>%
+        return(TargetHydroStats() %>%
                  mutate_if(is.numeric, round, 2))
       }
     },
@@ -982,12 +980,12 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
   fig.wave.velocity.target <- reactive({
-    design = get.design.T()
     if (bool.no.target()) {
       plot.emptyMessage("No figure available. Please upload data.")
     } else if (is.null(TargetHydroStats())) {
       plot.emptyMessage(text.too.short)
     } else {
+      design = get.design.T()
       if (design == "B4+"){
         plot.waveVelocity(data = TargetHydro())
       } else {
@@ -1195,12 +1193,12 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > reference
   fig.wave.velocity.reference <- reactive({
-    design = get.design.R()
     if (bool.no.reference()) {
       plot.emptyMessage("No figure available. Please upload data.")
     } else if (is.null(ReferenceHydroStats())){
       print(text.too.short)
     } else {
+      design = get.design.R()
       if (design == "B4+"){
         plot.waveVelocity(data = ReferenceHydro())
       } else {
