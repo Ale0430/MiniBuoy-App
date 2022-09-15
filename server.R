@@ -817,7 +817,7 @@ shinyServer(function(input, output, session) {
   #' if raw data is filtered or the filter is deleted or a change
   #' in the 'use overlapping time...' occurs
   observeEvent(input$FilterApply.T, {
-    if (!is.null(input$FilterApply.T[1])){
+    if (!is.null(input$FilterApply.T[1]) & !is.null(values$TargetHydro)){
       if (input$FilterApply.T[1] != 0){
         print("TARGET hydro: update with filtered data")
         values$TargetHydro = get.hydrodynamics(data = Target(),
@@ -826,7 +826,7 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$FilterDelete.T, {
-    if (!is.null(input$FilterDelete.T[1])){
+    if (!is.null(input$FilterDelete.T[1]) & !is.null(values$TargetHydro)){
       if (input$FilterDelete.T[1] != 0){
         print("TARGET hydro: update with full data")
         values$TargetHydro = get.hydrodynamics(data = Target(),
@@ -835,7 +835,7 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$LoadFilter.T, {
-    if (!is.null(input$LoadFilter.T[1])){
+    if (!is.null(input$LoadFilter.T[1]) & !is.null(values$TargetHydro)){
       if (input$LoadFilter.T[1] > 1){
         print("TARGET hydro: update with full data")
         values$TargetHydro = get.hydrodynamics(data = Target(),
@@ -844,7 +844,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$hydro.window.target, {
-    if (!is.null(input$hydro.window.target)){
+    if (!is.null(input$hydro.window.target) & !is.null(values$TargetHydro)){
       if (input$hydro.window.target) {
         print("TARGET hydro: update with overlapping data")
         values$TargetHydro = get.hydrodynamics.overlap(dataset = "Target")
@@ -1028,7 +1028,7 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$FilterApply.R, {
-    if (!is.null(input$FilterApply.R[1])){
+    if (!is.null(input$FilterApply.R[1]) & !is.null(values$ReferenceHydro)){
       if (input$FilterApply.R[1] != 0){
         print("REFERENCE hydro: update with filtered data")
         values$ReferenceHydro = get.hydrodynamics(data = Reference(),
@@ -1037,7 +1037,7 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$FilterDelete.R, {
-    if (!is.null(input$FilterDelete.R[1])){
+    if (!is.null(input$FilterDelete.R[1]) & !is.null(values$ReferenceHydro)){
       if (input$FilterDelete.R[1] != 0){
         print("REFERENCE hydro: update with full data")
         values$ReferenceHydro = get.hydrodynamics(data = Reference(),
@@ -1046,7 +1046,7 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$LoadFilter.R, {
-    if (!is.null(input$LoadFilter.R[1])){
+    if (!is.null(input$LoadFilter.R[1]) & !is.null(values$ReferenceHydro)){
       if (input$LoadFilter.R[1] > 1){
         print("REFERENCE hydro: update with full data")
         values$TargetHydro = get.hydrodynamics(data = Target(),
@@ -1055,7 +1055,7 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$hydro.window.reference, {
-    if (!is.null(input$hydro.window.reference)){
+    if (!is.null(input$hydro.window.reference) & !is.null(values$ReferenceHydro)){
       if (input$hydro.window.reference) {
         print("REFERENCE hydro: update with overlapping data")
         values$ReferenceHydro = get.hydrodynamics.overlap(dataset = "Reference")
