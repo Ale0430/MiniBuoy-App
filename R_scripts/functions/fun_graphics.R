@@ -23,6 +23,10 @@ is.Date <- function(x) {
    inherits(x, c("Date", "POSIXt"))
 }
 
+defaultColors = c("Target" = "#0072B2", # turquoise: 009E73 , blue:0072B2
+                  "Reference" = "#56B4E9")
+defaultLineTypes = c("Target" = 1,
+                     "Reference" = 2)
 #' Empty diagram
 #' @param message: message to be shown
 #' @return ggplot-object
@@ -176,7 +180,8 @@ plot.inundationComparison = function(data.t, data.r){
    return(hydro %>% 
              ggplot(aes(x = date, y = InundationMin, fill = Type)) +
              geom_bar(stat = 'identity', position = 'dodge') +
-             scale_fill_manual(values = c('lightblue', 'royalblue')) +
+             scale_fill_manual(values = defaultColors) +
+             # scale_fill_manual(values = c('lightblue', 'royalblue')) +
              scale_y_continuous(expand = expansion(mult = c(0, .1)),
                                 label = comma,
                                 sec.axis = sec_axis(trans=~./60,
@@ -198,12 +203,14 @@ plot.velocityComparison = function(data.t, data.r){
                       mutate(Type = "Reference")) %>%
          group_by(Type) %>% 
          mutate(rmCurrentVel = rollmean(CurrentVelocity, 20, na.pad = T)) %>% 
-         ggplot(aes(x = datetime, y = rmCurrentVel, col = Type)) +
-         geom_line(size = 0.7) + 
+         ggplot(aes(x = datetime, y = rmCurrentVel, col = Type, linetype = Type)) +
+         geom_line(size = 1) + 
          scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
-         scale_color_manual(values = c('lightblue', 'royalblue')) +
+         scale_linetype_manual(name = "Site", values = defaultLineTypes) +
+         scale_color_manual(name = "Site", values = defaultColors) +
          labs(y = 'Median current velocity (m/s)',
-              fill = "Site") + 
+              color = "Site",
+              linetype = "Site") + 
          theme(axis.title.x = element_blank())
    )
 }
