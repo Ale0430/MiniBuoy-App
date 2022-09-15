@@ -9,15 +9,15 @@
 output.table = function(outputID){
   return(list(br(), 
               DT::dataTableOutput(outputID) %>% 
-                withSpinner(color="#3c8dbc")))
+                withSpinner(color="#3c8dbc", proxy.height = 150)))
 }
 
 output.figure = function(outputID){
-  return(plotOutput(outputID) %>% withSpinner(color="#3c8dbc"))
+  return(plotOutput(outputID) %>% withSpinner(color="#3c8dbc", proxy.height = 200))
 }
 
 output.html = function(outputID){
-  return(htmlOutput(outputID) %>% withSpinner(color="#3c8dbc"))
+  return(htmlOutput(outputID) %>% withSpinner(color="#3c8dbc", proxy.height = 50))
 }
 
 #### STYLES ####

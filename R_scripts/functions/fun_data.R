@@ -114,7 +114,6 @@ convertTimeToDeci <- function(time) { #@Marie: delete?
 get.time.overlap = function(data.t, data.r){
    timerange.t = c(min(data.t$datetime, na.rm = T), max(data.t$datetime, na.rm = T))
    timerange.r = c(min(data.r$datetime, na.rm = T), max(data.r$datetime, na.rm = T))
-
    # Test if recordings of reference and target overlap
    if ((min(timerange.t) <= max(timerange.r)) & (max(timerange.t) >= min(timerange.r))){
       sorted.times = sort(c(timerange.t, timerange.r))[c(2,3)]
@@ -229,7 +228,6 @@ update.filter.ui = function(ui.output, ui.input, filetype, minMaxDatetime) {
 
    ui.output[[fO]] <- renderUI({
       #req(ui.input$LoadFilter)
-      print("In load filters")
       tagList(
          checkboxInput(paste("removeNA", filetype, sep = ".")
                        , "Remove blank rows", T),
@@ -265,7 +263,7 @@ update.filter.ui = function(ui.output, ui.input, filetype, minMaxDatetime) {
             actButton(paste("FilterDelete", filetype, sep = ".")
                       , "Delete filter", "update")
          )),),
-         htmlOutput(paste("dataPoints", filetype, sep = "."))
+         output.html(paste("dataPoints", filetype, sep = "."))
       )
    })
    return(ui.output)
