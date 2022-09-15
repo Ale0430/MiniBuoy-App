@@ -235,3 +235,23 @@ plot.inundationComparison = function(data.t, data.r){
                    # legend.title = element_blank()) 
           )
 }
+
+
+#' Current velocity
+plot.velocityComparison = function(data.t, data.r){
+   return(
+      data.t %>% 
+         mutate(Type = "Target") %>% 
+         bind_rows(data.r %>% 
+                      mutate(Type = "Reference")) %>%
+         group_by(Type) %>% 
+         mutate(rmCurrentVel = rollmean(CurrentVelocity, 20, na.pad = T)) %>% 
+         ggplot(aes(x = datetime, y = rmCurrentVel, col = Type)) +
+         geom_line(size = 0.7) + 
+         scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+         scale_color_manual(values = c('lightblue', 'royalblue')) +
+         labs(y = 'Median current velocity (m/s)',
+              fill = "Site") + 
+         theme(axis.title.x = element_blank())
+   )
+}

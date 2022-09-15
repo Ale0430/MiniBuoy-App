@@ -1315,4 +1315,35 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  
+  #### Current velocity #####
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.velocity.comparison <- reactive({
+    if (bool.no.target() | bool.no.reference()){
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else {
+      plot.velocityComparison(data.t = ComparisonStats()[["Target"]],
+                                data.r = ComparisonStats()[["Reference"]])
+    }
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.velocity.comparison <- renderPlot({
+    fig.velocity.comparison()
+  })
+  
+  #' Eventlistener to save plot with inundation data
+  #' (Hydrodynamics > Target)
+  observeEvent(input$save.fig.velocity.comparison, {
+    name = "CurrentVelocity_Comparison"
+    save.figure(
+      path = projectPath(),
+      name = name,
+      plotObject = fig.velocity.comparison(),
+      ui.input = input
+    )
+  })
+  
 })

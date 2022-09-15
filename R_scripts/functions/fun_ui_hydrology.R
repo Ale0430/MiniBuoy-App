@@ -205,6 +205,12 @@ hyd.comparison.box.figures = function(){
                output.figure("fig.inundation.comparison"),
                actButton("save.fig.inundation.comparison",
                          "Save figure", 
+                         "saveFigure")),
+      
+      tabPanel("Current velocity", br(),
+               output.figure("fig.velocity.comparison"),
+               actButton("save.fig.velocity.comparison",
+                         "Save figure", 
                          "saveFigure"))
     ))
   )
