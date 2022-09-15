@@ -14,7 +14,7 @@ introOutput = function(){
         column(12, img(src = 'MiniBuoyMotion.png', width = "100%"), align = "center")
     ),
     box(title = "Mini Buoy Models",
-        status = "warning", 
+        status = "info", 
         solidHeader = F,
         collapsible = T, 
         width = 6, 
