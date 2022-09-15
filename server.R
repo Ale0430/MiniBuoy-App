@@ -189,12 +189,12 @@ shinyServer(function(input, output, session) {
     # Load default file
     if (input$raw_default_T){
       defaultData_T = "./data/default_target.csv"
-      print("Default TARGET data")
+      print("TARGET data: default")
       dataT = get.ACCy.B4(defaultData_T)
     } else {
       # Load user file if file type is choosen and file path provided
       if (bool.file.upload.target()){
-        print("User TARGET data")
+        print("TARGET data: user")
         dataT = get.rawData_T(input) 
       }
     }
@@ -212,11 +212,11 @@ shinyServer(function(input, output, session) {
     dataR = NULL
     if (input$raw_default_R){
       defaultData_R = "./data/default_reference.csv"
-      print("Default REFERENCE data")
+      print("REFERENCE data: default")
       dataR = get.ACCy.B4(defaultData_R)
     } else {
       if (bool.file.upload.reference()){
-        print("User REFERENCE data")
+        print("REFERENCE data: user")
         dataR = get.rawData_R(input)
       }
     }
@@ -245,7 +245,6 @@ shinyServer(function(input, output, session) {
       }
     }
     if (type == "Reference"){
-      print(bool.file.upload.reference())
       if (bool.file.upload.reference()){
         if (!is.null(values$Reference)){
           return(strsplit(input$fileReference$name, "[.]")[[1]][1])
@@ -273,18 +272,20 @@ shinyServer(function(input, output, session) {
   #' Create empty reactive value with a placeholder for the
   #' data sets belonging to Target and reference sites
   values <- reactiveValues(Target = NULL,
-                           Reference = NULL)
+                           TargetHydro = NULL,
+                           Reference = NULL,
+                           ReferencetHydro = NULL)
   
   
   #' Reactive variable holding data
   #' Assigned to reactive value if empty
   Target <- reactive({
     if (is.null(values$Target)){
-      print("Assign raw data to TARGET data")
+      print("TARGET data: create")
       values$Target <- rawData_T()
     }
     if (!input$raw_default_T & ! bool.file.upload.target()){
-      print("Delete TARGET data")
+      print("TARGET data: delete")
       values$Target = NULL 
     }
     return(values$Target)
@@ -292,11 +293,11 @@ shinyServer(function(input, output, session) {
   
   Reference <- reactive({
     if (is.null(values$Reference)){
-      print("Assign raw data to REFERENCE data")
+      print("REFERENCE data: create")
       values$Reference <- rawData_R()
     }
     if (!input$raw_default_R & !bool.file.upload.reference()){
-      print("Delete REFERENCE data")
+      print("REFERENCE data: delete")
       values$Reference = NULL
     }
     return(values$Reference)
@@ -312,7 +313,6 @@ shinyServer(function(input, output, session) {
   }
   
   observeEvent(input$setData.T, {
-    print("Set data TARGET")
     rawData_T = rawData_T()
     if (is.null(rawData_T)) {
       if (bool.file.upload.target()) {
@@ -352,7 +352,6 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$setData.R, {
-    print("Set data REFERENCE")
     rawData_R = rawData_R()
     if (is.null(rawData_R)) {
       if (bool.file.upload.reference()) {
@@ -439,7 +438,7 @@ shinyServer(function(input, output, session) {
     rownames = F,
     {
       if (!input$raw_default_T & is.null(input$fileTarget$datapath)){
-        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
+        return(tab.with.file.upload.message(text.upload.missing,
                                             color = "blue", backgroundColor = "white"))
         
       } else {
@@ -461,7 +460,7 @@ shinyServer(function(input, output, session) {
     rownames = F,
     {
       if (!input$raw_default_R & is.null(input$fileReference$datapath)){
-        return(tab.with.file.upload.message("Please upload your data or select a default data set.",
+        return(tab.with.file.upload.message(text.upload.missing,
                                             color = "blue", backgroundColor = "white"))
         
       } else {
@@ -483,11 +482,11 @@ shinyServer(function(input, output, session) {
     if (input$setData.T == 0 || input$setData.R == 0) {
       return()
     }
-    Target = values$Target
-    Reference = values$Reference
+    Target = Target()
+    Reference = Reference()
     if (!is.null(Target) & !is.null(Reference)){
-      time.overlap = get.time.overlap(data.t = values$Target,
-                                      data.r = values$Reference)
+      time.overlap = get.time.overlap(data.t = Target,
+                                      data.r = Reference)
       if (is.null(time.overlap)) {
         showNotification(
           "Warning: Time windows of TARGET and REFERENCE do not overlap",
@@ -551,12 +550,14 @@ shinyServer(function(input, output, session) {
   #' Buttons to apply filter
   #' Assigns filter selected options to Target and reference site data sets
   observeEvent(input$FilterApply.T, {
+    print("TARGET data: filter")
     values$Target <- get.filteredData(data = values$Target,
                                       ui.input = input,
                                       filetype = "T")
   })
   
   observeEvent(input$FilterApply.R, {
+    print("REFERENCE data: filter")
     values$Reference <- get.filteredData(data = values$Reference,
                                       ui.input = input,
                                       filetype = "R")
@@ -579,7 +580,7 @@ shinyServer(function(input, output, session) {
     if (!is.null(input$fileTarget)) {
       req(input$setData.T)
     }
-    d = values$Target
+    d = Target()
     minDate = min(d$datetime)
     maxDate = max(d$datetime)
     return(c(minDate, maxDate))
@@ -589,7 +590,7 @@ shinyServer(function(input, output, session) {
     if (!is.null(input$fileReference)) {
       req(input$setData.R)
     }
-    d = values$Reference
+    d = Reference()
     minDate = min(d$date)
     maxDate = max(d$date)
     return(c(minDate, maxDate))
@@ -647,12 +648,12 @@ shinyServer(function(input, output, session) {
   
   output$dataPoints.T <- renderText({ 
     get.deleted.points.text(data_before = rawData_T(),
-                            data_after = values$Target)
+                            data_after = Target())
   })
   
   output$dataPoints.R <- renderText({
     get.deleted.points.text(data_before = rawData_R(),
-                            data_after = values$Reference)
+                            data_after = Reference())
   })
   
   #### Graphics ####
@@ -662,10 +663,10 @@ shinyServer(function(input, output, session) {
   #' Show notification if no data were uploaded
   DataSetInput <- reactive({
     if (input$filterPlot_DataSet == "TARGET") {
-      dataset <- data.frame(values$Target)
+      dataset <- data.frame(Target())
     }
     if (input$filterPlot_DataSet == "REFERENCE") {
-      dataset <- data.frame(values$Reference)
+      dataset <- data.frame(Reference())
     }
     if (identical(dataset, data.frame())) {
       showNotification(
