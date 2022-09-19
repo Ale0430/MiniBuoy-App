@@ -107,11 +107,9 @@ get.statistics = function(data) {
   
   # daily flood frequency:
   s.days = data %>%
-    dplyr::select(datetime, Event) %>%
-    na.omit() %>%
-    group_by(datetime = as_date(datetime))%>%
-    summarise(Frequency = mean(length(unique(Event))))%>%
-    summarise(FloodingFrequency = mean(Frequency))
+    summarise(DaysSurveyed = as.numeric(difftime(max(datetime), min(datetime), units = "days")), 
+              TotalEvents = max(Event, na.rm=T))%>%
+    summarise(FloodingFrequency = TotalEvents/DaysSurveyed)
 
   # survey days, total length of survey (min), current and wave orbital velocities (median and upper quantile values):
   s.all = data %>%
