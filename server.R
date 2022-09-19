@@ -1230,7 +1230,8 @@ shinyServer(function(input, output, session) {
   ##### COMPARISON ####
   ##### Variables ####
   
-  
+  #' Reactive function containing a list the statistical comparison
+  #' and hydrodynamics of reference and target for overlapping time
   ComparisonStats <- reactive({
     TargetHydro = get.hydrodynamics.overlap(dataset = "Target")
     ReferenceHydro = get.hydrodynamics.overlap(dataset = "Reference")
@@ -1248,7 +1249,7 @@ shinyServer(function(input, output, session) {
   
   ##### Table ####
   
-  #' Render table showing hydrodynamics of target data
+  #' Render table showing hydrodynamics of comparison data
   output$comparison.table.target <- DT::renderDataTable(
     rownames = F,
     {
@@ -1270,13 +1271,13 @@ shinyServer(function(input, output, session) {
     options = list(dom = 't'),
   )
   
-  #' Eventlistener to save hydrodynamics summary target
+  #' Eventlistener to save hydrodynamics summary comparison
   #' (Hydrodynamics > Summary table)
-  observeEvent(input$comparison.table.target.save, {
+  observeEvent(input$comparison.table.save, {
     save.csv(
       path = projectPath(),
-      name = "Hydrodynamics_Target",
-      csvObject = TargetHydroStats(),
+      name = "Hydrodynamics_Comparison",
+      csvObject = ComparisonStats()[["Comparison"]],
       ui.input = input
     )
   })

@@ -193,7 +193,7 @@ hyd.comparison.box.table = function(){
   return(
     list(
       output.table("comparison.table.target"),
-      actButton("comparison.table.target.save", "Save table", "saveCsv")
+      actButton("comparison.table.save", "Save table", "saveCsv")
     )
   )
 }
