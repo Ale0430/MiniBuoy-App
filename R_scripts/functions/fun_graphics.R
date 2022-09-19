@@ -172,24 +172,24 @@ plot.inundationComparison = function(data.t, data.r){
    hydro = data.t %>% 
       mutate(Type = "Target") %>% 
       bind_rows(data.r %>% 
-                   mutate(Type = "Reference")) %>% 
+                   mutate(Type = "Reference")) %>%
+      mutate(Type = factor(Type,
+                           levels = c("Target", "Reference"))) %>% 
       mutate(date = ceiling_date(datetime, unit = 'days')) %>%
       group_by(Type, date) %>%
-      summarise(InundationMin = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1]))
+      summarise(InundationMin = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) 
    
    return(hydro %>% 
              ggplot(aes(x = date, y = InundationMin, fill = Type)) +
              geom_bar(stat = 'identity', position = 'dodge') +
              scale_fill_manual(values = defaultColors) +
-             # scale_fill_manual(values = c('lightblue', 'royalblue')) +
              scale_y_continuous(expand = expansion(mult = c(0, .1)),
                                 label = comma,
                                 sec.axis = sec_axis(trans=~./60,
                                                     name = 'Daily inundation (hours/day)')) +
              labs(y = 'Daily inundation (min/day)',
                   fill = "Site") + 
-             theme(axis.title.x = element_blank())#,
-                   # legend.title = element_blank()) 
+             theme(axis.title.x = element_blank())
           )
 }
 
@@ -201,6 +201,8 @@ plot.velocityComparison = function(data.t, data.r){
          mutate(Type = "Target") %>% 
          bind_rows(data.r %>% 
                       mutate(Type = "Reference")) %>%
+         mutate(Type = factor(Type,
+                              levels = c("Target", "Reference"))) %>% 
          group_by(Type) %>% 
          mutate(rmCurrentVel = rollmean(CurrentVelocity, 20, na.pad = T)) %>% 
          ggplot(aes(x = datetime, y = rmCurrentVel, col = Type, linetype = Type)) +
