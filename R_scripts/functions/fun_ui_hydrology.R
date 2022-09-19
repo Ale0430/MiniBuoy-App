@@ -211,6 +211,12 @@ hyd.comparison.box.figures = function(){
                output.figure("fig.velocity.comparison"),
                actButton("save.fig.velocity.comparison",
                          "Save figure", 
+                         "saveFigure")),
+      
+      tabPanel("Parameters", br(),
+               output.figure("fig.parameter.comparison"),
+               actButton("save.fig.parameter.comparison",
+                         "Save figure", 
                          "saveFigure"))
     ))
   )

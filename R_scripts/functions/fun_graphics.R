@@ -216,3 +216,34 @@ plot.velocityComparison = function(data.t, data.r){
          theme(axis.title.x = element_blank())
    )
 }
+
+
+
+#' Parameter bar plot
+plot.parameterComparison = function(stats.table){
+   return(
+      stats.table %>% 
+         gather(., Type, Value, Reference, Target) %>% 
+         mutate(Type = factor(Type,
+                              levels = c("Target", "Reference")),
+                Parameter = factor(Parameter,
+                                   levels = c("Monitoring period (d)", 
+                                              "Average flooding duration (min/d)",
+                                              "Time flooded during survey (%)",
+                                              "Flooding frequency (f/d)",
+                                              "Max. Window of opportunity duration (d)",
+                                              "Median current velocity (m/s)",
+                                              "75 percentile current velocity (m/s)",
+                                              "Flood ebb median velocity (m/s)",
+                                              "Median wave orbital velocity (m/s)",
+                                              "75 percentile wave orbital velocity (m/s)"))) %>% 
+         ggplot(., aes(x = Parameter, y = Value, fill = Type)) +
+         geom_bar(stat = "identity", position = "dodge", col = "black") +
+         scale_fill_manual(values = defaultColors) +
+         facet_wrap(~Parameter, scales = "free", 
+                    ncol = round(nrow(stats.table)/2),
+                    labeller = label_wrap_gen(width=25)) +
+         theme(axis.title.x = element_blank(),
+               axis.text.x = element_blank())
+   )
+}

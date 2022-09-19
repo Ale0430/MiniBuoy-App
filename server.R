@@ -1345,4 +1345,33 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  
+  #### Parameter bar plot #####
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.parameter.comparison <- reactive({
+    if (bool.no.target() | bool.no.reference()){
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else {
+      plot.parameterComparison(stats.table = ComparisonStats()[["Comparison"]])
+    }
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.parameter.comparison <- renderPlot({
+    fig.parameter.comparison()
+  })
+  
+  #' Eventlistener to save plot with inundation data
+  #' (Hydrodynamics > Target)
+  observeEvent(input$save.fig.parameter.comparison, {
+    name = "Parameter_Comparison"
+    save.figure(
+      path = projectPath(),
+      name = name,
+      plotObject = fig.parameter.comparison(),
+      ui.input = input
+    )
+  })
 })
