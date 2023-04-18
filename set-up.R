@@ -29,7 +29,8 @@ if(!require("scales")) install.packages("scales")
 if(!require("caTools")) install.packages("caTools")
 if(!require("kernlab")) install.packages("kernlab")
 if(!require("caret")) install.packages("caret")
-
+if(!require("asdetect")) install.packages("asdetect")
+if(!require("timetk")) install.packages("timetk")
 
 #### LOAD APP FUNCTIONS ####
 path= "./R_scripts/functions/"
