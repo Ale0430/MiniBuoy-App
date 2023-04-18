@@ -115,6 +115,48 @@ plot.filteredRawData <- function(data, ui.input) {
 }
 
 
+### NEW VERSION: ###
+
+ggplotly2 = function(x) {
+  
+  fig = ggplotly(x)
+  fig = fig %>% toWebGL()
+  suppressWarnings(print(fig))
+  
+}
+
+data.check = function(data, s = 1) {
+  
+  data %>% 
+    slice(round(seq(1, n(), length.out = (s * n())), 0)) %>%
+    ggplot(aes(datetime, Tilt, colour = Status)) +
+    geom_point(size = 0.1) +
+    scale_x_datetime(date_labels = '%e %b') +
+    scale_y_continuous(limits = c(0, 90), breaks = seq(0, 90, 30)) +
+    scale_color_manual(breaks = c('N', 'P', 'F'),
+                       values = c('#A7C7E7', '#C1E1C1', '#3D426B'),
+                       name = 'Status:') +
+    labs(y     = 'Tilt from horizontal (°)') +
+    theme(axis.title.x = element_blank(),
+          legend.key = element_blank(),
+          panel.background  = element_blank(),
+          panel.grid        = element_blank(),
+          panel.border      = element_rect(fill = NA, colour = 'black', size = 0.5),
+          axis.title        = element_text(colour = 'black'),
+          axis.text         = element_text(colour = 'black'),
+          axis.ticks.length = unit(-0.1, 'cm'),
+          plot.title        = element_text(colour = 'black'),
+          legend.text       = element_text(colour = 'black'),
+          legend.title      = element_text(colour = 'black'),
+          legend.position = 'bottom') +
+    guides(colour = guide_legend(override.aes = list(size = 5)))
+  
+}
+
+
+####################
+
+
 ######## HYDRO: TARGET + REFERENCE ########
 
 #' Inundation
@@ -247,3 +289,63 @@ plot.parameterComparison = function(stats.table){
                axis.text.x = element_blank())
    )
 }
+
+### Additional: incorporate above:
+
+### velocity stage plot:
+
+# test = data %>%
+#   select(Date, Event, Tide, CurrentVelocity) %>%
+#   na.omit() %>%
+#   group_by(Event, Tide) %>%
+#   mutate(
+#     HighTide = ifelse(Tide == 'Flood', (0:n()/n()* 100), (n():0)/n() * 100),
+#     Velocity = ifelse(Tide == 'Flood', CurrentVelocity, CurrentVelocity * -1)) %>%
+#   group_by(Event) %>%
+#   mutate(Size = length(Event)) %>%
+#   ungroup()
+# 
+# test %>%
+#   filter(Size == max(Size)) %>%
+#   ggplot(aes(Velocity, HighTide)) +
+#   geom_segment((aes(xend = c(tail(Velocity, n = -1), NA),
+#                     yend = c(tail(HighTide, n = -1), NA)))) +
+#   geom_rect(aes(xmin = -0.13, xmax = 0.13,
+#                 ymin = Inf, ymax = -Inf), 
+#             fill = 'grey90') +
+#   geom_point(size = 0.2) +
+#   geom_vline(xintercept = 0, linetype = 'dashed') +
+#   labs(title = 'Velocity stage plot for largest tide detected\n',
+#        x     = 'Current velocity (m/s)',
+#        y     = 'Duration to high tide (%)')
+
+### target-reference plot
+
+# size.Target    = event.Target    %>% group_by(Parameter) %>% summarise(n = n())
+# size.Reference = event.Reference %>% group_by(Parameter) %>% summarise(n = n())
+# size.All       = bind_rows(event.Target    %>% group_by(Site, Parameter) %>% summarise(n = n()),
+#                            event.Reference %>% group_by(Site, Parameter) %>% summarise(n = n()))
+# 
+# PLOT = 'Inundation duration'
+# 
+# event.All %>%
+#   filter(Parameter == PLOT) %>%
+#   left_join(size.All, by = c('Site', 'Parameter')) %>%
+#   mutate(x = paste0(Site, '\n', '(', n, ' events)')) %>%
+#   ggplot(aes(x, Value, fill = Site)) +
+#   geom_violin(colour = 'white') +
+#   geom_boxplot(width = 0.1, colour = 'white', alpha = 0.2) +
+#   scale_y_continuous(expand = c(0,0)) +
+#   scale_x_discrete(limits = rev) +
+#   scale_fill_viridis(discrete = T) +
+#   labs(y = 'Inundation duration (min)') +
+#   theme(legend.position = 'none',
+#         axis.title.y = element_blank(),
+#         panel.grid        = element_blank(),
+#         panel.border      = element_rect(fill = NA, colour = 'black', size = 0.5),
+#         panel.background  = element_blank(),
+#         axis.ticks.length = unit(-0.1, 'cm'),
+#         axis.title        = element_text(colour = 'black', size = 11),
+#         axis.text         = element_text(colour = 'black'),
+#         axis.text.y       = element_text(size = 11, hjust = 0.5)) +
+#   coord_flip()
