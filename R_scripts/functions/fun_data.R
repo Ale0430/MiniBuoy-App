@@ -393,3 +393,26 @@ save.csv = function(path, name, csvObject, ui.input) {
                        type = "error")
    }
 }
+
+#' Function to export the results under separate sheets in an Excel file:
+library(writexl)
+
+save.excel = function(data) {
+  
+  # Calculate summary, per day, per event, and per tide statistics: 
+  stats.summary = get.summary.statisics(data %>% rename(Date = datetime))
+  stats.daily   = get.daily.statistics( data %>% rename(Date = datetime)) %>% mutate(Date = as.Date(Date))
+  stats.event   = get.event.statistics( data %>% rename(Date = datetime))
+  stats.tidal   = get.tidal.statistics( data %>% rename(Date = datetime))
+  
+  # Create a list of the desired sheets:
+  sheets = list('Summary' = stats.summary, 
+                'Daily'   = stats.daily,
+                'Events'  = stats.event,
+                'Tides'   = stats.tidal)
+  
+  # Export to Excel:
+  write_xlsx(sheets, '~/Downloads/Results.xlsx')
+  
+}
+
