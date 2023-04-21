@@ -88,6 +88,43 @@ get.hydrodynamics = function(data, design) {
 }
 
 
+#' Function to identify outliers and remove them as optional:
+check.outliers = function(data, remove.outliers) {
+  
+  # optional removal of outliers:
+  data.out = if (remove.outlers == 'YES') { 
+    data %>% 
+      group_by(Parameter) %>% 
+      mutate(q25 = quantile(Value, probs = c(0.25), na.rm = F),
+             q75 = quantile(Value, probs = c(0.75), na.rm = F),
+             iqr = IQR(Value, na.rm = F)) %>% 
+      filter(Value > q25 - 1.5 * iqr & Value < q75 + 1.5 * iqr) } else { 
+        data }
+  
+  return(data.out)
+  
+  # # visualise potential outliers (maybe this step isn't necessary for the App):
+  # data %>%
+  #   ggplot() +
+  #   geom_boxplot(aes(Value), fill = 'grey90', outlier.shape = 21, outlier.fill = 'blue', outlier.size = 3) + # outlier.shape = 1
+  #   facet_wrap(~Parameter, ncol = 1, scales = 'free_x') +
+  #   theme(axis.text.y       = element_blank(),
+  #         axis.ticks.y      = element_blank(),
+  #         panel.background  = element_blank(),
+  #         panel.grid        = element_blank(),
+  #         panel.border      = element_rect(fill = NA, colour = 'black', linewidth = 0.5),
+  #         strip.background  = element_blank(),
+  #         strip.text        = element_text(colour = 'black', size = 9, face = 'bold'),
+  #         axis.title        = element_text(colour = 'black', size = 11),
+  #         axis.text         = element_text(colour = 'black', size = 9),
+  #         axis.ticks.length = unit(-0.1, 'cm'),
+  #         plot.title        = element_text(colour = 'black', size = 11),
+  #         legend.text       = element_text(colour = 'black', size = 9),
+  #         legend.title      = element_text(colour = 'black', size = 9),
+  #         legend.background = element_blank(),
+  #         legend.key        = element_blank())
+  
+}
 
 
 #' Function to generate  hydrodynamics data summary statistics:
