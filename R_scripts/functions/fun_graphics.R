@@ -164,6 +164,48 @@ plot.waveVelocity = function(data) {
    )
 }
 
+#' Velocity stage plot
+plot.VelocityStagePlot = function(data) {
+  return(
+    data %>%
+      group_by(Event, Tide) %>%
+      mutate(
+        HighTide = ifelse(Tide == 'Flood', (0:n()/n()* 100), (n():0)/n() * 100),
+        Velocity = ifelse(Tide == 'Flood', CurrentVelocity, CurrentVelocity * -1)) %>%
+      group_by(Event) %>%
+      mutate(Size = length(Event)) %>%
+      ungroup() %>%
+      filter(Size == max(Size)) %>%
+      ggplot(aes(Velocity, HighTide)) +
+      geom_segment((aes(xend = c(tail(Velocity, n = -1), NA),
+                        yend = c(tail(HighTide, n = -1), NA)))) +
+      geom_rect(aes(xmin = -0.01, xmax = 0.01,
+                    ymin = Inf, ymax = -Inf),
+                fill = 'grey90') +
+      geom_vline(xintercept = 0, linetype = 'dashed') +
+      labs(x     = 'Current velocity (m/s)',
+           y     = 'Duration to largest high tide detected (%)') +
+      coord_cartesian(xlim = c(-1, 1)) +
+      annotate(geom = 'text', x = -Inf, y = -Inf,
+               label = 'Ebb',
+               vjust = -1, hjust = -0.2,
+               fontface = 'italic') +
+      annotate(geom = 'text', x = Inf, y = -Inf,
+               label = 'Flood',
+               vjust = -1, hjust = 1.2,
+               fontface = 'italic') +
+      theme(legend.position = 'none',
+            panel.grid        = element_blank(),
+            panel.border      = element_rect(fill = NA, colour = 'black', linewidth = 0.5),
+            panel.background  = element_blank(),
+            axis.ticks.length = unit(-0.1, 'cm'),
+            axis.title        = element_text(colour = 'black', size = 11),
+            axis.text         = element_text(colour = 'black'),
+            axis.text.y       = element_text(size = 11, hjust = 0.5))
+    
+  )
+}
+
 ######## HYDRO: COMPARISON ########
 
 #' Inundation
