@@ -87,8 +87,23 @@ get.hydrodynamics = function(data, design) {
   return(data.classified)
 }
 
+#' Function to generate  hydrodynamics data summary statistics:
+Hydro = lapply(1:n_distinct(data$ID), function(i) {
+  
+  message(paste('Working on', unique(MB$ID)[i]), '...')
+  
+  data = MB %>%
+    filter(ID == unique(MB$ID)[i])
+  
+  # get.hydrodynamics
+  
+} )
 
-
+Hydro = Hydro %>%
+  bind_rows() %>%
+  group_by(ID, Rate) %>%
+  distinct(Date, .keep_all = T) %>% # for some reason, have duplicates, so have removed these... 
+  ungroup()
 
 #' Function to generate  hydrodynamics data summary statistics:
 get.statistics = function(data) {
@@ -258,3 +273,12 @@ get.comparison = function(stats.t, stats.r){
   
   return(comparison)
 } 
+
+#' Function for site comparison (batch)
+get.batch.table = function(data){
+  
+  table.batch = kable(data, 'html') %>%
+    kable_styling(full_width = T)
+  
+  return(table.batch)
+}

@@ -39,6 +39,19 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
    }
 }
 
+#' Read multiple raw files for batch analysis
+get.batch = function(file) {
+  
+  rawData = list.files(file, full.names = T, recursive = T) %>% 
+    map_dfr(function(x)
+      read_delim(x, col_names = F, skip = '*DATA', delim = ',', show_col_types = F, col_types = cols()) %>%
+        mutate(ID = tools::file_path_sans_ext(basename(x))) %>%
+        rename('Date' = 'X1',
+               'Acceleration' = 'X2'))
+  
+  return(rawData)
+}
+
 #' Reads raw data (datetime & Acceleration (ACCy)) .
 #' @param file: uploaded file
 #' @return data.frame

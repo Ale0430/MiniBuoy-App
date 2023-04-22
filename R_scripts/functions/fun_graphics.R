@@ -247,3 +247,68 @@ plot.parameterComparison = function(stats.table){
                axis.text.x = element_blank())
    )
 }
+
+#' Function to plot multiple violin plots
+
+### IDEALLY also run Kruskal-Wallis tests and show statistical differences on the plot. I need to write this code.
+
+pA = hydro.Event %>%
+  mutate(Location = substring(Site, 1, 2),
+         Location = factor(Location, levels = c('AW', 'LW', 'CA', 'AU', 'CR', 'LB'))) %>%
+  spread(Parameter, Value) %>%
+  select(Location, PeakAssymEvent) %>%
+  #  mutate(Site = fct_reorder(Site, PeakAssymEvent)) %>%
+  ggplot(aes(Location, PeakAssymEvent, fill = Location, colour = Location)) +
+  geom_violin(width = 2.1, size = 0.2, colour = 'white') +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  scale_fill_viridis(discrete = T) +
+  labs(y = 'Average peak tidal assymetry (m/s)') +
+  theme(legend.position = 'none',
+        axis.title.y = element_blank()) +
+  coord_flip()
+
+pB = hydro.Tides %>%
+  mutate(Value = ifelse(Tide == 'Ebb', Value * -1, Value)) %>%
+  mutate(Location = substring(Site, 1, 2),
+         Location = factor(Location, levels = c('AW', 'LW', 'CA', 'AU', 'CR', 'LB'))) %>%
+  spread(Parameter, Value) %>%
+  select(Location, PeakCurEventTide) %>%
+  ggplot(aes(Location, PeakCurEventTide, fill = Location, colour = Location)) +
+  geom_violin(width = 2.1, size = 0.2, colour = 'white') +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  scale_fill_viridis(discrete = T) +
+  labs(y = 'Peak current velocities per tide (m/s)') +
+  theme(legend.position = 'none',
+        axis.title.y = element_blank()) +
+  coord_flip()
+
+p.combi = pA / pB
+p.combi = p.combi + plot_layout(guides = 'collect')
+p.combi = p.combi + plot_annotation(tag_levels = 'A', tag_prefix = '(', tag_suffix = ')')
+p.combi
+
+#' Function to perform and plot divise hierarchical clustering (batch)
+plot.HC = function(data){
+
+  hydro.HC = data %>%
+    spread(Parameter, Value) %>%
+    select(ID, IndDurMins, IndFreqDayMean, CurMean, WaveMean) %>%
+    summarise_all(mean) %>%
+    data.frame()
+  
+  row.names(hydro.HC) = hydro.HC$ID
+  hydro.HC = hydro.HC %>% select(-ID)
+  hydro.HC = scale(hydro.HC)
+  
+  hc = diana(hydro.HC)
+  
+  par(par(mar = par('mar') + c(0, 0, 0, 2)))
+  hc.plot = plot(as.dendrogram(as.hclust(hc), hang = -1),
+       nodePar = list(lab.cex = 0.8, pch = NA),
+       main = paste('Divise Coefficient:', deparse(round(hc$dc, 2))))
+  rect.hclust(hc, k = 3, border = 2:5)
+  
+  return(hc.plot)
+  
+}
+
