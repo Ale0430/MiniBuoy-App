@@ -863,8 +863,8 @@ shinyServer(function(input, output, session) {
     if (timewindow < 2){
       TargetHydroStats = NULL
     } else {
-      TargetHydroStats = get.statistics(TargetHydro())
-    }
+      TargetHydroStats = get.summary.statisics(TargetHydro)
+      }
     return(TargetHydroStats)
   })
   
@@ -897,7 +897,7 @@ shinyServer(function(input, output, session) {
                  mutate_if(is.numeric, round, 2))
       }
     },
-    options = list(dom = 't'),
+    options = list(dom = "ltip"), 
   )
   
   #' Eventlistener to save hydrodynamics summary target
@@ -1074,9 +1074,9 @@ shinyServer(function(input, output, session) {
     if (timewindow < 2){
       ReferenceHydroStats = NULL
     } else {
-      ReferenceHydroStats = get.statistics(ReferenceHydro())
+      ReferenceHydroStats = get.summary.statisics(ReferenceHydro())
     }
-    ReferenceHydroStats = get.statistics(values$ReferenceHydro)
+    ReferenceHydroStats = get.summary.statisics(values$ReferenceHydro)
     return(ReferenceHydroStats)
   })
   
@@ -1236,8 +1236,8 @@ shinyServer(function(input, output, session) {
     TargetHydro = get.hydrodynamics.overlap(dataset = "Target")
     ReferenceHydro = get.hydrodynamics.overlap(dataset = "Reference")
     
-    TargetHydroStats = get.statistics(data = TargetHydro)
-    ReferenceHydroStats = get.statistics(data = ReferenceHydro)
+    TargetHydroStats = get.summary.statisics(data = TargetHydro)
+    ReferenceHydroStats = get.summary.statisics(data = ReferenceHydro)
     
     ComparisonStats = get.comparison(stats.t = TargetHydroStats,
                                      stats.r = ReferenceHydroStats)

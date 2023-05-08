@@ -32,6 +32,11 @@ if(!require("caret")) install.packages("caret")
 if(!require("asdetect")) install.packages("asdetect")
 if(!require("timetk")) install.packages("timetk")
 
+if(!require("kknn")) install.packages("kknn")
+if(!require("devtools")) install.packages("devtools")
+devtools::install_github("caboulton/asdetect")
+
+
 #### LOAD APP FUNCTIONS ####
 path= "./R_scripts/functions/"
 modelFunctions = list.files(path)
