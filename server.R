@@ -1074,7 +1074,7 @@ shinyServer(function(input, output, session) {
     if (timewindow < 2){
       ReferenceHydroStats = NULL
     } else {
-      ReferenceHydroStats = get.summary.statisics(ReferenceHydro())
+      ReferenceHydroStats = get.summary.statisics(ReferenceHydro)
     }
     ReferenceHydroStats = get.summary.statisics(values$ReferenceHydro)
     return(ReferenceHydroStats)
