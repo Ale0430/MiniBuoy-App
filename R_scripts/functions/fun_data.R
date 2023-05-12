@@ -35,7 +35,9 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
    if (an.error.occured) {
       return(data.frame())
    } else {
-      return(rawData)
+     # Remove NA rows
+     rawData = rawData[complete.cases(rawData),]
+     return(rawData)
    }
 }
 
@@ -196,11 +198,6 @@ get.rawData.sum = function(data, type){
 #' @param ui.input: UI-input
 #' @return data.frame
 get.filteredData <- function(data, ui.input, filetype) {
-   # remove na-values
-   if (ui.input[[paste("removeNA", filetype, sep = ".")]]) {
-      data = data[complete.cases(data),]
-   }
-
    # Filter by date and time of first and last day
    daterange = ui.input[[paste("daterange", filetype, sep = ".")]]
    start = ui.input[[paste("timerangeStart", filetype, sep = ".")]]
@@ -231,9 +228,6 @@ update.filter.ui = function(ui.output, ui.input, filetype, minMaxDatetime) {
    ui.output[[fO]] <- renderUI({
       #req(ui.input$LoadFilter)
       tagList(
-         checkboxInput(paste("removeNA", filetype, sep = ".")
-                       , "Remove blank rows", T),
-         
          # Date and time range
          h5(strong("Select the start and end dates/times of the survey")),
          
