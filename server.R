@@ -280,7 +280,7 @@ shinyServer(function(input, output, session) {
   #' Assigned to reactive value if empty
   Target <- reactive({
     if (is.null(values$Target)){
-      print("TARGET data: create")
+      print("TARGET data: create") 
       values$Target <- rawData_T()
     }
     if (!input$raw_default_T & ! bool.file.upload.target()){
@@ -347,6 +347,8 @@ shinyServer(function(input, output, session) {
       }
     }
     Target = Target()
+    filter_helper.T(input, output)
+    
     
   })
 
@@ -517,22 +519,7 @@ shinyServer(function(input, output, session) {
   #' Buttons to load filter options
   #' Assigns unfiltered  target data as reactive
   #' value 'Target'
-  observeEvent(input$LoadFilter.T, {
-    if (is.null(values$Target)){
-      showNotification(
-        message.upload.no.data("TARGET"),
-        type = "error",
-        duration = NULL,
-        closeButton = T
-      )
-    } else {
-      print("TARGET data: filter load/delete")
-      values$Target <- rawData_T()
-      filter_helper.T(input, output)
-    }
 
-  })
-  
   observeEvent(input$LoadFilter.R, {
     if (is.null(values$Reference)){
       showNotification(
@@ -607,15 +594,8 @@ shinyServer(function(input, output, session) {
     minMaxDatetime = minMaxDatetime.T()
     output = update.filter.ui(ui.output = output, ui.input = input,
                               filetype = "T", minMaxDatetime = minMaxDatetime)
-    updateDateRangeInput(
-      session,
-      "daterange.T",
-      start = minMaxDatetime[1],
-      end = minMaxDatetime[2],
-      min = minMaxDatetime[1],
-      max = minMaxDatetime[2]
-    )
   }
+  
   filter_helper.R = function(input, output) {
     if (!is.null(input$fileReference)) {
       req(input$setData.R)
@@ -658,6 +638,16 @@ shinyServer(function(input, output, session) {
     get.deleted.points.text(data_before = rawData_R(),
                             data_after = Reference())
   })
+  
+  output$filterEmpty.T <- renderText({ 
+    if (is.null(rawData_T())){
+      paste(message.upload.no.data("TARGET"))
+    } else if (input$setData.T == 0){
+      paste(message.upload.no.data("TARGET"),
+            "Hint: you might forgot to click `Use data` when uploading your data set.")
+    }
+  })
+  
   
   #### Graphics ####
   
@@ -833,15 +823,6 @@ shinyServer(function(input, output, session) {
       }}
   })
   
-  observeEvent(input$LoadFilter.T, {
-    if (!is.null(input$LoadFilter.T[1]) & !is.null(values$TargetHydro)){
-      if (input$LoadFilter.T[1] > 1){
-        print("TARGET hydro: update with full data")
-        values$TargetHydro = get.hydrodynamics(data = Target(),
-                                               design = get.design.T())
-      }}
-  })
-
   observeEvent(input$hydro.window.target, {
     if (!is.null(input$hydro.window.target) & !is.null(values$TargetHydro)){
       if (input$hydro.window.target) {
