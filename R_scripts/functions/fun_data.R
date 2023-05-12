@@ -143,11 +143,13 @@ get.rawData.sum = function(data, type){
                           type = "warning", duration = 10, closeButton = T)
       }
       if (no.days < 15){
-         showNotification(paste("Warning:", type, "data set too small to analyze properly (< 15 days)!", sep = " "),
+         showNotification(paste("Warning:", type, 
+                                "the reference data is less than 15 days, too short for a robust analysis.", 
+                                sep = " "),
                           type = "warning", duration = NULL, closeButton = T)
       }
       
-      coln = paste(colnames(data), collapse = ", ")
+      coln = paste(tolower(colnames(data)), collapse = ", ")
       meanAcc = mean(data$Acceleration)
       mAmm = paste(as.character(round(meanAcc, 2)), " (",
                    as.character(round(min(data$Acceleration, na.rm = T), 2)), ", ",
@@ -160,8 +162,8 @@ get.rawData.sum = function(data, type){
       
       tab = data.frame(Variable = c("Column names",
                                     "Survey length (days)",
-                                    "First date", "Last date",
-                                    "Mean Acc. (Min, Max)",
+                                    "First date and time", "Last date and time",
+                                    "Mean acceleration (min, max)",
                                     "Median acceleration (1st and 3rd quantile)",
                                     "Number of recordings"),
                        Value = c(coln,
@@ -171,7 +173,7 @@ get.rawData.sum = function(data, type){
                                  mAmm,
                                  mAqq,
                                  as.character(nrow(data))))
-      colnames(tab) = c("", "")
+      colnames(tab) = c("Data summary", "")
       if (meanAcc > 0){
          showNotification(paste("Warning: Mean Acceleration in data set", type, 
                                 "is > 0. You may installed the Mini-Buoy upside down.", sep = " "),
