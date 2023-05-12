@@ -36,6 +36,9 @@ if(!require("kknn")) install.packages("kknn")
 if(!require("devtools")) install.packages("devtools")
 devtools::install_github("caboulton/asdetect")
 
+# Suppress warning about group output when using dplyr::summaris
+options(dplyr.summarise.inform = FALSE)
+
 
 #### LOAD APP FUNCTIONS ####
 path= "./R_scripts/functions/"
