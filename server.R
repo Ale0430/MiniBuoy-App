@@ -267,7 +267,6 @@ shinyServer(function(input, output, session) {
     get.fileName("Reference", input)
   })
 
-  
 
   #' Create empty reactive value with a placeholder for the
   #' data sets belonging to Target and reference sites
@@ -415,6 +414,14 @@ shinyServer(function(input, output, session) {
   
   #### TABLE OUTPUTS ####
   
+  output$previewTarget <- renderUI({
+    if (input$raw_default_T | !is.null(input$fileTarget$datapath)){
+      list(tags$head(tags$style(HTML("#previewTarget > br{display:none}"))),
+           output.table("raw.target.sum"),
+           actButton("setData.T", "Use data", "create"))
+    }
+  })
+  
   tab.with.file.upload.message = function(message, color = "#cc0000",
                                           backgroundColor = '#ffcccc'){
     m = matrix(
@@ -423,7 +430,7 @@ shinyServer(function(input, output, session) {
       )
     )
     return(
-      datatable(m, options = list(dom = 't'), colnames=NULL) %>%
+      datatable(m, options = list(dom = 't', ordering = F), colnames=NULL) %>%
         formatStyle(
           1,
           color = color,
@@ -437,23 +444,15 @@ shinyServer(function(input, output, session) {
   output$raw.target.sum <- DT::renderDataTable(
     rownames = F,
     {
-      if (!input$raw_default_T & is.null(input$fileTarget$datapath)){
-        return(tab.with.file.upload.message(text.upload.missing,
-                                            color = "blue", backgroundColor = "white"))
-        
+      rawDataTable_T = rawData_T()
+      if (is.numeric(rawDataTable_T$Acceleration) & !all(is.na(rawDataTable_T$Acceleration))){
+        t = get.rawData.sum(rawDataTable_T, "TARGET")
+        return(t)
       } else {
-        rawDataTable_T = rawData_T()
-        if (is.numeric(rawDataTable_T$Acceleration) & !all(is.na(rawDataTable_T$Acceleration))){
-          t = get.rawData.sum(rawDataTable_T, "TARGET")
-          return(t)
-        } else {
-          return(tab.with.file.upload.message(message.upload.fail))
-        }
+        return(tab.with.file.upload.message(message.upload.fail))
       }
-      
-      
     },
-    options = list(dom = 't'),
+    options = list(dom = 't', ordering=F),
   )
   
   output$raw.reference.sum <- DT::renderDataTable(

@@ -6,6 +6,14 @@
 dataUplOutput = function(){
   return(
     fluidRow(
+      # tags$style(
+      #   ".box-header {
+      #         padding-bottom: 0;
+      #       }
+      #   .box-body {
+      #         padding-top:0;
+      #       }"
+      # ),
       column(6,
              box(title = "Target",
                  collapsible = T, width = "100%",
@@ -25,21 +33,28 @@ dataUplOutput = function(){
 
 box.dat_upl.upload.tar = function() {
   return(list(
-    checkboxInput("raw_default_T", "Use default data set", F),
-    conditionalPanel(
-      condition = "input.raw_default_T == false",
-      br(),
-      # Input: Select a file ----
-      selectInput(
-          "inputType_T",
-          "Select Mini Buoy design used",
-          c(
-            "Please select" = "empty",
-            "B4" = "B4",
-            "B4+" = "B4+",
-            "Pendant" = "Pendant"
-          )
-      )),
+    h5(strong("Select a Mini Buoy design or use the default data set")),
+    tags$head(tags$style(HTML("
+                              .shiny-split-layout > div {
+                                overflow: visible;
+                              }
+                              "))),   
+    splitLayout(cellWidths = c("50%", "50%"), 
+                cellArgs = list(style = "margin-right: 12px; white-space: normal;"),
+             
+                selectInput(
+                  "inputType_T",
+                  label = NULL, # "Select Mini Buoy design used",
+                  choices = c(
+                    "Select design" = "empty",
+                    "B4" = "B4",
+                    "B4+" = "B4+",
+                    "Pendant" = "Pendant"
+                  )
+                ),
+                checkboxInput("raw_default_T", "Use default data set", F)),
+
+
     conditionalPanel(
       condition = "input.inputType_T != `empty` & input.raw_default_T == false",
       
@@ -67,13 +82,8 @@ box.dat_upl.upload.tar = function() {
         )
       )
     ),
-    
-    br(),
-    h5(strong("Summary of the data")),
-    output.table("raw.target.sum"),
-    actButton("setData.T", "Use data", "create"),
+    uiOutput("previewTarget"),
     span(textOutput("TargetName"), style="color:white")
-    
   ))
 }
 
