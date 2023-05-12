@@ -157,7 +157,7 @@ shinyServer(function(input, output, session) {
   #' Variable indicating which Mini Buoy Design is selected
   get.design.T <- reactive({
     if (input$raw_default_T){
-      return("B4")
+      return("B4+")
     } else {
       return(input$inputType_T)
     }
@@ -165,7 +165,7 @@ shinyServer(function(input, output, session) {
   
   get.design.R <- reactive({
     if (input$raw_default_R){
-      return("B4")
+      return("B4+")
     } else {
       return(input$inputType_R)
     }
