@@ -224,20 +224,21 @@ update.filter.ui = function(ui.output, ui.input, filetype, minMaxDatetime) {
    
    time.start = as.character(format(minMaxDatetime[1], format = "%H:%M:%S"))
    time.end = as.character(format(minMaxDatetime[2], format = "%H:%M:%S"))
-
+   
    ui.output[[fO]] <- renderUI({
-      #req(ui.input$LoadFilter)
       tagList(
          # Date and time range
          h5(strong("Select the start and end dates/times of the survey")),
          
          fluidRow(# Date
-            column(2, p(
-               strong('Date')
-            )),
-            column(
-               10, dateRangeInput(paste("daterange", filetype, sep = ".")
-                                  , "Range")
+            column(2, p(strong('Date'))),
+            column(10, 
+                   dateRangeInput(inputId = paste("daterange", filetype, sep = "."), 
+                                  label = "Range",
+                                  start = minMaxDatetime[1],
+                                  end = minMaxDatetime[2],
+                                  min = minMaxDatetime[1],
+                                  max = minMaxDatetime[2])
             )),
          
          fluidRow(
@@ -264,6 +265,7 @@ update.filter.ui = function(ui.output, ui.input, filetype, minMaxDatetime) {
    })
    return(ui.output)
 }
+
 
 #' ########### SAVE #############
 

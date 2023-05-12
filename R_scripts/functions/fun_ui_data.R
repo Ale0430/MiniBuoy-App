@@ -151,8 +151,8 @@ dataFilterOutput = function(){
       column(6, box(title = "Target",
                     collapsible = T,  width = "100%",
                     status = "warning",
-                    actButton("LoadFilter.T", "Open/ reload filter options", "update"),
-                    uiOutput("filterOptions.T")
+                    uiOutput("filterOptions.T"),
+                    textOutput("filterEmpty.T")
       )),
       column(6, box(title = "Reference",
                     collapsible = T,  width = "100%",
