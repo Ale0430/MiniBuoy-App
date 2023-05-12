@@ -247,3 +247,4 @@ plot.parameterComparison = function(stats.table){
                axis.text.x = element_blank())
    )
 }
+

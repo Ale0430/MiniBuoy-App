@@ -29,6 +29,15 @@ if(!require("scales")) install.packages("scales")
 if(!require("caTools")) install.packages("caTools")
 if(!require("kernlab")) install.packages("kernlab")
 if(!require("caret")) install.packages("caret")
+if(!require("asdetect")) install.packages("asdetect")
+if(!require("timetk")) install.packages("timetk")
+
+if(!require("kknn")) install.packages("kknn")
+if(!require("devtools")) install.packages("devtools")
+devtools::install_github("caboulton/asdetect")
+
+# Suppress warning about group output when using dplyr::summaris
+options(dplyr.summarise.inform = FALSE)
 
 
 #### LOAD APP FUNCTIONS ####
