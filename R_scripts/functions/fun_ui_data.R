@@ -208,11 +208,10 @@ box.filter.figures = function(){
              ))
     ),
 
-    fluidRow(
-      column(2, actButton("filterPlot_renderPlot", "Render figure", "update")),
-      column(2, actButton("save_dat_filter", "Save filtered data", "saveCsv")),
-      column(1, actButton("save_dat_filter_fig", "Save figure", "saveFigure"))
-    ),
+    actButton("filterPlot_renderPlot", "Render figure", "update"),
+    actButton("save_dat_filter", "Download data", "saveCsv"),
+    actButton("save_dat_filter_fig", "Download figure", "saveFigure"),
+    
     conditionalPanel(
       condition = "input.filterPlot_renderPlot != 0",
       output.figure("filterPlot")

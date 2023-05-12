@@ -250,16 +250,11 @@ update.filter.ui = function(ui.output, ui.input, filetype, minMaxDatetime) {
                                 "End", value = time.end, placeholder = time.end))
          ),
          
-         
-         # Buttons
-         fluidRow(column(5, (
-            actButton(paste("FilterApply", filetype, sep = ".")
-                      , "Apply filter", "update")
-         )),
-         column(5, (
-            actButton(paste("FilterDelete", filetype, sep = ".")
-                      , "Delete filter", "update")
-         )),),
+         actButton(ID =paste("FilterApply", filetype, sep = "."),
+                   label="Apply filter", type="update"),
+         actButton(ID =paste("FilterDelete", filetype, sep = "."),
+                   label="Remove filter", type="update"),
+
          output.html(paste("dataPoints", filetype, sep = "."))
       )
    })

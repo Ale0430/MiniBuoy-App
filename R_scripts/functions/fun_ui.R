@@ -22,28 +22,32 @@ output.html = function(outputID){
 
 #### STYLES ####
 
-actButton <- function(ID, label, type){
+actButton <- function(ID, label, type, class="btn btn-default"){
   if (type == "saveCsv"){
     return(actionButton(ID, label,
                         style = paste(buttonStyles("blue"), 
                                       "margin-bottom: 2rem", sep = ";"),
+                        class=class,
                         icon("file-download")))
   }
   if (type == "saveFigure"){
     return(actionButton(ID, label,
                         style = paste(buttonStyles("blue"), 
                                       "margin-bottom: 2rem", sep = ";"),
+                        class=class,
                         icon("file-download")))
   }
   if (type == "create"){
     return(actionButton(ID, label,
                         style = paste(buttonStyles("green"),
                                       "margin-bottom: 2rem", sep = ";"),
+                        class=class,
                         icon("tag",style="margin-right:.5em")))
   }
   if (type == "update"){
     return(actionButton(ID, label,
                         style = buttonStyles("green"), 
+                        class=class,
                         icon("broom")))
   }
   
