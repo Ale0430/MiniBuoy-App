@@ -753,14 +753,11 @@ shinyServer(function(input, output, session) {
   
   output$hydro.window.reference.show = renderUI({
     if (!bool.no.target() & !bool.no.reference()) {
-      list(
         checkboxInput(
           "hydro.window.reference",
-          "Use only overlapping times of the target and reference data",
+          "Use overlapping target and reference data",
           F
-        ),
-        hr()
-      )
+        )
     }
   })
   
@@ -849,7 +846,11 @@ shinyServer(function(input, output, session) {
       } else {
         print("TARGET hydro: update with full data")
         values$TargetHydro = get.hydrodynamics(data = Target(),
-                                               design = get.design.T())
+                                               design = get.design.T(),
+                                               gaps = input$hydro.set.gaps.target,
+                                               full = input$hydro.set.full.target,
+                                               part = input$hydro.set.part.target,
+                                               tilt = input$hydro.set.tilt.target)
       }
     } 
   })
@@ -1041,7 +1042,11 @@ shinyServer(function(input, output, session) {
     if (is.null(values$ReferenceHydro)){
       print("REFERENCE hydro: create")
       values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                                design = get.design.R())
+                                                design = get.design.R(),
+                                                gaps = input$hydro.set.gaps.target,
+                                                full = input$hydro.set.full.target,
+                                                part = input$hydro.set.part.target,
+                                                tilt = input$hydro.set.tilt.target)
     }
     return(values$ReferenceHydro)
   })
@@ -1051,7 +1056,11 @@ shinyServer(function(input, output, session) {
       if (input$FilterApply.R[1] != 0){
         print("REFERENCE hydro: update with filtered data")
         values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                                  design = get.design.R())
+                                                  design = get.design.R(),
+                                             gaps = input$hydro.set.gaps.target,
+                                             full = input$hydro.set.full.target,
+                                             part = input$hydro.set.part.target,
+                                             tilt = input$hydro.set.tilt.target)
       }}
   })
   
@@ -1060,7 +1069,11 @@ shinyServer(function(input, output, session) {
       if (input$FilterDelete.R[1] != 0){
         print("REFERENCE hydro: update with full data")
         values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                                  design = get.design.R())
+                                                  design = get.design.R(),
+                                             gaps = input$hydro.set.gaps.target,
+                                             full = input$hydro.set.full.target,
+                                             part = input$hydro.set.part.target,
+                                             tilt = input$hydro.set.tilt.target)
       }}
   })
   
@@ -1069,7 +1082,11 @@ shinyServer(function(input, output, session) {
       if (input$LoadFilter.R[1] > 1){
         print("REFERENCE hydro: update with full data")
         values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                               design = get.design.R())
+                                                  design = get.design.R(),
+                                                  gaps = input$hydro.set.gaps.target,
+                                                  full = input$hydro.set.full.target,
+                                                  part = input$hydro.set.part.target,
+                                                  tilt = input$hydro.set.tilt.target)
       }}
   })
   
@@ -1087,6 +1104,21 @@ shinyServer(function(input, output, session) {
     } 
   })
   
+  observeEvent(input$hydro.set.apply.reference, {
+    print("REFERENCE hydro: update with custom settings")
+    values$ReferenceHydro = get.hydrodynamics(data = Reference(),
+                                           design = get.design.R(),
+                                           gaps = input$hydro.set.gaps.reference,
+                                           full = input$hydro.set.full.reference,
+                                           part = input$hydro.set.part.reference,
+                                           tilt = input$hydro.set.tilt.reference)
+  })
+  
+  observeEvent(input$hydro.set.reset.reference, {
+    print("REFERENCE hydro: update with default settings")
+    values$ReferenceHydro = get.hydrodynamics(data = Reference(),
+                                           design = get.design.R())
+  })
   
   
   ReferenceHydroStats <- reactive({
@@ -1159,7 +1191,7 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Reference
-  output$fig.inundation.reference <- renderPlot({
+  output$fig.inundation.reference <- renderPlotly({
     fig.inundation.reference()
   })
   
@@ -1190,7 +1222,7 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > reference
-  output$fig.velocity.reference <- renderPlot({
+  output$fig.velocity.reference <- renderPlotly({
     fig.velocity.reference()
   })
   
@@ -1229,7 +1261,7 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > reference
-  output$fig.wave.velocity.reference <- renderPlot({
+  output$fig.wave.velocity.reference <- renderPlotly({
     fig.wave.velocity.reference()
   })
   
