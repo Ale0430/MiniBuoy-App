@@ -6,19 +6,25 @@
 hydTargetOutput = function(){
   return(
     list(
+      box(title = "Settings",
+          width = "100%",
+          collapsible = T,
+          collapsed = T,
+          status = "success",
+          hyd.target.box.settings()),
       fluidRow(
-        box(title = "Results",
+        box(title = "Summary",
                    width = "3", height = "95%",
                    collapsible = T, status = "success",
                    hyd.target.box.text()),
         
-        box(title = "Summary table",
+        box(title = "Table",
                    width = "9", height = "95%",
                    collapsible = T, status = "success",
                    hyd.target.box.table())
       ),
       
-      box(title = "Select a plot",
+      box(title = "Plots",
           width = "100%",
           collapsible = T, status = "success",
           hyd.target.box.figures())#,
@@ -33,10 +39,48 @@ hydTargetOutput = function(){
 }
 
 
+hyd.target.box.settings = function(){
+  return(
+    list(
+      splitLayout(
+        cellWidths = 300,
+        checkboxInput( "hydro_set_cust_target", "Custom settings", F),
+          uiOutput("hydro.window.target.show")
+      ),
+      conditionalPanel(
+        condition = "input.hydro_set_cust_target == true",
+        # Default values: gaps = 20, full = 20, part = 90, tilt = 75
+        splitLayout(
+          numericInput(inputId = "hydro.set.gaps.target",
+                       label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated (minutes)'>Minimum gap</abbr>"),
+                       value = 20),
+          numericInput(inputId = "hydro.set.part.target",
+                       label = HTML("<abbr title='Time window to search for partially inundated cases at the start and end of inundation events (minutes).'>Partial inundation window</abbr>"),
+                       value = 90)
+          ),
+        splitLayout(
+          numericInput(inputId = "hydro.set.full.target",
+                       label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated (minutes)'>Minimum full inundation</abbr>"),
+                       value = 20),
+          numericInput(inputId = "hydro.set.tilt.target",
+                       label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Tilt full inundation</abbr>"),
+                       value = 75)          
+        ),
+        splitLayout(
+          actButton("hydro.set.apply.target", "Apply custom settings", "update"),
+          actButton("hydro.set.reset.target", "Reset custom settings", "grey")
+        )
+        
+        
+
+      )
+    )
+  )
+}
+
 hyd.target.box.text = function(){
   return(
     list(
-      uiOutput("hydro.window.target.show"),
       output.html("hydro.text.target")
     )
   )
@@ -46,7 +90,7 @@ hyd.target.box.table = function(){
   return(
     list(
       output.table("hydro.table.target"),
-      actButton("hydro.table.target.save", "Save table", "saveCsv")
+      actButton("hydro.table.target.save", "Download results", "saveCsv")
     )
   )
 }
@@ -55,21 +99,25 @@ hyd.target.box.figures = function(){
   return(list(
     tabsetPanel(
       tabPanel("Daily inundation", br(),
-               output.figure("fig.inundation.target"),
-               actButton("save.fig.inundation.target",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.inundation.target")),
+               # actButton("save.fig.inundation.target",
+               #           "Save figure", 
+               #           "saveFigure")),
       tabPanel("Current velocity", br(),
-               output.figure("fig.velocity.target"),
-               actButton("save.fig.velocity.target",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.velocity.target")),
+               # actButton("save.fig.velocity.target",
+               #           "Save figure", 
+               #           "saveFigure")),
       tabPanel("Wave orbital velocity", br(),
-               output.figure("fig.wave.velocity.target"),
-               actButton("save.fig.wave.velocity.target",
-                         "Save figure", 
-                         "saveFigure"))
-    ))
+               plotlyOutput("fig.wave.velocity.target")),
+               # actButton("save.fig.wave.velocity.target",
+               #           "Save figure", 
+               #           "saveFigure"))
+    ),
+    actButton("save.figs.target",
+              "Download plots", 
+              "saveFigure")
+    )
   )
 }
 

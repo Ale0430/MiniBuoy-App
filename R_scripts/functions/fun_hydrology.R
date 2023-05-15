@@ -415,7 +415,7 @@ get.stats.text = function(data){
       } else {
         '<b>symmetrical</b>, implying no net transport of coarse sediment.<br/><br/><br/>'
       },
-    'The longest window of opportunity was <b>, ',
+    'The longest window of opportunity was <b>',
     Statistics %>%
       filter(ParameterShort == 'MaxWoO') %>%
       select(Value) %>% round(., 1),
@@ -428,7 +428,7 @@ get.stats.text = function(data){
     } else {
       'which is too short to expect natural seedling establishment at this site.<br/><br/>'
     },
-    'Inundation frequency was <b>, ',
+    'Inundation frequency was <b>',
     Statistics %>%
       filter(ParameterShort == 'Inundation') %>%
       select(Value) %>% round(., 2),
