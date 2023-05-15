@@ -36,11 +36,15 @@ if(!require("kknn")) install.packages("kknn")
 if(!require("devtools")) install.packages("devtools")
 devtools::install_github("caboulton/asdetect")
 
+# Package to produce interactive plots
+if(!require("plotly")) install.packages("plotly")
+
+
 # Suppress warning about group output when using dplyr::summaris
 options(dplyr.summarise.inform = FALSE)
 
 
 #### LOAD APP FUNCTIONS ####
-path= "./R_scripts/functions/"
+path = "./R_scripts/functions/"
 modelFunctions = list.files(path)
 lapply(modelFunctions, function(x) source(paste(path, x, sep ="")))

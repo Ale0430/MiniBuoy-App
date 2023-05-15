@@ -51,6 +51,13 @@ actButton <- function(ID, label, type, class="btn btn-default"){
                         icon("broom")))
   }
   
+  if (type == "grey"){
+    return(actionButton(ID, label,
+                        style = buttonStyles("grey"), 
+                        class=class,
+                        icon("broom")))
+  }
+  
 }
 
 buttonStyles = function(type = "blue"){
