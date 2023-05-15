@@ -1018,7 +1018,7 @@ shinyServer(function(input, output, session) {
     if (is.null(values$ReferenceHydro)){
       print("REFERENCE hydro: create")
       values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                                design = get.design.T())
+                                                design = get.design.R())
     }
     return(values$ReferenceHydro)
   })
@@ -1045,8 +1045,8 @@ shinyServer(function(input, output, session) {
     if (!is.null(input$LoadFilter.R[1]) & !is.null(values$ReferenceHydro)){
       if (input$LoadFilter.R[1] > 1){
         print("REFERENCE hydro: update with full data")
-        values$TargetHydro = get.hydrodynamics(data = Target(),
-                                               design = get.design.T())
+        values$ReferenceHydro = get.hydrodynamics(data = Reference(),
+                                               design = get.design.R())
       }}
   })
   
