@@ -1283,7 +1283,7 @@ shinyServer(function(input, output, session) {
   
   #' Reactive function containing a list the statistical comparison
   #' and hydrodynamics of reference and target for overlapping time
-  ComparisonStats <- reactive({
+  ComparisonStats <- reactive({ 
     TargetHydro = get.hydrodynamics.overlap(dataset = "Target")
     ReferenceHydro = get.hydrodynamics.overlap(dataset = "Reference")
     
@@ -1300,14 +1300,24 @@ shinyServer(function(input, output, session) {
   
   ##### Table ####
   
+
+  #' Helper funtion to render background color in table according to comparison
+  #' color with opacity = 50%
+  table.background.js <- "(/higher/).test(value) ? '#56B4E950' : (/lower/).test(value) ? '#0072B250' : ''"
+  
+  
   #' Render table showing hydrodynamics of comparison data
   output$comparison.table.target <- DT::renderDataTable(
     rownames = F,
     {
       if (bool.overlap()) {
-        ComparisonStats = ComparisonStats()[["Comparison"]]
-        return(ComparisonStats %>% 
-                 mutate_if(is.numeric,round, 2))
+        ComparisonStats = ComparisonStats()[["Comparison"]] %>% 
+          select(Parameter:Reference, ReferenceIs) %>% 
+          mutate_if(is.numeric,round, 2) %>% 
+          rename("Reference is" = "ReferenceIs")
+        return(datatable(ComparisonStats) %>% 
+                           formatStyle(ncol(ComparisonStats), backgroundColor = JS(table.background.js)
+                         ))
       } else {
         if (bool.no.reference() | bool.no.target()){
           tab.with.file.upload.message("Please upload your target AND reference data or select default data sets.",
@@ -1347,23 +1357,10 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.inundation.comparison <- renderPlot({
+  output$fig.inundation.comparison <- renderPlotly({
     fig.inundation.comparison()
   })
-  
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > Target)
-  observeEvent(input$save.fig.inundation.comparison, {
-    name = "DailyInundation_Comparison"
-    save.figure(
-      path = projectPath(),
-      name = name,
-      plotObject = fig.inundation.comparison(),
-      ui.input = input
-    )
-  })
-  
-  
+
   #### Current velocity #####
   
   #' Reactive variable holding the
@@ -1378,22 +1375,10 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.velocity.comparison <- renderPlot({
+  output$fig.velocity.comparison <- renderPlotly({
     fig.velocity.comparison()
   })
-  
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > Target)
-  observeEvent(input$save.fig.velocity.comparison, {
-    name = "CurrentVelocity_Comparison"
-    save.figure(
-      path = projectPath(),
-      name = name,
-      plotObject = fig.velocity.comparison(),
-      ui.input = input
-    )
-  })
-  
+
   
   #### Parameter bar plot #####
   
@@ -1408,19 +1393,34 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.parameter.comparison <- renderPlot({
+  output$fig.parameter.comparison <- renderPlotly({
     fig.parameter.comparison()
   })
   
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > Target)
-  observeEvent(input$save.fig.parameter.comparison, {
-    name = "Parameter_Comparison"
+
+  #' Eventlistener to save comparison plots
+  #' (Hydrodynamics > Comparison)
+  observeEvent(input$save.fig.comparison, {
     save.figure(
       path = projectPath(),
-      name = name,
+      name = "DailyInundation_Comparison",
+      plotObject = fig.inundation.comparison(),
+      ui.input = input
+    )
+    
+    save.figure(
+      path = projectPath(),
+      name = "CurrentVelocity_Comparison",
+      plotObject = fig.velocity.comparison(),
+      ui.input = input
+    )
+ 
+    save.figure(
+      path = projectPath(),
+      name = "Parameter_Comparison",
       plotObject = fig.parameter.comparison(),
       ui.input = input
     )
   })
+  
 })
