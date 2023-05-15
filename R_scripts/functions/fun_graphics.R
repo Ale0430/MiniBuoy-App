@@ -32,7 +32,7 @@ defaultLineTypes = c("Target" = 1,
 #' @return ggplot-object
 plot.emptyMessage = function(message){
    return(p = ggplot() +
-             annotate(geom = "text", x = 0, y = 5, 
+             annotate(geom = "text", x = 5, y = 5, 
                       label = message,
                       color = "red", size = 6,
                       hjust = 0) +
@@ -113,7 +113,6 @@ plot.filteredRawData <- function(data, ui.input) {
    }
    return(p)
 }
-
 
 ######## HYDRO: TARGET + REFERENCE ########
 

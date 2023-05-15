@@ -691,7 +691,7 @@ shinyServer(function(input, output, session) {
   })
 
   #' Render plot shown in data > filter
-  output$filterPlot <- renderPlot({
+  output$filterPlot <- renderPlotly({
     filterPlot()
   })
   

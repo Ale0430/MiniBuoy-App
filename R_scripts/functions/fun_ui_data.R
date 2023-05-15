@@ -174,47 +174,65 @@ dataFilterOutput = function(){
 box.filter.figures = function(){
   return(list(
     
-    fluidRow(
-      column(3, selectInput(
-        "filterPlot_DataSet",
-        "View data",
-        choices = c("Target" = "TARGET",
-                    "Reference" = "REFERENCE"))),
-      column(4,
-             radioButtons(
-               "filterPlot_type",
-               "Diagram type",
-               inline = T,
-               choices = c(
-                 "Line plot" = "line",
-                 "Scatter plot" = "scatter", 
-                 "Histogram" = "hist"
-               )), 
-             offset = 1),
-      column(4,
-             conditionalPanel(
-               condition = "input.filterPlot_type == `hist`",
-               numericInput("filterPlot_bins", "Number of bins for histogram", value = 100)
-             ),
-             conditionalPanel(
-               condition = "input.filterPlot_type != `hist`",
-               selectInput("filterPlot_window", "Aggregation window",
-                           choices = c("hours" = "hours",
-                                       "30 minutes" = "30 minutes",
-                                       "20 minutes" = "20 minutes",
-                                       "10 minutes" = "10 minutes",
-                                       "minutes" = "minutes"))
+    splitLayout(
+      cellWidths = c("20%", "80%"),
+      
+      cellArgs = list(style = "padding-right: 12px; white-space: normal;margin-bottom:0px"),
+      selectInput(
+          "filterPlot_DataSet",
+          "View data",
+          choices = c("Target" = "TARGET",
+                      "Reference" = "REFERENCE")),
+      splitLayout(
+        # cellArgs = list(style = "padding-right: 12px; white-space: normal;"),
+        tagList(
+          actButton("filterPlot_renderPlot", "Render figure", "update"),
+          actButton("save_dat_filter", "Download data", "saveCsv"),
+          actButton("save_dat_filter_fig", "Download figure", "saveFigure"),
+          actButton("filterPlot_customizePlot", "Customize figure", "grey")
+        )
+      )
 
-             ))
     ),
-
-    actButton("filterPlot_renderPlot", "Render figure", "update"),
-    actButton("save_dat_filter", "Download data", "saveCsv"),
-    actButton("save_dat_filter_fig", "Download figure", "saveFigure"),
+    
     
     conditionalPanel(
+      condition = "input.filterPlot_customizePlot%2==1",
+      splitLayout(
+        style = "border: 1px solid silver;border-radius: 4px;",
+        cellWidths = 300,
+        cellArgs = list(style = "padding: 6px"),
+        radioButtons(
+          "filterPlot_type",
+          "Diagram type",
+          inline = T,
+          choices = c(
+            "Line plot" = "line",
+            "Scatter plot" = "scatter", 
+            "Histogram" = "hist"
+          )), 
+        tagList(
+          conditionalPanel(
+            condition = "input.filterPlot_type == `hist`",
+            numericInput("filterPlot_bins", "Number of bins for histogram", 
+                         value = 100)
+          ),
+          conditionalPanel(
+            condition = "input.filterPlot_type != `hist`",
+            selectInput("filterPlot_window", "Aggregation window",
+                        choices = c("hours" = "hours",
+                                    "30 minutes" = "30 minutes",
+                                    "20 minutes" = "20 minutes",
+                                    "10 minutes" = "10 minutes",
+                                    "minutes" = "minutes"))
+          )
+        )
+
+      )),
+
+    conditionalPanel(
       condition = "input.filterPlot_renderPlot != 0",
-      output.figure("filterPlot")
+      plotlyOutput("filterPlot")
     )
   ))
 }
