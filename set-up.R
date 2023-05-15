@@ -38,6 +38,8 @@ devtools::install_github("caboulton/asdetect")
 
 # Package to produce interactive plots
 if(!require("plotly")) install.packages("plotly")
+# Package to save file in excel format
+if(!require("writexl")) install.packages("writexl")
 
 
 # Suppress warning about group output when using dplyr::summaris

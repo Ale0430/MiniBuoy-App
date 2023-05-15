@@ -372,7 +372,7 @@ save.csv = function(path, name, csvObject, ui.input) {
    # Gets list(noti_note, noti_type, path)
    nots = get.notifications(ui.input)
    if (nots[[2]] == "message") {
-      path = paste(path, "csv-files", sep = "/")
+      path = paste(path, "table-files", sep = "/")
    }
    filename = get.filename(path, name, "csv", ui.input)
    
@@ -385,4 +385,26 @@ save.csv = function(path, name, csvObject, ui.input) {
       showNotification("Error: File not saved!",
                        type = "error")
    }
+}
+
+save.xlsx = function(path, name, csvObject, ui.input){
+  format = ui.input$fileFor
+  
+  # Gets list(noti_note, noti_type, path)
+  nots = get.notifications(ui.input)
+  if (nots[[2]] == "message"){
+    path = paste(path, "table-files", sep = "/")
+  }
+  
+  filename = get.filename(path, name, "xlsx", ui.input)
+  res = try(write_xlsx(csvObject,
+                       path = filename))
+  
+  if (file.exists(filename)){
+    showNotification(nots[[1]], 
+                     type = nots[[2]])
+  } else {
+    showNotification("Error: File not saved!",
+                     type = "error")
+  }
 }
