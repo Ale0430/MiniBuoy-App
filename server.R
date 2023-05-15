@@ -116,7 +116,7 @@ shinyServer(function(input, output, session) {
   #' Button to create a project (Project Settings > Project)
   #' Requires a folder to be selected (Folder select)
   #' If directory does not exist create two folders:
-  #' 'csv-files', 'graphics'
+  #' 'table-files', 'graphics'
   #' Sets project name = project folder name
   observeEvent(input$crtPrj, {
     # If no folder have been selected show error
@@ -129,7 +129,7 @@ shinyServer(function(input, output, session) {
     } else {
       req(input$folder)
       csvPath = paste(projectPath(),
-                      "/csv-files/", sep = "")
+                      "/table-files/", sep = "")
       figPath = paste(projectPath(),
                       "/graphics/", sep = "")
       if (!dir.exists(csvPath)) {
@@ -702,17 +702,16 @@ shinyServer(function(input, output, session) {
 
   #' Eventlistener to save filtered data
   #' (Data > Filter)
+  #' Not saved as excel format as max. number of rows in limited to ~1 Mil.
   observeEvent(input$save_dat_filter, {
-    save.csv(
-      path = projectPath(),
-      name = paste(
-        "Acceleration_filtered",
-        as.character(input$DataSet),
-        sep = "_"
-      ),
-      csvObject = DataSetInput(),
-      ui.input = input
-    )
+    save.csv(path = projectPath(), 
+              name =  paste(
+                "Acceleration_filtered_",
+                as.character(input$filterPlot_DataSet),
+                sep = ""
+              ),
+              csvObject =  DataSetInput(),
+              ui.input = input)
   })
   
   #' Eventlistener to save plot with filtered data
@@ -880,15 +879,34 @@ shinyServer(function(input, output, session) {
     options = list(dom = "ltip"), 
   )
   
+  get.xlsx.object.target = reactive({
+    TargetHydro = TargetHydro()
+    stats.daily = get.daily.statistics(TargetHydro)
+    stats.event = get.event.statistics(TargetHydro)
+    stats.summary = TargetHydroStats()
+    stats.tidal = get.tidal.statistics(TargetHydro)
+    settings = data.frame(gaps = input$hydro.set.gaps.target,
+                          full = input$hydro.set.full.target,
+                          part = input$hydro.set.part.target,
+                          tilt = input$hydro.set.tilt.target)
+    
+    
+    sheets = list('Summary' = stats.summary, 
+                  'Daily'   = stats.daily,
+                  'Events'  = stats.event,
+                  'Tides'   = stats.tidal,
+                  'Data' = TargetHydro,
+                  'Settings' = settings)
+    return(sheets)
+  })
+  
   #' Eventlistener to save hydrodynamics summary target
   #' (Hydrodynamics > Summary table)
   observeEvent(input$hydro.table.target.save, {
-    save.csv(
-      path = projectPath(),
-      name = "Hydrodynamics_Target",
-      csvObject = TargetHydroStats(),
-      ui.input = input
-    )
+    save.xlsx(path = projectPath(), 
+              name = "Hydrodynamics_Target",
+              csvObject = get.xlsx.object.target(),
+              ui.input = input)
   })
 
   #### Figures ####
@@ -1096,12 +1114,10 @@ shinyServer(function(input, output, session) {
   #' Eventlistener to save hydrodynamics summary reference
   #' (Hydrodynamics > Summary table)
   observeEvent(input$hydro.table.reference.save, {
-    save.csv(
-      path = projectPath(),
-      name = "Hydrodynamics_Reference",
-      csvObject = ReferenceHydroStats(),
-      ui.input = input
-    )
+    save.xlsx(path = projectPath(), 
+              name = "Hydrodynamics_Reference",
+              csvObject =  ReferenceHydroStats(),
+              ui.input = input)
   })
   
   #### Figures ####
@@ -1254,12 +1270,10 @@ shinyServer(function(input, output, session) {
   #' Eventlistener to save hydrodynamics summary comparison
   #' (Hydrodynamics > Summary table)
   observeEvent(input$comparison.table.save, {
-    save.csv(
-      path = projectPath(),
-      name = "Hydrodynamics_Comparison",
-      csvObject = ComparisonStats()[["Comparison"]],
-      ui.input = input
-    )
+    save.xlsx(path = projectPath(), 
+              name = "Hydrodynamics_Comparison",
+              csvObject = ComparisonStats()[["Comparison"]],
+              ui.input = input)
   })
   
   
