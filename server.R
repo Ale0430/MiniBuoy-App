@@ -743,14 +743,11 @@ shinyServer(function(input, output, session) {
   #' Render output option depending on data availability
   output$hydro.window.target.show = renderUI({
     if (!bool.no.target() & !bool.no.reference()) {
-      list(
         checkboxInput(
           "hydro.window.target",
-          "Use only overlapping times of the target and reference data",
+          "Use overlapping target and reference data",
           F
-        ),
-        hr()
-      )
+        )
     }
   })
   
@@ -776,14 +773,24 @@ shinyServer(function(input, output, session) {
         filter(datetime >= time.overlap[1] &
                  datetime <= time.overlap[2])
       hydroData = get.hydrodynamics(data = Target,
-                                    design = get.design.T())
+                                    design = get.design.T(),
+                                    gaps = input$hydro.set.gaps.target,
+                                    full = input$hydro.set.full.target,
+                                    part = input$hydro.set.part.target,
+                                    tilt = input$hydro.set.tilt.target)
+      
     }
     if (dataset == "Reference") {
       Reference = Reference() %>%
         filter(datetime >= time.overlap[1] &
                  datetime <= time.overlap[2])
       hydroData = get.hydrodynamics(data = Reference,
-                                    design = get.design.R())
+                                    design = get.design.R(),
+                                    gaps = input$hydro.set.gaps.reference,
+                                    full = input$hydro.set.full.reference,
+                                    part = input$hydro.set.part.reference,
+                                    tilt = input$hydro.set.tilt.reference)
+      
     }
     return(hydroData)
   }
@@ -795,7 +802,11 @@ shinyServer(function(input, output, session) {
     if (is.null(values$TargetHydro)){
       print("TARGET hydro: create")
       values$TargetHydro = get.hydrodynamics(data = Target(),
-                                             design = get.design.T())
+                                             design = get.design.T(),
+                                             gaps = input$hydro.set.gaps.target,
+                                             full = input$hydro.set.full.target,
+                                             part = input$hydro.set.part.target,
+                                             tilt = input$hydro.set.tilt.target)
     }
     return(values$TargetHydro)
   })
@@ -809,7 +820,11 @@ shinyServer(function(input, output, session) {
       if (input$FilterApply.T[1] != 0){
         print("TARGET hydro: update with filtered data")
         values$TargetHydro = get.hydrodynamics(data = Target(),
-                                               design = get.design.T())
+                                               design = get.design.T(),
+                                               gaps = input$hydro.set.gaps.target,
+                                               full = input$hydro.set.full.target,
+                                               part = input$hydro.set.part.target,
+                                               tilt = input$hydro.set.tilt.target)
       }}
   })
   
@@ -818,7 +833,11 @@ shinyServer(function(input, output, session) {
       if (input$FilterDelete.T[1] != 0){
         print("TARGET hydro: update with full data")
         values$TargetHydro = get.hydrodynamics(data = Target(),
-                                               design = get.design.T())
+                                               design = get.design.T(),
+                                               gaps = input$hydro.set.gaps.target,
+                                               full = input$hydro.set.full.target,
+                                               part = input$hydro.set.part.target,
+                                               tilt = input$hydro.set.tilt.target)
       }}
   })
   
@@ -835,6 +854,21 @@ shinyServer(function(input, output, session) {
     } 
   })
   
+  observeEvent(input$hydro.set.apply.target, {
+    print("TARGET hydro: update with custom settings")
+    values$TargetHydro = get.hydrodynamics(data = Target(),
+                                           design = get.design.T(),
+                                           gaps = input$hydro.set.gaps.target,
+                                           full = input$hydro.set.full.target,
+                                           part = input$hydro.set.part.target,
+                                           tilt = input$hydro.set.tilt.target)
+  })
+  
+  observeEvent(input$hydro.set.reset.target, {
+    print("TARGET hydro: update with default settings")
+    values$TargetHydro = get.hydrodynamics(data = Target(),
+                                           design = get.design.T())
+  })
  
   TargetHydroStats <- reactive({
     TargetHydro = TargetHydro()
@@ -925,22 +959,11 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.inundation.target <- renderPlot({
+  output$fig.inundation.target <- renderPlotly({
     fig.inundation.target()
   })
   
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > Target)
-  observeEvent(input$save.fig.inundation.target, {
-    name = "DailyInundation_Target"
-    save.figure(
-      path = projectPath(),
-      name = name,
-      plotObject = fig.inundation.target(),
-      ui.input = input
-    )
-  })
-  
+
   #### Current velocity #####
   
   #' Reactive variable holding the
@@ -956,23 +979,11 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.velocity.target <- renderPlot({
+  output$fig.velocity.target <- renderPlotly({
     fig.velocity.target()
   })
   
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > Target)
-  observeEvent(input$save.fig.velocity.target, {
-    name = "CurrentVelocity_Target"
-    save.figure(
-      path = projectPath(),
-      name = name,
-      plotObject = fig.velocity.target(),
-      ui.input = input
-    )
-  })
-  
-  
+
   #### Wave orbital velocity #####
 
   #' Reactive variable holding the
@@ -994,20 +1005,32 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.wave.velocity.target <- renderPlot({
+  output$fig.wave.velocity.target <- renderPlotly({
     fig.wave.velocity.target()
   })
   
-  #' Eventlistener to save plot with inundation data
+  #' Eventlistener to save hydro plots
   #' (Hydrodynamics > Target)
-  observeEvent(input$save.fig.wave.velocity.target, {
-    name = "WaveOrbitalVelocity_Target"
+  observeEvent(input$save.figs.target, {
     save.figure(
       path = projectPath(),
-      name = name,
+      name = "DailyInundation_Target",
+      plotObject = fig.inundation.target(),
+      ui.input = input
+    )
+    save.figure(
+      path = projectPath(),
+      name = "CurrentVelocity_Target",
+      plotObject = fig.velocity.target(),
+      ui.input = input
+    )
+    save.figure(
+      path = projectPath(),
+      name = "WaveOrbitalVelocity_Target",
       plotObject = fig.wave.velocity.target(),
       ui.input = input
     )
+    
   })
   
   
