@@ -234,13 +234,13 @@ hydComparisonOutput = function(){
   return(
     list(
       fluidRow(
-        # box(title = "Results",
-        #            width = 3, height = "95%",
-        #            collapsible = T, status = "success",
-        #            hyd.comparison.box.text()),
+        box(title = "Summary",
+                   width = 3, height = "95%",
+                   collapsible = T, status = "success",
+                   hyd.comparison.box.text()),
         
-        box(title = "Summary table",
-                   width = 12, height = "95%",
+        box(title = "Table",
+                   width = 9, height = "95%",
                    collapsible = T, status = "success",
                    hyd.comparison.box.table())
       ),
@@ -248,12 +248,7 @@ hydComparisonOutput = function(){
       box(title = "Select a plot",
           width = "100%",
           collapsible = T, status = "success",
-          hyd.comparison.box.figures())#,
-      
-      # box(title = "Disclaimer",
-      #     width = "100%",
-      #     collapsible = T, status = "info",
-      #     p("Load md. file containing disclaimer. @Cai: please prepare such file and name it 'disclaimer.md' (store it it man)."))
+          hyd.comparison.box.figures())
     )
   )
   
@@ -270,7 +265,7 @@ hyd.comparison.box.table = function(){
   return(
     list(
       output.table("comparison.table.target"),
-      actButton("comparison.table.save", "Save table", "saveCsv")
+      actButton("comparison.table.save", "Download results", "saveCsv")
     )
   )
 }
@@ -279,22 +274,16 @@ hyd.comparison.box.figures = function(){
   return(list(
     tabsetPanel(
       tabPanel("Daily inundation", br(),
-               output.figure("fig.inundation.comparison"),
-               actButton("save.fig.inundation.comparison",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.inundation.comparison")),
       
       tabPanel("Current velocity", br(),
-               output.figure("fig.velocity.comparison"),
-               actButton("save.fig.velocity.comparison",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.velocity.comparison")),
       
       tabPanel("Parameters", br(),
-               output.figure("fig.parameter.comparison"),
-               actButton("save.fig.parameter.comparison",
-                         "Save figure", 
-                         "saveFigure"))
+               plotlyOutput("fig.parameter.comparison"))
+    ),
+    actButton("save.fig.comparison",
+              "Download plots", 
+              "saveFigure")
     ))
-  )
 }

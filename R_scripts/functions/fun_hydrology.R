@@ -475,11 +475,14 @@ get.stats.text = function(data){
 
 #' Function for site comparison
 get.comparison = function(stats.t, stats.r){ 
-  comparison = stats.t %>% 
-    left_join(., stats.r, 'Parameter') %>%
+  comparison = stats.t  %>% 
+    left_join(., stats.r %>% 
+                select(-Units), 'Parameter') %>%
     rename(Target = Value.x, Reference = Value.y) %>%
-    mutate('Difference Absolute' = Target - Reference, 
-           'Difference to Ref. (%)' = (Target - Reference) / Reference * 100) 
+    mutate(DifferenceAbsolute = Target - Reference, 
+           DifferencePercentage = (Target - Reference) / Reference * 100,
+           ReferenceIs = paste(round(abs(DifferencePercentage), 1),
+                               ifelse(DifferencePercentage > 0, "% higher", "% lower"))) 
   
   return(comparison)
 } 
