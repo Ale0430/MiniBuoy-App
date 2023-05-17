@@ -1301,7 +1301,7 @@ shinyServer(function(input, output, session) {
   ##### Table ####
   
 
-  #' Helper funtion to render background color in table according to comparison
+  #' Helper function to render background color in table according to comparison
   #' color with opacity = 50%
   table.background.js <- "(/higher/).test(value) ? '#56B4E950' : (/lower/).test(value) ? '#0072B250' : ''"
   
@@ -1312,11 +1312,12 @@ shinyServer(function(input, output, session) {
     {
       if (bool.overlap()) {
         ComparisonStats = ComparisonStats()[["Comparison"]] %>% 
-          select(Parameter:Reference, ReferenceIs) %>% 
+          select(Parameter:Reference, ReferenceIs, SignificantlyDifferent) %>% 
           mutate_if(is.numeric,round, 2) %>% 
-          rename("Reference is" = "ReferenceIs")
+          rename("Reference is" = "ReferenceIs",
+                 "Significantly different" = "SignificantlyDifferent")
         return(datatable(ComparisonStats) %>% 
-                           formatStyle(ncol(ComparisonStats), backgroundColor = JS(table.background.js)
+                           formatStyle(1:ncol(ComparisonStats), backgroundColor = JS(table.background.js)
                          ))
       } else {
         if (bool.no.reference() | bool.no.target()){

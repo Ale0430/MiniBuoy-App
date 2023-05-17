@@ -474,22 +474,6 @@ get.stats.text = function(data){
 }
 
 
-#' Function for statistical comparison of each parameter in site comparison
-get.stats.test = function(stats.t, stats.r) { 
-  U.test = bind_rows(stats.t, stats.r) %>%
-    spread(Site, Value) %>%
-    group_by(Parameter) %>%
-    summarise(p.value   = wilcox.test(Target, Reference, exact = F)$p.value,
-              statistic = wilcox.test(Target, Reference, exact = F)$statistic) %>%
-    mutate(SignificantlyDifferent = ifelse(p.value < 0.05, 'Yes', 'No'),
-           ReferenceSiteIs        = case_when(SignificantlyDifferent == 'Yes' & statistic > 0 ~ 'Higher',
-                                              SignificantlyDifferent == 'Yes' & statistic < 0 ~ 'Lower',
-                                              SignificantlyDifferent == 'No'                  ~ NA))
-  
-  return(U.test)
-}
-
-
 #' Function for site comparison
 get.comparison = function(stats.t, stats.r){ 
   comparison = stats.t  %>% 
@@ -499,7 +483,12 @@ get.comparison = function(stats.t, stats.r){
     mutate(DifferenceAbsolute = Target - Reference, 
            DifferencePercentage = (Target - Reference) / Reference * 100,
            ReferenceIs = paste(round(abs(DifferencePercentage), 1),
-                               ifelse(DifferencePercentage > 0, "% higher", "% lower"))) 
+                               ifelse(DifferencePercentage > 0, "% higher", "% lower"))) %>% 
+    group_by(Parameter) %>% 
+    mutate(p.value   = wilcox.test(Target, Reference, exact = F)$p.value,
+              statistic = wilcox.test(Target, Reference, exact = F)$statistic) %>%
+    mutate(SignificantlyDifferent = ifelse(p.value < 0.05, 'Yes', 'No'),
+           SignificantlyDifferent = ifelse(is.na(SignificantlyDifferent), "No", SignificantlyDifferent))
   
   return(comparison)
 } 
