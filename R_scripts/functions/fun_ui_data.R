@@ -1,8 +1,7 @@
-############
-### DATA ###
-############
+#### DATA ####
 
-### Upload ###
+# Upload ####
+## Main ####
 dataUplOutput = function(){
   return(
     fluidRow(
@@ -31,6 +30,7 @@ dataUplOutput = function(){
     ))
 }
 
+## Target ####
 box.dat_upl.upload.tar = function() {
   return(list(
     h5(strong("Select a Mini Buoy design or use the default data set")),
@@ -87,6 +87,7 @@ box.dat_upl.upload.tar = function() {
   ))
 }
 
+## Reference ####
 box.dat_upl.upload.ref = function(){
   return(list(
     checkboxInput("raw_default_R", "Use default B4+ data", F),
@@ -143,8 +144,8 @@ box.dat_upl.upload.ref = function(){
 
 
 
-### Filter ###
-
+# Filter ####
+## Main ####
 dataFilterOutput = function(){
   return(list(
     fluidRow(
@@ -170,7 +171,7 @@ dataFilterOutput = function(){
   )
 }
 
-
+## Plots ####
 box.filter.figures = function(){
   return(list(
     

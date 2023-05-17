@@ -2,12 +2,9 @@
 options(shiny.maxRequestSize = 15 * 1024 ^ 4)
 
 shinyServer(function(input, output, session) {
-  ########################
-  ### PROJECT SETTINGS ###
-  ########################
+  # Project Settings  ####
+  ## Variables        ####
   
-  #### Variables ####
-
   #' Shiny function that returns 'available volumes on the system'
   volumes = getVolumes()
   
@@ -90,8 +87,8 @@ shinyServer(function(input, output, session) {
   }
   
   
+  ## UI output        ####
   
-  #### UI output ####
   #' Function to render all ggplots with defined theme
   output$theme_output <- renderUI({
     #req(input$figTheme)
@@ -110,8 +107,7 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  
-  #### Buttons ####
+  ## Buttons        ####
   
   #' Button to create a project (Project Settings > Project)
   #' Requires a folder to be selected (Folder select)
@@ -147,13 +143,10 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ##############
-  #### DATA ####
-  ##############
+  # Data        ####
+  ## Upload        ####
+  ### Variables        ####
   
-  #### UPLOAD ####
-  ##### Variables #####
-
   #' Variable indicating which Mini Buoy Design is selected
   get.design.T <- reactive({
     if (input$raw_default_T){
@@ -414,7 +407,8 @@ shinyServer(function(input, output, session) {
     return(time.overlap)
   })
   
-  #### TABLE OUTPUTS ####
+  
+  ### Table Outputs        ####
   
   output$previewTarget <- renderUI({
     if (input$raw_default_T | !is.null(input$fileTarget$datapath)){
@@ -513,9 +507,9 @@ shinyServer(function(input, output, session) {
   })
   
   
+  ## Filter        ####
   
-  #### FILTER ####
-  
+
   #' Buttons to load filter options
   #' Assigns unfiltered  target data as reactive
   #' value 'Target'
@@ -563,7 +557,7 @@ shinyServer(function(input, output, session) {
     values$Reference <- rawData_R()
   })
   
-  #### UI ####
+  ### UI        ####
   
   #' Reactive variables to get start and end data of data set
   minMaxDatetime.T <- reactive({
@@ -614,7 +608,7 @@ shinyServer(function(input, output, session) {
   }
   
 
-  #### Text output ####
+  ### Text        ####
   
   #' UI Text output of remaining data points after filtering
   #' (Data > Filter > Subset data)
@@ -649,7 +643,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  #### Graphics ####
+  ### Plots        ####
   
   #' Reactive variable holding the
   #' data set with (filtered) data
@@ -698,8 +692,8 @@ shinyServer(function(input, output, session) {
   
   
   
-  #### Buttons ####
-
+  ### Buttons        ####
+  
   #' Eventlistener to save filtered data
   #' (Data > Filter)
   #' Not saved as excel format as max. number of rows in limited to ~1 Mil.
@@ -732,34 +726,15 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ########################
-  ##### HYDRODYNAMICS ####
-  ########################
+  # Hydrodynamics        ####
+  ## Info Texts        ####
+  
   
   
   text.upload.missing = "Please upload your data or select a default data set."
   text.too.short = "Uploaded/ filtered data set < 2 days."
   
-  #' Render output option depending on data availability
-  output$hydro.window.target.show = renderUI({
-    if (!bool.no.target() & !bool.no.reference()) {
-        checkboxInput(
-          "hydro.window.target",
-          "Use overlapping target and reference data",
-          F
-        )
-    }
-  })
-  
-  output$hydro.window.reference.show = renderUI({
-    if (!bool.no.target() & !bool.no.reference()) {
-        checkboxInput(
-          "hydro.window.reference",
-          "Use overlapping target and reference data",
-          F
-        )
-    }
-  })
+  ## Functions for both R&T   ####
   
   
   get.hydrodynamics.overlap = function(dataset) {
@@ -792,9 +767,32 @@ shinyServer(function(input, output, session) {
     return(hydroData)
   }
   
-  ##### TARGET ####
-  ##### Variables ####
-
+  ## Target        ####
+  ### UI        ####
+  
+  #' Render output option depending on data availability
+  output$hydro.window.target.show = renderUI({
+    if (!bool.no.target() & !bool.no.reference()) {
+      checkboxInput(
+        "hydro.window.target",
+        "Use overlapping target and reference data",
+        F
+      )
+    }
+  })
+  
+  output$hydro.text.target <- renderUI({
+    if (bool.no.target()){
+      print(text.upload.missing)
+    } else if (is.null(TargetHydroStats())){
+      print(text.too.short)
+    } else {
+      HTML(get.stats.text(TargetHydroStats()))
+    }
+  })
+  
+  ### Variables        ####
+  
   TargetHydro = reactive({
     if (is.null(values$TargetHydro)){
       print("TARGET hydro: create")
@@ -882,19 +880,7 @@ shinyServer(function(input, output, session) {
     return(TargetHydroStats)
   })
   
-  ##### Text ####
-
-  output$hydro.text.target <- renderUI({
-    if (bool.no.target()){
-      print(text.upload.missing)
-    } else if (is.null(TargetHydroStats())){
-      print(text.too.short)
-    } else {
-      HTML(get.stats.text(TargetHydroStats()))
-    }
-  })
-  
-  ##### Table ####
+  ### Table     ####
 
   #' Render table showing hydrodynamics of target data
   output$hydro.table.target <- DT::renderDataTable(
@@ -944,7 +930,7 @@ shinyServer(function(input, output, session) {
               ui.input = input)
   })
 
-  #### Figures ####
+  ### Figures ####
   #### Inundation #####
   
   #' Reactive variable holding the
@@ -1035,8 +1021,21 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ##### REFERENCE ####
-  ##### Variables ####
+  ## Reference      ####
+  ### UI            ####
+  
+  
+  output$hydro.window.reference.show = renderUI({
+    if (!bool.no.target() & !bool.no.reference()) {
+      checkboxInput(
+        "hydro.window.reference",
+        "Use overlapping target and reference data",
+        F
+      )
+    }
+  })
+  
+  ### Variables     ####
   
   ReferenceHydro = reactive({
     if (is.null(values$ReferenceHydro)){
@@ -1134,7 +1133,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ##### Text ####
+  ### Text          ####
   
   output$hydro.text.reference <- renderUI({
     if (bool.no.reference()){
@@ -1147,7 +1146,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ##### Table ####
+  ### Table         ####
   
   #' Render table showing hydrodynamics of reference data
   output$hydro.table.reference <- DT::renderDataTable(
@@ -1175,7 +1174,7 @@ shinyServer(function(input, output, session) {
               ui.input = input)
   })
   
-  #### Figures ####
+  ### Figures         ####
   #### Inundation #####
   
   #' Reactive variable holding the
@@ -1278,8 +1277,8 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ##### COMPARISON ####
-  ##### Variables ####
+  ## Comparison       ####
+  ### Variables       ####
   
   #' Reactive function containing a list the statistical comparison
   #' and hydrodynamics of reference and target for overlapping time
@@ -1298,7 +1297,7 @@ shinyServer(function(input, output, session) {
     })
   
   
-  ##### Table ####
+  ### Table         ####
   
 
   #' Helper funtion to render background color in table according to comparison
@@ -1342,8 +1341,8 @@ shinyServer(function(input, output, session) {
   })
   
   
-  #### Figures ####
-  #### Inundation #####
+  ### Figures           ####
+  #### Inundation       ####
   
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
