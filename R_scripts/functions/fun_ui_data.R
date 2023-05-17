@@ -52,7 +52,7 @@ box.dat_upl.upload.tar = function() {
                     "Pendant" = "Pendant"
                   )
                 ),
-                checkboxInput("raw_default_T", "Use default data set", F)),
+                checkboxInput("raw_default_T", "Use default B4+ data", F)),
 
 
     conditionalPanel(
@@ -89,7 +89,7 @@ box.dat_upl.upload.tar = function() {
 
 box.dat_upl.upload.ref = function(){
   return(list(
-    checkboxInput("raw_default_R", "Use default data set", F),
+    checkboxInput("raw_default_R", "Use default B4+ data", F),
     conditionalPanel(
       condition = "input.raw_default_R == false",
       br(),
@@ -189,7 +189,7 @@ box.filter.figures = function(){
           actButton("filterPlot_renderPlot", "Render figure", "update"),
           actButton("save_dat_filter", "Download data", "saveCsv"),
           actButton("save_dat_filter_fig", "Download figure", "saveFigure"),
-          actButton("filterPlot_customizePlot", "Customize figure", "grey")
+          actButton("filterPlot_customizePlot", "Customise figure", "grey")
         )
       )
 
