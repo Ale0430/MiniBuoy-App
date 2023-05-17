@@ -984,6 +984,24 @@ shinyServer(function(input, output, session) {
     fig.velocity.target()
   })
   
+  #### Volocity stage plot #####
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.stage.target <- reactive({
+    if (bool.no.target()){
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else if (is.null(TargetHydroStats())) {
+      plot.emptyMessage(text.too.short)
+    } else {
+      plot.VelocityStagePlot(data = TargetHydro())
+    }
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.stage.target <- renderPlotly({
+    fig.stage.target()
+  })
 
   #### Wave orbital velocity #####
 

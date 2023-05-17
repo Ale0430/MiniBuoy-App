@@ -102,6 +102,9 @@ hyd.target.box.figures = function(){
                # actButton("save.fig.velocity.target",
                #           "Save figure", 
                #           "saveFigure")),
+      tabPanel("Velocity stage plot", br(),
+               plotlyOutput("fig.stage.target")),
+      
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.target")),
                # actButton("save.fig.wave.velocity.target",
