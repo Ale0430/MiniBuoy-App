@@ -147,7 +147,7 @@ get.hydrodynamics = function(data, design, gaps = 20, full = 20, part = 90, tilt
     ungroup() %>%
     # reclassify the sequence of inundation events with corrected inundation status classification:
     mutate(
-      Event = recode(Status, 'N' = 0, 'P' = 0, 'F' = 1),
+      Event = recode(Status, 'N' = 0, 'P' = 1, 'F' = 1),
       Event = replace(cumsum(!Event), !Event, NA),
       Event = as.integer(factor((Event)))) %>%
     # remove any duplicates that may have been introduced:
@@ -205,8 +205,8 @@ get.hydrodynamics = function(data, design, gaps = 20, full = 20, part = 90, tilt
   data.classified = data.classified %>%
     mutate(Day = as.Date(datetime)) %>%
     left_join(FullCheck, by = c('Day')) %>%
-    dplyr::select(-Day) %>% 
-    mutate(Date = datetime)
+    dplyr::select(datetime, Tilt, Status, Event, Tide, CurrentVelocity, WaveOrbitalVelocity, FullDay) %>% 
+    rename(Date = datetime)
   
   return(data.classified)
 }
@@ -215,7 +215,7 @@ get.hydrodynamics = function(data, design, gaps = 20, full = 20, part = 90, tilt
 hydro.SurvMins           = function(data) { data %>% summarise(Value = difftime(max(Date), min(Date), units = 'mins')[[1]]) }
 hydro.SurvDays           = function(data) { data %>% hydro.SurvMins() / 60 / 24 }
 hydro.NumEvents          = function(data) { data %>% na.omit() %>% summarise(Value = n_distinct(Event)) }
-hydro.DurEvents          = function(data) { data %>% group_by(Event) %>% na.omit() %>% summarise(Value = difftime(max(Date), min(Date), units = 'mins')[[1]]) }
+hydro.DurEvents          = function(data) { data %>% group_by(Event) %>% summarise(Value = difftime(max(Date), min(Date), units = 'mins')[[1]]) %>% na.omit()  }
 hydro.IndDurMins         = function(data) { data %>% hydro.DurEvents() %>% summarise(Value = sum(Value)) }
 hydro.NonIndDurMins      = function(data) { data %>% summarise(hydro.SurvMins(.) - hydro.IndDurMins(.)) }
 hydro.IndDurPerc         = function(data) { data %>% summarise(hydro.IndDurMins(.) / hydro.SurvMins(.) * 100) }
@@ -227,12 +227,16 @@ hydro.NonIndDurPercDay   = function(data) { data %>% hydro.NonIndDurDay() %>% mu
 hydro.IndFreqDay         = function(data) { data %>% filter(FullDay == T) %>% na.omit() %>% summarise_by_time(Date, 'days', Value = n_distinct(Event)) }
 hydro.IndFreqDayMean     = function(data) { data %>% hydro.IndFreqDay()   %>% summarise(Value = mean(Value, na.rm = T)) }
 hydro.IndFreqDayMed      = function(data) { data %>% hydro.IndFreqDay()   %>% summarise(Value = median(Value, na.rm = T)) }
-hydro.MaxWoO             = function(data) { data %>% mutate(Value = ifelse(is.na(Event), 0, 1)) %>% summarise(data.frame(unclass(rle(Value))) %>% filter(values == 0)) %>% summarise(Value = as.numeric(max(lengths) * (data$Date[2] - data$Date[1]) / 60 / 24)) }
+hydro.MaxWoO = function(data) { 
+  df = data %>% mutate(Value = ifelse(is.na(Event), 0, 1))
+  df = filter(data.frame(unclass(rle(df$Value))), values == 0)
+  df = as.numeric(max(df$lengths) * (data$Date[2] - data$Date[1]) / 60 / 24)
+  return(df) }
 
 # hydro.WoODurConsec           = function(data) { data %>% hydro.NonIndDurDay() %>% mutate(Value = ifelse(Value == 1440, 1, 0)) %>% reframe(data.frame(Value = rle(Value)$lengths, values = rle(Value)$values) %>% filter(values == 1) %>% select(Value)) }
 # hydro.WoODurConsecMax        = function(data) { data %>% hydro.WoODurConsec() %>% summarise(Value = max(Value)) } # was: ifelse(dim(hydro.WoODurConsec(data))[1] == 0, 0, max(hydro.WoODurConsec(data), na.rm = T))
 
-hydro.PeakCurEventTide   = function(data) { data %>% group_by(Event, Tide) %>% summarise(Value = max(CurrentVelocity)) }
+hydro.PeakCurEventTide   = function(data) { data %>% group_by(Event, Tide) %>% na.omit() %>% summarise(Value = max(CurrentVelocity)) }
 hydro.PeakCurEvent       = function(data) { data %>% group_by(Event)       %>% na.omit() %>% summarise(Value = max(CurrentVelocity)) }
 hydro.PeakCurDay         = function(data) { data %>% filter(FullDay == T)  %>% na.omit() %>% summarise_by_time(Date, 'days', Value = max(CurrentVelocity)) }
 hydro.UpperQCurEventTide = function(data) { data %>% group_by(Event, Tide) %>% na.omit() %>% summarise(Value = quantile(CurrentVelocity, 0.75, names = F)) }
