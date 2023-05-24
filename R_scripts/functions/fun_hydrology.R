@@ -4,6 +4,11 @@
 #### Functions to calculate Hydrodynamic indicators ####
 
 #' Function to predict inundation status, current and wave orbital velocities:
+# gaps: minimum gap in an inundation event to be closed (where points were misclassified as non inundated)
+# full: minimum duration of a fully inundated event (otherwise event is reclassified as partially inundated)
+# part: time window to search for partially inundated cases at the start and end of inundation events
+# tilt: minimum tilt to classify an event as fully inundated (otherwise event is reclassified as partially inundated)
+# chop: use a proportion of the data for abrupt shift detection (1 = all, 0 = none)
 get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
   if (is.data.frame(ui.input_settings)){
     gaps = ui.input_settings$gaps
@@ -16,12 +21,8 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     part = 90
     tilt = 75
   }
-  # gaps: minimum gap in an inundation event to be closed (where points were misclassified as non inundated)
-  # full: minimum duration of a fully inundated event (otherwise event is reclassified as partially inundated)
-  # part: time window to search for partially inundated cases at the start and end of inundation events
-  # tilt: minimum tilt to classify an event as fully inundated (otherwise event is reclassified as partially inundated)
 
-  # calculate sampling rate (for selecting the correct current and wave orbital velocity calibration later on):
+ calculate sampling rate (for selecting the correct current and wave orbital velocity calibration later on):
   rate = as.numeric(data$datetime[2] - data$datetime[1])
   
   data.classified = data %>%
@@ -101,7 +102,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
   # subset the data (now all = 1) to reduce CPU time if the search window is large:
   shift = df.s %>%
     group_by(Change) %>%
-    slice(round(seq(1, n(), length.out = (1 * n())), 0)) %>%
+    slice(round(seq(1, n(), length.out = (chop * n())), 0)) %>%
     mutate(
       # detect abrupt shifts (normalise to remove direction of shift):
       Shift = case_when(Tide == 'Flood' ~ as_detect(Tilt),
