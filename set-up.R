@@ -17,32 +17,27 @@ if(!require("tidyverse")) install.packages("tidyverse")
 if(!require("DT")) install.packages("DT")  
 # Package to speed up file upload -> fread()
 if(!require("data.table")) install.packages("data.table")
-# Package to deal with dates and times -> as_date(), ceiling_date()
+# Package to deal with dates and times -> as_date(), ceiling_date(), floor_date()
 if(!require("lubridate")) install.packages("lubridate")
-# Package to deal with time serien -> rollmean()
-if(!require("zoo")) install.packages("zoo") 
 # Package to speed up date time transformation -> fastPOSIXct()
 if(!require("fasttime")) install.packages("fasttime") 
 # Package to modify ggplot axis -> args in scale_y_continuous
 if(!require("scales")) install.packages("scales")
-# Packages to run model predictions
+# Package to calculate running standard deviation -> runsd()
 if(!require("caTools")) install.packages("caTools")
-if(!require("kernlab")) install.packages("kernlab")
-if(!require("caret")) install.packages("caret")
-if(!require("asdetect")) install.packages("asdetect")
-if(!require("timetk")) install.packages("timetk")
-
-if(!require("kknn")) install.packages("kknn")
+# Package to close gaps within inundation events -> na.approx()
+if(!require("zoo")) install.packages("zoo")
+# Package to calculate abrupt shifts in characteristic of partially inundated cases:
 if(!require("devtools")) install.packages("devtools")
 devtools::install_github("caboulton/asdetect")
-
+if(!require("asdetect")) install.packages("asdetect")
 # Package to produce interactive plots
 if(!require("plotly")) install.packages("plotly")
 # Package to save file in excel format
 if(!require("writexl")) install.packages("writexl")
 
 
-# Suppress warning about group output when using dplyr::summaris
+# Suppress warning about group output when using dplyr::summarise
 options(dplyr.summarise.inform = FALSE)
 
 
