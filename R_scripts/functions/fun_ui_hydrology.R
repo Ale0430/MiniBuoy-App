@@ -6,7 +6,7 @@
 hydTargetOutput = function(){
   return(
     list(
-      box(title = "Settings",
+      box(title = "Custom settings",
           width = "100%",
           collapsible = T,
           collapsed = T,
@@ -14,12 +14,12 @@ hydTargetOutput = function(){
           hyd.target.box.settings()),
       fluidRow(
         box(title = "Summary",
-                   width = "3", height = "95%",
+                   width = "5", height = "95%",
                    collapsible = T, status = "success",
                    hyd.target.box.text()),
         
         box(title = "Table",
-                   width = "9", height = "95%",
+                   width = "7", height = "95%",
                    collapsible = T, status = "success",
                    hyd.target.box.table())
       ),
@@ -36,38 +36,33 @@ hydTargetOutput = function(){
 hyd.target.box.settings = function(){
   return(
     list(
+      uiOutput("hydro.window.target.show"),
+
+      # Default values: gaps = 20, full = 20, part = 90, tilt = 75
       splitLayout(
-        cellWidths = 300,
-        checkboxInput( "hydro_set_cust_target", "Custom settings", F),
-          uiOutput("hydro.window.target.show")
-      ),
-      conditionalPanel(
-        condition = "input.hydro_set_cust_target == true",
-        # Default values: gaps = 20, full = 20, part = 90, tilt = 75
-        splitLayout(
-          numericInput(inputId = "hydro.set.gaps.target",
-                       label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated (minutes)'>Minimum gap</abbr>"),
-                       value = 20),
-          numericInput(inputId = "hydro.set.part.target",
-                       label = HTML("<abbr title='Time window to search for partially inundated cases at the start and end of inundation events (minutes).'>Partial inundation window</abbr>"),
-                       value = 90)
-          ),
-        splitLayout(
-          numericInput(inputId = "hydro.set.full.target",
-                       label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated (minutes)'>Minimum full inundation</abbr>"),
-                       value = 20),
-          numericInput(inputId = "hydro.set.tilt.target",
-                       label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Tilt full inundation</abbr>"),
-                       value = 75)          
+        numericInput(inputId = "hydro.set.gaps.target",
+                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated (minutes)'>Minimum gap</abbr>"),
+                     value = 20),
+        numericInput(inputId = "hydro.set.part.target",
+                     label = HTML("<abbr title='Time window to search for partially inundated cases at the start and end of inundation events (minutes).'>Partial inundation window</abbr>"),
+                     value = 90)
         ),
-        splitLayout(
+      splitLayout(
+        numericInput(inputId = "hydro.set.full.target",
+                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated (minutes)'>Minimum full inundation</abbr>"),
+                     value = 20),
+        numericInput(inputId = "hydro.set.tilt.target",
+                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Tilt full inundation</abbr>"),
+                     value = 75)          
+      ),
+      # splitLayout(
+      #   cellArgs = list(style = "padding-right: 12px; white-space: normal;"),
+      #   
+      #   tagList(
           actButton("hydro.set.apply.target", "Apply custom settings", "update"),
           actButton("hydro.set.reset.target", "Reset custom settings", "grey")
-        )
-        
-        
-
-      )
+      #   )
+      # )
     )
   )
 }
