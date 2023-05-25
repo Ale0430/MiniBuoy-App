@@ -381,6 +381,8 @@ shinyServer(function(input, output, session) {
       }
     }
     Reference = Reference()
+    filter_helper.R(input, output)
+    
   })
   
   
@@ -515,26 +517,6 @@ shinyServer(function(input, output, session) {
   
   ## Filter        ####
   
-
-  #' Buttons to load filter options
-  #' Assigns unfiltered  target data as reactive
-  #' value 'Target'
-
-  observeEvent(input$LoadFilter.R, {
-    if (is.null(values$Reference)){
-      showNotification(
-        message.upload.no.data("REFERENCE"),
-        type = "error",
-        duration = NULL,
-        closeButton = T
-      )
-    } else {
-      print("REFERENCE data: filter load/delete")
-      values$Reference <- rawData_R()
-      filter_helper.R(input, output)
-    }
-  })
-  
   #' Buttons to apply filter
   #' Assigns filter selected options to Target and reference site data sets
   observeEvent(input$FilterApply.T, {
@@ -648,6 +630,14 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  output$filterEmpty.R <- renderText({ 
+    if (is.null(rawData_R())){
+      paste(message.upload.no.data("REFERENCE"))
+    } else if (input$setData.R == 0){
+      paste(message.upload.no.data("REFERENCE"),
+            "Hint: you might forgot to click `Use data` when uploading your data set.")
+    }
+  })
   
   ### Plots        ####
   
@@ -1079,19 +1069,6 @@ shinyServer(function(input, output, session) {
                                              full = input$hydro.set.full.target,
                                              part = input$hydro.set.part.target,
                                              tilt = input$hydro.set.tilt.target)
-      }}
-  })
-  
-  observeEvent(input$LoadFilter.R, {
-    if (!is.null(input$LoadFilter.R[1]) & !is.null(values$ReferenceHydro)){
-      if (input$LoadFilter.R[1] > 1){
-        print("REFERENCE hydro: update with full data")
-        values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                                  design = get.design.R(),
-                                                  gaps = input$hydro.set.gaps.target,
-                                                  full = input$hydro.set.full.target,
-                                                  part = input$hydro.set.part.target,
-                                                  tilt = input$hydro.set.tilt.target)
       }}
   })
   

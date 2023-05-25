@@ -159,8 +159,8 @@ dataFilterOutput = function(){
       column(6, box(title = "Reference",
                     collapsible = T,  width = "100%",
                     status = "warning",
-                    actButton("LoadFilter.R", "Open/ reload filter options", "update"),
-                    uiOutput("filterOptions.R")
+                    uiOutput("filterOptions.R"),
+                    textOutput("filterEmpty.R")
       ))
     ),
     fluidRow(
