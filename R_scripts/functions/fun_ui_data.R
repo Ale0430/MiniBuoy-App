@@ -88,29 +88,36 @@ box.dat_upl.upload.tar = function() {
 }
 
 ## Reference ####
-box.dat_upl.upload.ref = function(){
+box.dat_upl.upload.ref = function() {
   return(list(
-    checkboxInput("raw_default_R", "Use default B4+ data", F),
-    conditionalPanel(
-      condition = "input.raw_default_R == false",
-      br(),
-      # Input: Select a file ----
-      selectInput(
-        "inputType_R",
-        "Select Mini Buoy design used",
-        c(
-          "Please select" = "empty",
-          "B4" = "B4",
-          "B4+" = "B4+",
-          "Pendant" = "Pendant"
-        )
-      )),
+    h5(strong("Select a Mini Buoy design or use the default data set")),
+    tags$head(tags$style(HTML("
+                              .shiny-split-layout > div {
+                                overflow: visible;
+                              }
+                              "))),
+    splitLayout(cellWidths = c("50%", "50%"),
+                cellArgs = list(style = "margin-right: 12px; white-space: normal;"),
+
+                selectInput(
+                  "inputType_R",
+                  label = NULL, # "Select Mini Buoy design used",
+                  choices = c(
+                    "Select design" = "empty",
+                    "B4" = "B4",
+                    "B4+" = "B4+",
+                    "Pendant" = "Pendant"
+                  )
+                ),
+                checkboxInput("raw_default_R", "Use default B4+ data", F)),
+    
+    
     conditionalPanel(
       condition = "input.inputType_R != `empty` & input.raw_default_R == false",
-      
+
       fileInput(
         "fileReference",
-        "(Optional) Choose the reference site data (.csv file)",
+        "Choose the target site data (.csv file)",
         buttonLabel = HTML(
           "<span
       class='btn btn-primary'
@@ -132,16 +139,10 @@ box.dat_upl.upload.ref = function(){
         )
       )
     ),
-
-    br(),
-    h5(strong("Summary of the data")),
-    output.table("raw.reference.sum"),
-    actButton("setData.R", "Use data", "create"),
+    uiOutput("previewReference"),
     span(textOutput("ReferenceName"), style="color:white")
   ))
 }
-
-
 
 
 # Filter ####

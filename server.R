@@ -409,15 +409,7 @@ shinyServer(function(input, output, session) {
   
   
   ### Table Outputs        ####
-  
-  output$previewTarget <- renderUI({
-    if (input$raw_default_T | !is.null(input$fileTarget$datapath)){
-      list(tags$head(tags$style(HTML("#previewTarget > br{display:none}"))),
-           output.table("raw.target.sum"),
-           actButton("setData.T", "Use data", "create"))
-    }
-  })
-  
+
   tab.with.file.upload.message = function(message, color = "#cc0000",
                                           backgroundColor = '#ffcccc'){
     m = matrix(
@@ -436,7 +428,6 @@ shinyServer(function(input, output, session) {
     )
   }
   
-  
   output$raw.target.sum <- DT::renderDataTable(
     rownames = F,
     {
@@ -454,21 +445,33 @@ shinyServer(function(input, output, session) {
   output$raw.reference.sum <- DT::renderDataTable(
     rownames = F,
     {
-      if (!input$raw_default_R & is.null(input$fileReference$datapath)){
-        return(tab.with.file.upload.message(text.upload.missing,
-                                            color = "blue", backgroundColor = "white"))
-        
+      rawDataTable_R = rawData_R()
+      if (is.numeric(rawDataTable_R$Acceleration) & !all(is.na(rawDataTable_R$Acceleration))){
+        t = get.rawData.sum(rawDataTable_R, "REFERENCE")
+        return(t)
       } else {
-        rawDataTable_R = rawData_R()
-        if (is.numeric(rawDataTable_R$Acceleration)){
-          return(get.rawData.sum(rawDataTable_R, "REFERENCE"))
-        } else {
-          return(tab.with.file.upload.message(message.upload.fail))
-        }
+        return(tab.with.file.upload.message(message.upload.fail))
       }
     },
     options = list(dom = 't'),
   )
+  
+  
+  output$previewTarget <- renderUI({
+    if (input$raw_default_T | !is.null(input$fileTarget$datapath)){
+      list(tags$head(tags$style(HTML("#previewTarget > br{display:none}"))),
+           output.table("raw.target.sum"),
+           actButton("setData.T", "Use data", "create"))
+    }
+  })
+  
+  output$previewReference <- renderUI({
+    if (input$raw_default_R | !is.null(input$fileReference$datapath)){
+      list(tags$head(tags$style(HTML("#previewReference > br{display:none}"))),
+           output.table("raw.reference.sum"),
+           actButton("setData.R", "Use data", "create"))
+    }
+  })
   
   #' Eventlistener: if both, target and reference data, are set
   #' calculate overlapping time window and show warning or error
@@ -1406,14 +1409,14 @@ shinyServer(function(input, output, session) {
       plotObject = fig.inundation.comparison(),
       ui.input = input
     )
-    
+
     save.figure(
       path = projectPath(),
       name = "CurrentVelocity_Comparison",
       plotObject = fig.velocity.comparison(),
       ui.input = input
     )
- 
+
     save.figure(
       path = projectPath(),
       name = "Parameter_Comparison",
