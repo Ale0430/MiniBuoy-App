@@ -17,6 +17,7 @@
 .box.box-success {
     border-top-color: #3c8dbc; /* blue old:#42CCC8; /* turquoise */
 }
+/*
 #shiny-notification-panel {
     position: fixed;
     top: 60px;
@@ -44,6 +45,7 @@
     right: 8px;
     top: 2px;
 }
+*/
 body > .wrapper{
     overflow: initial;
 }
