@@ -1366,22 +1366,6 @@ shinyServer(function(input, output, session) {
   })
 
   
-  #### Parameter bar plot #####
-  
-  #' Reactive variable holding the
-  #' plot shown in Hydrodynamics > Target
-  fig.parameter.comparison <- reactive({
-    if (bool.no.target() | bool.no.reference()){
-      plot.emptyMessage("No figure available. Please upload data.")
-    } else {
-      plot.parameterComparison(stats.table = ComparisonStats()[["Comparison"]])
-    }
-  })
-  
-  #' Render plot shown in Hydrodynamics > Target
-  output$fig.parameter.comparison <- renderPlotly({
-    fig.parameter.comparison()
-  })
   
 
   #' Eventlistener to save comparison plots

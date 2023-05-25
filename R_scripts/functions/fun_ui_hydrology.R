@@ -1,8 +1,10 @@
 
-########################
-# HYDRODYNAMICS TARGET #
-########################
+#################
+# HYDRODYNAMICS #
+#################
 
+# Target    ####
+## Structure     ####
 hydTargetOutput = function(){
   return(
     list(
@@ -32,7 +34,7 @@ hydTargetOutput = function(){
   )
 }
 
-
+## Settings     ####
 hyd.target.box.settings = function(){
   return(
     list(
@@ -63,6 +65,7 @@ hyd.target.box.settings = function(){
   )
 }
 
+## Text     ####
 hyd.target.box.text = function(){
   return(
     list(
@@ -71,6 +74,7 @@ hyd.target.box.text = function(){
   )
 }
 
+## Table     ####
 hyd.target.box.table = function(){
   return(
     list(
@@ -80,6 +84,7 @@ hyd.target.box.table = function(){
   )
 }
 
+## Plots     ####
 hyd.target.box.figures = function(){
   return(list(
     tabsetPanel(
@@ -107,10 +112,8 @@ hyd.target.box.figures = function(){
 }
 
 
-###########################
-# HYDRODYNAMICS REFERENCE #
-###########################
-
+# Reference    ####
+## Structure     ####
 hydReferenceOutput = function(){
   return(
     list(
@@ -141,6 +144,7 @@ hydReferenceOutput = function(){
   
 }
 
+## Settings     ####
 hyd.reference.box.settings = function(){
   return(
     list(
@@ -170,6 +174,7 @@ hyd.reference.box.settings = function(){
   )
 }
 
+## Text     ####
 hyd.reference.box.text = function(){
   return(
     list(
@@ -178,6 +183,7 @@ hyd.reference.box.text = function(){
   )
 }
 
+## Table     ####
 hyd.reference.box.table = function(){
   return(
     list(
@@ -186,6 +192,7 @@ hyd.reference.box.table = function(){
     )  )
 }
 
+## Plots     ####
 hyd.reference.box.figures = function(){
   return(list(
     tabsetPanel(
@@ -209,11 +216,8 @@ hyd.reference.box.figures = function(){
 }
 
 
-
-############################
-# HYDRODYNAMICS COMPARISON #
-############################
-
+# Comparison     ####
+## Structure     ####
 hydComparisonOutput = function(){
   return(
     list(
@@ -239,12 +243,14 @@ hydComparisonOutput = function(){
 }
 
 
+## Text     ####
 hyd.comparison.box.text = function(){
   return(
     p("TEXT")
   )
 }
 
+## Table     ####
 hyd.comparison.box.table = function(){
   return(
     list(
@@ -254,6 +260,7 @@ hyd.comparison.box.table = function(){
   )
 }
 
+## Plots     ####
 hyd.comparison.box.figures = function(){
   return(list(
     tabsetPanel(
@@ -261,10 +268,7 @@ hyd.comparison.box.figures = function(){
                plotlyOutput("fig.inundation.comparison")),
       
       tabPanel("Current velocity", br(),
-               plotlyOutput("fig.velocity.comparison")),
-      
-      tabPanel("Parameters", br(),
-               plotlyOutput("fig.parameter.comparison"))
+               plotlyOutput("fig.velocity.comparison"))
     ),
     actButton("save.fig.comparison",
               "Download plots", 
