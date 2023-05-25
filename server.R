@@ -878,7 +878,6 @@ shinyServer(function(input, output, session) {
                           part = input$hydro.set.part.target,
                           tilt = input$hydro.set.tilt.target)
     
-    
     sheets = list('Summary' = stats.summary, 
                   'Daily'   = stats.daily,
                   'Events'  = stats.event,
@@ -891,10 +890,20 @@ shinyServer(function(input, output, session) {
   #' Eventlistener to save hydrodynamics summary target
   #' (Hydrodynamics > Summary table)
   observeEvent(input$hydro.table.target.save, {
-    save.xlsx(path = projectPath(), 
-              name = "Hydrodynamics_Target",
-              csvObject = get.xlsx.object.target(),
-              ui.input = input)
+    sheets = get.xlsx.object.target()
+    if (input$fileFor == "xlsx"){
+      save.xlsx(path = projectPath(), 
+                name = "Hydrodynamics_Target",
+                csvObject = sheets,
+                ui.input = input)
+    } else {
+      for (n in names(sheets)) {
+        save.csv(path = projectPath(), 
+                 name = paste("Hydrodynamics_Target", n, sep ="_"),
+                 csvObject = data.frame(sheets[n]),
+                 ui.input = input)
+      }
+    }
   })
 
   ### Figures ####
@@ -1129,7 +1138,6 @@ shinyServer(function(input, output, session) {
                           part = input$hydro.set.part.reference,
                           tilt = input$hydro.set.tilt.reference)
     
-    
     sheets = list('Summary' = stats.summary, 
                   'Daily'   = stats.daily,
                   'Events'  = stats.event,
@@ -1142,10 +1150,20 @@ shinyServer(function(input, output, session) {
   #' Eventlistener to save hydrodynamics summary reference
   #' (Hydrodynamics > Summary table)
   observeEvent(input$hydro.table.reference.save, {
-    save.xlsx(path = projectPath(), 
-              name = "Hydrodynamics_Reference",
-              csvObject =  get.xlsx.object.reference(),
-              ui.input = input)
+    sheets = get.xlsx.object.reference()
+    if (input$fileFor == "xlsx"){
+      save.xlsx(path = projectPath(), 
+                name = "Hydrodynamics_Reference",
+                csvObject =  sheets,
+                ui.input = input)
+    } else {
+      for (n in names(sheets)) {
+        save.csv(path = projectPath(), 
+                 name = paste("Hydrodynamics_Reference", n, sep ="_"),
+                 csvObject = data.frame(sheets[n]),
+                 ui.input = input)
+      }
+    }
   })
   
   ### Figures         ####
@@ -1299,10 +1317,20 @@ shinyServer(function(input, output, session) {
   #' Eventlistener to save hydrodynamics summary comparison
   #' (Hydrodynamics > Summary table)
   observeEvent(input$comparison.table.save, {
-    save.xlsx(path = projectPath(), 
-              name = "Hydrodynamics_Comparison",
-              csvObject = ComparisonStats(),
-              ui.input = input)
+    sheets = get.xlsx.object.reference()
+    if (input$fileFor == "xlsx"){
+      save.xlsx(path = projectPath(), 
+                name = "Hydrodynamics_Comparison",
+                csvObject = sheets,
+                ui.input = input)
+    } else {
+      for (n in names(sheets)) {
+        save.csv(path = projectPath(), 
+                 name = paste("Hydrodynamics_Comparison", n, sep ="_"),
+                 csvObject = data.frame(sheets[n]),
+                 ui.input = input)
+      }
+    }
   })
   
   
