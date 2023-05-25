@@ -15,14 +15,17 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     full = ui.input_settings$full
     part = ui.input_settings$part
     tilt = ui.input_settings$tilt
+    chop = 0
+    
   } else {
     gaps = 20
     full = 20
     part = 90
     tilt = 75
+    chop = 1
   }
 
- calculate sampling rate (for selecting the correct current and wave orbital velocity calibration later on):
+  # calculate sampling rate (for selecting the correct current and wave orbital velocity calibration later on):
   rate = as.numeric(data$datetime[2] - data$datetime[1])
   
   data.classified = data %>%
