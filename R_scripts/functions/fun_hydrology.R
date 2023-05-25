@@ -473,17 +473,51 @@ get.stats.text = function(data){
   return(m)
 }
 
-#' Function for site comparison
-get.comparison = function(stats.t, stats.r){ 
-  comparison = stats.t  %>% 
-    left_join(., stats.r %>% 
-                select(-Units), 'Parameter') %>%
-    rename(Target = Value.x, Reference = Value.y) %>%
-    mutate(DifferenceAbsolute = Target - Reference, 
-           DifferencePercentage = (Target - Reference) / Reference * 100,
-           ReferenceIs = paste(round(abs(DifferencePercentage), 1),
-                               ifelse(DifferencePercentage > 0, "% higher", "% lower"))) 
-  
-  return(comparison)
-} 
+#' Function for statistical differences between sites
+get.stats = function(data.t, data.r){ 
 
+  daily.t = get.daily.statistics(data.t)
+  daily.r = get.daily.statistics(data.r)
+  
+  U.test = bind_rows(daily.t, daily.r) %>%
+  spread(Site, Value) %>%
+  group_by(Parameter) %>%
+  summarise(p.value   = wilcox.test(Target, Reference, paired = T, exact = F)$p.value,
+            statistic = wilcox.test(Target, Reference, paired = T, exact = F, alternative = 'greater')$p.value) %>%
+  mutate(SignificantlyDifferent = ifelse(p.value < 0.05, 'Yes', 'No'),
+         ReferenceSiteIs        = case_when(SignificantlyDifferent == 'Yes' & statistic > 0.05 ~ 'Higher',
+                                            SignificantlyDifferent == 'Yes' & statistic < 0.05 ~ 'Lower',
+                                            SignificantlyDifferent == 'No'                     ~ NA))
+  
+  return(U.test) 
+}
+
+get.comparison = function(data.t, data.r){ 
+  
+  daily.t = get.daily.statistics(data.t) %>% mutate(Site = 'Target')
+  daily.r = get.daily.statistics(data.r) %>% mutate(Site = 'Reference')
+  daily   = bind_rows(daily.t, daily.r) 
+  
+  overall.t = get.summary.statisics(data.t) %>% rename(Target = Value)
+  overall.r = get.summary.statisics(data.r) %>% rename(Reference = Value)
+  overall   = left_join(overall.t, overall.r, by = c('Parameter', 'Units')) %>%
+    mutate(Target    = round(Target, 2),
+           Reference = round(Reference, 2),
+           DifferencePercentage = (Reference - Target) / Reference * 100,
+           ReferenceIs          = paste0(round(abs(DifferencePercentage), 1),
+                                         ifelse(DifferencePercentage > 0, '% higher', '% lower')))
+  
+  test = daily %>%
+    spread(Site, Value) %>%
+    group_by(Parameter) %>%
+    summarise(p.value   = wilcox.test(Target, Reference, paired = T, exact = F)$p.value,
+              statistic = wilcox.test(Target, Reference, paired = T, exact = F, alternative = 'greater')$p.value) %>%
+    mutate(SignificantlyDifferent = ifelse(p.value < 0.05, 'Yes', 'No'))
+
+  comparison = left_join(overall, test, by = 'Parameter') %>%
+    filter(Parameter %in% c('Survey days', 'Inundation events', 'Inundation proportion', 'Median inundation frequency', 'Maximum Window of Opportunity', 'Upper current velocity', 'Median current velocity', 'Upper wave orbital velocity', 'Median wave orbital velocity', 'Peak ebb-flood ratio')) %>%
+    select(Parameter, Target, Reference, SignificantlyDifferent, ReferenceIs)
+  
+  
+  return(comparison) 
+}

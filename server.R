@@ -1287,11 +1287,11 @@ shinyServer(function(input, output, session) {
     TargetHydro = get.hydrodynamics.overlap(dataset = "Target")
     ReferenceHydro = get.hydrodynamics.overlap(dataset = "Reference")
     
-    TargetHydroStats = get.summary.statisics(data = TargetHydro)
-    ReferenceHydroStats = get.summary.statisics(data = ReferenceHydro)
+    # TargetHydroStats = get.summary.statisics(data = TargetHydro)
+    # ReferenceHydroStats = get.summary.statisics(data = ReferenceHydro)
     
-    ComparisonStats = get.comparison(stats.t = TargetHydroStats,
-                                     stats.r = ReferenceHydroStats)
+    ComparisonStats = get.comparison(data.t = TargetHydro,
+                                     data.r = ReferenceHydro)
     return(list(Comparison=ComparisonStats, 
                 Target=TargetHydro,
                 Reference=ReferenceHydro)) 
@@ -1312,8 +1312,8 @@ shinyServer(function(input, output, session) {
     {
       if (bool.overlap()) {
         ComparisonStats = ComparisonStats()[["Comparison"]] %>% 
-          select(Parameter:Reference, ReferenceIs) %>% 
-          mutate_if(is.numeric,round, 2) %>% 
+          # select(Parameter:Reference, ReferenceIs) %>% 
+          # mutate_if(is.numeric,round, 2) %>% 
           rename("Reference is" = "ReferenceIs")
         return(datatable(ComparisonStats) %>% 
                            formatStyle(ncol(ComparisonStats), backgroundColor = JS(table.background.js)
