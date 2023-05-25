@@ -851,6 +851,7 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$hydro.set.apply.target, {
     print("TARGET hydro: update with custom settings")
+    values$TargetHydro = NULL
     values$TargetHydro = get.hydrodynamics(data = Target(),
                                            design = get.design.T(),
                                            gaps = input$hydro.set.gaps.target,
@@ -861,6 +862,7 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$hydro.set.reset.target, {
     print("TARGET hydro: update with default settings")
+    values$TargetHydro = NULL
     values$TargetHydro = get.hydrodynamics(data = Target(),
                                            design = get.design.T())
   })
@@ -1088,6 +1090,7 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$hydro.set.apply.reference, {
     print("REFERENCE hydro: update with custom settings")
+    values$ReferenceHydro = NULL
     values$ReferenceHydro = get.hydrodynamics(data = Reference(),
                                            design = get.design.R(),
                                            gaps = input$hydro.set.gaps.reference,
@@ -1098,6 +1101,7 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$hydro.set.reset.reference, {
     print("REFERENCE hydro: update with default settings")
+    values$ReferenceHydro = NULL
     values$ReferenceHydro = get.hydrodynamics(data = Reference(),
                                            design = get.design.R())
   })
