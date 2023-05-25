@@ -55,14 +55,10 @@ hyd.target.box.settings = function(){
                      label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Tilt full inundation</abbr>"),
                      value = 75)          
       ),
-      # splitLayout(
-      #   cellArgs = list(style = "padding-right: 12px; white-space: normal;"),
-      #   
-      #   tagList(
-          actButton("hydro.set.apply.target", "Apply custom settings", "update"),
-          actButton("hydro.set.reset.target", "Reset custom settings", "grey")
-      #   )
-      # )
+
+      actButton("hydro.set.apply.target", "Apply custom settings", "update"),
+      actButton("hydro.set.reset.target", "Reset custom settings", "grey")
+
     )
   )
 }
@@ -118,7 +114,7 @@ hyd.target.box.figures = function(){
 hydReferenceOutput = function(){
   return(
     list(
-      box(title = "Settings",
+      box(title = "Custom settings",
           width = "100%",
           collapsible = T,
           collapsed = T,
@@ -126,12 +122,12 @@ hydReferenceOutput = function(){
           hyd.reference.box.settings()),
       fluidRow(
         box(title = "Summary",
-                   width = 3, height = "95%",
+                   width = 5, height = "95%",
                    collapsible = T, status = "success",
                    hyd.reference.box.text()),
         
         box(title = "Table",
-                   width = 9, height = "95%",
+                   width = 7, height = "95%",
                    collapsible = T, status = "success",
                    hyd.reference.box.table())
       ),
@@ -148,13 +144,8 @@ hydReferenceOutput = function(){
 hyd.reference.box.settings = function(){
   return(
     list(
-      splitLayout(
-        cellWidths = 300,
-        checkboxInput( "hydro_set_cust_reference", "Custom settings", F),
-        uiOutput("hydro.window.reference.show")
-      ),
-    conditionalPanel(
-      condition = "input.hydro_set_cust_reference == true",
+      uiOutput("hydro.window.reference.show"),
+      
       # Default values: gaps = 20, full = 20, part = 90, tilt = 75
       splitLayout(
         numericInput(inputId = "hydro.set.gaps.reference",
@@ -172,11 +163,9 @@ hyd.reference.box.settings = function(){
                      label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Tilt full inundation</abbr>"),
                      value = 75)
       ),
-      splitLayout(
-        actButton("hydro.set.apply.reference", "Apply custom settings", "update"),
-        actButton("hydro.set.reset.reference", "Reset custom settings", "grey")
-      )
-      )
+      
+      actButton("hydro.set.apply.reference", "Apply custom settings", "update"),
+      actButton("hydro.set.reset.reference", "Reset custom settings", "grey")
     )
   )
 }
