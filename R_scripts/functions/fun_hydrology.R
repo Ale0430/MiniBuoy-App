@@ -4,8 +4,18 @@
 #### Functions to calculate Hydrodynamic indicators ####
 
 #' Function to predict inundation status, current and wave orbital velocities:
-get.hydrodynamics = function(data, design, gaps = 20, full = 20, part = 90, tilt = 75) {
-  
+get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
+  if (is.data.frame(ui.input_settings)){
+    gaps = ui.input_settings$gaps
+    full = ui.input_settings$full
+    part = ui.input_settings$part
+    tilt = ui.input_settings$tilt
+  } else {
+    gaps = 20
+    full = 20
+    part = 90
+    tilt = 75
+  }
   # gaps: minimum gap in an inundation event to be closed (where points were misclassified as non inundated)
   # full: minimum duration of a fully inundated event (otherwise event is reclassified as partially inundated)
   # part: time window to search for partially inundated cases at the start and end of inundation events

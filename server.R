@@ -216,7 +216,7 @@ shinyServer(function(input, output, session) {
     # If column Acceleration is not numeric or is all NA
     # delete data frame
     if (!is.numeric(dataR$Acceleration) | all(is.na(dataR$Acceleration))){
-      print("Raw data upload TARGET failed")
+      print("Raw data upload REFERENCE failed")
       dataR = NULL
     }
     return(dataR)
@@ -732,35 +732,13 @@ shinyServer(function(input, output, session) {
   
   ## Functions for both R&T   ####
   
-  
-  get.hydrodynamics.overlap = function(dataset) {
+  #' Shortens data set to overlapping time window
+  get.overlapping.data = function(dataset) {
     time.overlap = get.time.overlap(data.t = Target(),
                                     data.r = Reference())
-    if (dataset == "Target") {
-      Target = Target() %>%
-        filter(datetime >= time.overlap[1] &
-                 datetime <= time.overlap[2])
-      hydroData = get.hydrodynamics(data = Target,
-                                    design = get.design.T(),
-                                    gaps = input$hydro.set.gaps.target,
-                                    full = input$hydro.set.full.target,
-                                    part = input$hydro.set.part.target,
-                                    tilt = input$hydro.set.tilt.target)
-      
-    }
-    if (dataset == "Reference") {
-      Reference = Reference() %>%
-        filter(datetime >= time.overlap[1] &
-                 datetime <= time.overlap[2])
-      hydroData = get.hydrodynamics(data = Reference,
-                                    design = get.design.R(),
-                                    gaps = input$hydro.set.gaps.reference,
-                                    full = input$hydro.set.full.reference,
-                                    part = input$hydro.set.part.reference,
-                                    tilt = input$hydro.set.tilt.reference)
-      
-    }
-    return(hydroData)
+    return(dataset %>%
+             filter(datetime >= time.overlap[1] &
+                      datetime <= time.overlap[2]))
   }
   
   ## Target        ####
@@ -789,15 +767,20 @@ shinyServer(function(input, output, session) {
   
   ### Variables        ####
   
+  TargetCustomInput = reactive({
+    return(data.frame(gaps = input$hydro.set.gaps.target,
+                      full = input$hydro.set.full.target,
+                      part = input$hydro.set.part.target,
+                      tilt = input$hydro.set.tilt.target)
+    )
+  })
+  
   TargetHydro = reactive({
     if (is.null(values$TargetHydro)){
       print("TARGET hydro: create")
       values$TargetHydro = get.hydrodynamics(data = Target(),
                                              design = get.design.T(),
-                                             gaps = input$hydro.set.gaps.target,
-                                             full = input$hydro.set.full.target,
-                                             part = input$hydro.set.part.target,
-                                             tilt = input$hydro.set.tilt.target)
+                                             ui.input_settings = "Default")
     }
     return(values$TargetHydro)
   })
@@ -812,10 +795,7 @@ shinyServer(function(input, output, session) {
         print("TARGET hydro: update with filtered data")
         values$TargetHydro = get.hydrodynamics(data = Target(),
                                                design = get.design.T(),
-                                               gaps = input$hydro.set.gaps.target,
-                                               full = input$hydro.set.full.target,
-                                               part = input$hydro.set.part.target,
-                                               tilt = input$hydro.set.tilt.target)
+                                               ui.input_settings = "Default")
       }}
   })
   
@@ -825,53 +805,42 @@ shinyServer(function(input, output, session) {
         print("TARGET hydro: update with full data")
         values$TargetHydro = get.hydrodynamics(data = Target(),
                                                design = get.design.T(),
-                                               gaps = input$hydro.set.gaps.target,
-                                               full = input$hydro.set.full.target,
-                                               part = input$hydro.set.part.target,
-                                               tilt = input$hydro.set.tilt.target)
+                                               ui.input_settings = "Default")
       }}
   })
   
-  observeEvent(input$hydro.window.target, {
-    if (!is.null(input$hydro.window.target) & !is.null(values$TargetHydro)){
-      if (input$hydro.window.target) {
-        print("TARGET hydro: update with overlapping data")
-        values$TargetHydro = get.hydrodynamics.overlap(dataset = "Target")
-      } else {
-        print("TARGET hydro: update with full data")
-        values$TargetHydro = get.hydrodynamics(data = Target(),
-                                               design = get.design.T(),
-                                               gaps = input$hydro.set.gaps.target,
-                                               full = input$hydro.set.full.target,
-                                               part = input$hydro.set.part.target,
-                                               tilt = input$hydro.set.tilt.target)
-      }
-    } 
-  })
-  
+
   observeEvent(input$hydro.set.apply.target, {
     print("TARGET hydro: update with custom settings")
-    values$TargetHydro = NULL
-    values$TargetHydro = get.hydrodynamics(data = Target(),
+    Target = Target()
+    if (!is.null(input$hydro.window.target)){
+      if (input$hydro.window.target) {
+        print("TARGET hydro: update with overlapping data")
+        Target = get.overlapping.data(dataset = Target)
+      }
+    }
+    values$TargetHydro = data.frame()
+    values$TargetHydro = get.hydrodynamics(data = Target,
                                            design = get.design.T(),
-                                           gaps = input$hydro.set.gaps.target,
-                                           full = input$hydro.set.full.target,
-                                           part = input$hydro.set.part.target,
-                                           tilt = input$hydro.set.tilt.target)
+                                           ui.input_settings = TargetCustomInput())
   })
   
   observeEvent(input$hydro.set.reset.target, {
     print("TARGET hydro: update with default settings")
-    values$TargetHydro = NULL
+    values$TargetHydro = data.frame()
+    if (!is.null(input$hydro.window.target)){
+      updateCheckboxInput(session, "hydro.window.target", value = F)
+    }
     values$TargetHydro = get.hydrodynamics(data = Target(),
-                                           design = get.design.T())
+                                           design = get.design.T(),
+                                           ui.input_settings = "Default")
   })
  
   TargetHydroStats <- reactive({
     TargetHydro = TargetHydro()
     timewindow = difftime(max(TargetHydro$datetime), min(TargetHydro$datetime), units = "days")
     if (timewindow < 2){
-      TargetHydroStats = NULL
+      TargetHydroStats = data.frame()
     } else {
       TargetHydroStats = get.summary.statisics(TargetHydro)
       }
@@ -1036,15 +1005,20 @@ shinyServer(function(input, output, session) {
   
   ### Variables     ####
   
+  ReferenceCustomInput = reactive({
+    return(data.frame(gaps = input$hydro.set.gaps.reference,
+                      full = input$hydro.set.full.reference,
+                      part = input$hydro.set.part.reference,
+                      tilt = input$hydro.set.tilt.reference)
+    )
+  })
+  
   ReferenceHydro = reactive({
     if (is.null(values$ReferenceHydro)){
       print("REFERENCE hydro: create")
       values$ReferenceHydro = get.hydrodynamics(data = Reference(),
                                                 design = get.design.R(),
-                                                gaps = input$hydro.set.gaps.target,
-                                                full = input$hydro.set.full.target,
-                                                part = input$hydro.set.part.target,
-                                                tilt = input$hydro.set.tilt.target)
+                                                ui.input_settings = "Default")
     }
     return(values$ReferenceHydro)
   })
@@ -1055,10 +1029,7 @@ shinyServer(function(input, output, session) {
         print("REFERENCE hydro: update with filtered data")
         values$ReferenceHydro = get.hydrodynamics(data = Reference(),
                                                   design = get.design.R(),
-                                             gaps = input$hydro.set.gaps.target,
-                                             full = input$hydro.set.full.target,
-                                             part = input$hydro.set.part.target,
-                                             tilt = input$hydro.set.tilt.target)
+                                                  ui.input_settings = "Default")
       }}
   })
   
@@ -1068,43 +1039,37 @@ shinyServer(function(input, output, session) {
         print("REFERENCE hydro: update with full data")
         values$ReferenceHydro = get.hydrodynamics(data = Reference(),
                                                   design = get.design.R(),
-                                             gaps = input$hydro.set.gaps.target,
-                                             full = input$hydro.set.full.target,
-                                             part = input$hydro.set.part.target,
-                                             tilt = input$hydro.set.tilt.target)
+                                                  ui.input_settings = "Default")
       }}
   })
   
-  observeEvent(input$hydro.window.reference, {
-    if (!is.null(input$hydro.window.reference) & !is.null(values$ReferenceHydro)){
-      if (input$hydro.window.reference) {
-        print("REFERENCE hydro: update with overlapping data")
-        values$ReferenceHydro = get.hydrodynamics.overlap(dataset = "Reference")
-        
-      } else {
-        print("REFERENCE hydro: update with full data")
-        values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                                  design = get.design.R())
-      }
-    } 
-  })
+
   
   observeEvent(input$hydro.set.apply.reference, {
     print("REFERENCE hydro: update with custom settings")
-    values$ReferenceHydro = NULL
-    values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                           design = get.design.R(),
-                                           gaps = input$hydro.set.gaps.reference,
-                                           full = input$hydro.set.full.reference,
-                                           part = input$hydro.set.part.reference,
-                                           tilt = input$hydro.set.tilt.reference)
+    Reference = Reference()
+    if (!is.null(input$hydro.window.reference)) {
+      if (input$hydro.window.reference) {
+        print("REFERENCE hydro: update with overlapping data")
+        Reference = get.overlapping.data(dataset = Reference())
+      }
+    }
+    values$ReferenceHydro = data.frame()
+    values$ReferenceHydro = get.hydrodynamics(data = Reference,
+                                              design = get.design.R(),
+                                              ui.input_settings = ReferenceCustomInput())
   })
   
+
   observeEvent(input$hydro.set.reset.reference, {
     print("REFERENCE hydro: update with default settings")
-    values$ReferenceHydro = NULL
+    values$ReferenceHydro = data.frame()
+    if (!is.null(input$hydro.window.reference)){
+      updateCheckboxInput(session, "hydro.window.reference", value = F)
+    }
     values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                           design = get.design.R())
+                                              design = get.design.R(),
+                                              ui.input_settings = "Default")
   })
   
   
@@ -1262,8 +1227,8 @@ shinyServer(function(input, output, session) {
   #' Reactive function containing a list the statistical comparison
   #' and hydrodynamics of reference and target for overlapping time
   ComparisonStats <- reactive({ 
-    TargetHydro = get.hydrodynamics.overlap(dataset = "Target")
-    ReferenceHydro = get.hydrodynamics.overlap(dataset = "Reference")
+    TargetHydro = get.overlapping.data(dataset = TargetHydro())
+    ReferenceHydro = get.overlapping.data(dataset = ReferenceHydro())
     
     TargetHydroStats = get.summary.statisics(data = TargetHydro)
     ReferenceHydroStats = get.summary.statisics(data = ReferenceHydro)
@@ -1290,9 +1255,9 @@ shinyServer(function(input, output, session) {
     {
       if (bool.overlap()) {
         ComparisonStats = ComparisonStats()[["Comparison"]] %>% 
-          select(Parameter:Reference, ReferenceIs) %>% 
+          select(Parameter:Reference, TargetIs) %>% 
           mutate_if(is.numeric,round, 2) %>% 
-          rename("Reference is" = "ReferenceIs")
+          rename("Target is" = "TargetIs")
         return(datatable(ComparisonStats) %>% 
                            formatStyle(ncol(ComparisonStats), backgroundColor = JS(table.background.js)
                          ))
