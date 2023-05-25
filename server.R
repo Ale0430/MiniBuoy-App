@@ -1118,12 +1118,33 @@ shinyServer(function(input, output, session) {
     options = list(dom = 't'),
   )
   
+  get.xlsx.object.reference = reactive({
+    ReferenceHydro = ReferenceHydro()
+    stats.daily = get.daily.statistics(ReferenceHydro)
+    stats.event = get.event.statistics(ReferenceHydro)
+    stats.summary = ReferenceHydroStats()
+    stats.tidal = get.tidal.statistics(ReferenceHydro)
+    settings = data.frame(gaps = input$hydro.set.gaps.reference,
+                          full = input$hydro.set.full.reference,
+                          part = input$hydro.set.part.reference,
+                          tilt = input$hydro.set.tilt.reference)
+    
+    
+    sheets = list('Summary' = stats.summary, 
+                  'Daily'   = stats.daily,
+                  'Events'  = stats.event,
+                  'Tides'   = stats.tidal,
+                  'Data' = ReferenceHydro,
+                  'Settings' = settings)
+    return(sheets)
+  })
+  
   #' Eventlistener to save hydrodynamics summary reference
   #' (Hydrodynamics > Summary table)
   observeEvent(input$hydro.table.reference.save, {
     save.xlsx(path = projectPath(), 
               name = "Hydrodynamics_Reference",
-              csvObject =  ReferenceHydroStats(),
+              csvObject =  get.xlsx.object.reference(),
               ui.input = input)
   })
   
@@ -1280,7 +1301,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$comparison.table.save, {
     save.xlsx(path = projectPath(), 
               name = "Hydrodynamics_Comparison",
-              csvObject = ComparisonStats()[["Comparison"]],
+              csvObject = ComparisonStats(),
               ui.input = input)
   })
   
