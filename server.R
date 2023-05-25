@@ -945,6 +945,25 @@ shinyServer(function(input, output, session) {
   })
 
   #### Figures ####
+  
+  #### Control ####
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.control.target <- reactive({
+    if (bool.no.target()){
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else if (is.null(TargetHydroStats())) {
+      plot.emptyMessage(text.too.short)
+    } else {
+      plot.control(data = TargetHydro())
+    }
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.control.target <- renderPlotly({
+    fig.control.target()
+  })
+  
   #### Inundation #####
   
   #' Reactive variable holding the
@@ -984,6 +1003,25 @@ shinyServer(function(input, output, session) {
     fig.velocity.target()
   })
   
+  #### Velocity stage plot #####
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.stage.target <- reactive({
+    if (bool.no.target()) {
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else if (is.null(TargetHydroStats())) {
+      plot.emptyMessage(text.too.short)
+    } else {
+      plot.stage(data   = TargetHydro(),
+                 design = get.design.T())
+    }
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.stage.target <- renderPlot({
+    fig.stage.target()
+  })
 
   #### Wave orbital velocity #####
 
@@ -1012,7 +1050,14 @@ shinyServer(function(input, output, session) {
   
   #' Eventlistener to save hydro plots
   #' (Hydrodynamics > Target)
+  
   observeEvent(input$save.figs.target, {
+    save.figure(
+      path = projectPath(),
+      name = "Control_Target",
+      plotObject = fig.control.target(),
+      ui.input = input
+    )
     save.figure(
       path = projectPath(),
       name = "DailyInundation_Target",
@@ -1027,13 +1072,18 @@ shinyServer(function(input, output, session) {
     )
     save.figure(
       path = projectPath(),
+      name = "VelocityStagePlot_Target",
+      plotObject = fig.stage.target(),
+      ui.input = input
+    )
+    save.figure(
+      path = projectPath(),
       name = "WaveOrbitalVelocity_Target",
       plotObject = fig.wave.velocity.target(),
       ui.input = input
     )
     
   })
-  
   
   ##### REFERENCE ####
   ##### Variables ####
@@ -1176,6 +1226,37 @@ shinyServer(function(input, output, session) {
   })
   
   #### Figures ####
+  
+  #### Control ####
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.control.reference <- reactive({
+    if (bool.no.target()){
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else if (is.null(ReferenceHydroStats())) {
+      plot.emptyMessage(text.too.short)
+    } else {
+      plot.control(data = ReferenceHydro())
+    }
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.control.reference <- renderPlotly({
+    fig.control.reference()
+  })
+  
+  #' Eventlistener to save plot with inundation data
+  #' (Hydrodynamics > Reference)
+  observeEvent(input$save.fig.control.reference, {
+    name = "Control_Reference"
+    save.figure(
+      path = projectPath(),
+      name = name,
+      plotObject = fig.control.reference(),
+      ui.input = input
+    )
+  })
+  
   #### Inundation #####
   
   #' Reactive variable holding the
@@ -1238,7 +1319,38 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  #### Velocity stage plot #####
+
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Reference
+  fig.stage.reference <- reactive({
+    if (bool.no.reference()) {
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else if (is.null(ReferenceHydroStats())) {
+      plot.emptyMessage(text.too.short)
+    } else {
+      plot.stage(data   = ReferenceHydro(),
+                 design = get.design.T())
+    }
+  })
+
+  #' Render plot shown in Hydrodynamics > Reference
+  output$fig.stage.reference <- renderPlot({
+    fig.stage.reference()
+  })
   
+  #' Eventlistener to save plot with inundation data
+  #' (Hydrodynamics > reference)
+  observeEvent(input$save.fig.stage.reference, {
+    name = "StageVelocityPlot_Reference"
+    save.figure(
+      path = projectPath(),
+      name = name,
+      plotObject = fig.stage.reference(),
+      ui.input = input
+    )
+  })
+
   #### Wave orbital velocity #####
   
   #' Reactive variable holding the
@@ -1343,6 +1455,25 @@ shinyServer(function(input, output, session) {
   
   
   #### Figures ####
+
+  #### Control #####
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Comparison
+  fig.control.comparison <- reactive({
+    if (bool.no.target() | bool.no.reference()){
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else {
+      subplot(list(plot.control(ComparisonStats()[["Target"]]), 
+                   plot.control(ComparisonStats()[["Reference"]])))
+    }
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.control.comparison <- renderPlotly({
+    fig.control.comparison()
+  })
+  
   #### Inundation #####
   
   #' Reactive variable holding the
