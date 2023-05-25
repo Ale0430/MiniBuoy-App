@@ -480,8 +480,8 @@ get.comparison = function(stats.t, stats.r){
                 select(-Units), 'Parameter') %>%
     rename(Target = Value.x, Reference = Value.y) %>%
     mutate(DifferenceAbsolute = Target - Reference, 
-           DifferencePercentage = (Target - Reference) / Reference * 100,
-           ReferenceIs = paste(round(abs(DifferencePercentage), 1),
+           DifferencePercentage = DifferenceAbsolute / Reference * 100,
+           TargetIs = paste(round(abs(DifferencePercentage), 1),
                                ifelse(DifferencePercentage > 0, "% higher", "% lower"))) 
   
   return(comparison)
