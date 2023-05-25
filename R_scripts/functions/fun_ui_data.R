@@ -175,26 +175,25 @@ dataFilterOutput = function(){
 ## Plots ####
 box.filter.figures = function(){
   return(list(
-    
     splitLayout(
       cellWidths = c("20%", "80%"),
       
-      cellArgs = list(style = "padding-right: 12px; white-space: normal;margin-bottom:0px"),
+      cellArgs = list(style = "padding-right: 12px; white-space: normal;margin-bottom:0px;"),
       selectInput(
           "filterPlot_DataSet",
           "View data",
           choices = c("Target" = "TARGET",
                       "Reference" = "REFERENCE")),
-      splitLayout(
-        # cellArgs = list(style = "padding-right: 12px; white-space: normal;"),
-        tagList(
-          actButton("filterPlot_renderPlot", "Render figure", "update"),
-          actButton("save_dat_filter", "Download data", "saveCsv"),
-          actButton("save_dat_filter_fig", "Download figure", "saveFigure"),
-          actButton("filterPlot_customizePlot", "Customise figure", "grey")
-        )
+      tagList(
+        actButton("filterPlot_renderPlot", "Render figure", "update",
+                  addStyling = "margin: 0rem; margin-top: 2.5rem; margin-right: 0.5rem"),
+        actButton("save_dat_filter", "Download data", "saveCsv",
+                  addStyling = "margin: 0rem; margin-top: 2.5rem; margin-right: 0.5rem"),
+        actButton("save_dat_filter_fig", "Download figure", "saveFigure",
+                  addStyling = "margin: 0rem; margin-top: 2.5rem; margin-right: 0.5rem"),
+        actButton("filterPlot_customizePlot", "Customise figure", "grey",
+                  addStyling = "margin: 0rem; margin-top: 2.5rem; margin-right: 0.5rem")
       )
-
     ),
     
     
