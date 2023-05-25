@@ -477,6 +477,9 @@ shinyServer(function(input, output, session) {
   #' calculate overlapping time window and show warning or error
   #' message
   observeEvent(input$setData.T | input$setData.R, {
+    # &req needed because buttons are set on server side and not 
+    # available from beginning
+    req(isTruthy(input$setData.T) & isTruthy(input$setData.R))
     if (input$setData.T == 0 || input$setData.R == 0) {
       return()
     }
