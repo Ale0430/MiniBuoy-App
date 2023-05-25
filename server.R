@@ -994,6 +994,8 @@ shinyServer(function(input, output, session) {
     fig.wave.velocity.target()
   })
   
+  #### Save all plots #####
+  
   #' Eventlistener to save hydro plots
   #' (Hydrodynamics > Target)
   observeEvent(input$save.figs.target, {
@@ -1015,7 +1017,6 @@ shinyServer(function(input, output, session) {
       plotObject = fig.wave.velocity.target(),
       ui.input = input
     )
-    
   })
   
   
@@ -1181,18 +1182,7 @@ shinyServer(function(input, output, session) {
     fig.inundation.reference()
   })
   
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > Reference)
-  observeEvent(input$save.fig.inundation.reference, {
-    name = "DailyInundation_Reference"
-    save.figure(
-      path = projectPath(),
-      name = name,
-      plotObject = fig.inundation.reference(),
-      ui.input = input
-    )
-  })
-  
+
   #### Current velocity #####
   
   #' Reactive variable holding the
@@ -1212,19 +1202,7 @@ shinyServer(function(input, output, session) {
     fig.velocity.reference()
   })
   
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > reference)
-  observeEvent(input$save.fig.velocity.reference, {
-    name = "CurrentVelocity_Reference"
-    save.figure(
-      path = projectPath(),
-      name = name,
-      plotObject = fig.velocity.reference(),
-      ui.input = input
-    )
-  })
-  
-  
+
   #### Wave orbital velocity #####
   
   #' Reactive variable holding the
@@ -1251,13 +1229,27 @@ shinyServer(function(input, output, session) {
     fig.wave.velocity.reference()
   })
   
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > reference)
-  observeEvent(input$save.fig.wave.velocity.reference, {
-    name = "WaveOrbitalVelocity_Reference"
+  
+  #### Save all plots #####
+  
+  #' Eventlistener to save hydro plots
+  #' (Hydrodynamics > Target)
+  observeEvent(input$save.figs.target, {
     save.figure(
       path = projectPath(),
-      name = name,
+      name = "DailyInundation_Target",
+      plotObject = fig.inundation.reference(),
+      ui.input = input
+    )
+    save.figure(
+      path = projectPath(),
+      name = "CurrentVelocity_Target",
+      plotObject = fig.velocity.reference(),
+      ui.input = input
+    )
+    save.figure(
+      path = projectPath(),
+      name = "WaveOrbitalVelocity_Target",
       plotObject = fig.wave.velocity.reference(),
       ui.input = input
     )
@@ -1366,7 +1358,7 @@ shinyServer(function(input, output, session) {
   })
 
   
-  
+  #### Save all plots #####
 
   #' Eventlistener to save comparison plots
   #' (Hydrodynamics > Comparison)
