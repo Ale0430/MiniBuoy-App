@@ -958,7 +958,8 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
   fig.velocity.target <- reactive({
-    fig.helper.target(plot.velocity(data = TargetHydro()))
+    fig.helper.target(plot.velocity(data = TargetHydro(), 
+                                    site = "Target"))
   })
   
   #' Render plot shown in Hydrodynamics > Target
@@ -974,7 +975,8 @@ shinyServer(function(input, output, session) {
   fig.wave.velocity.target <- reactive({
     design = get.design.T()
     if (design == "B4+"){
-      fig.helper.target(plot.waveVelocity(data = TargetHydro()))
+      fig.helper.target(plot.waveVelocity(data = TargetHydro(), 
+                                          site = "Target"))
     } else {
       plot.emptyMessage(paste("'", design, 
                               "' Mini Buoy design does not measure wave orbital velocity",
@@ -1263,7 +1265,8 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > reference
   fig.velocity.reference <- reactive({
-    fig.helper.reference(plot.velocity(data = ReferenceHydro()))
+    fig.helper.reference(plot.velocity(data = ReferenceHydro(), 
+                                       site = "Reference"))
   })
   
   #' Render plot shown in Hydrodynamics > reference
@@ -1279,7 +1282,8 @@ shinyServer(function(input, output, session) {
   fig.wave.velocity.reference <- reactive({
     design = get.design.R()
     if (design == "B4+"){
-      fig.helper.reference(plot.waveVelocity(data = ReferenceHydro()))
+      fig.helper.reference(plot.waveVelocity(data = ReferenceHydro(), 
+                                             site = "Reference"))
     } else {
       plot.emptyMessage(paste("'", design, 
                               "' Mini Buoy design does not measure wave orbital velocity",
