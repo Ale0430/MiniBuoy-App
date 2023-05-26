@@ -35,7 +35,9 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
    if (an.error.occured) {
       return(data.frame())
    } else {
-      return(rawData)
+     # Remove NA rows
+     rawData = rawData[complete.cases(rawData),]
+     return(rawData)
    }
 }
 
@@ -143,11 +145,13 @@ get.rawData.sum = function(data, type){
                           type = "warning", duration = 10, closeButton = T)
       }
       if (no.days < 15){
-         showNotification(paste("Warning:", type, "data set too small to analyze properly (< 15 days)!", sep = " "),
+         showNotification(paste("Warning:", type, 
+                                "the reference data is less than 15 days, too short for a robust analysis.", 
+                                sep = " "),
                           type = "warning", duration = NULL, closeButton = T)
       }
       
-      coln = paste(colnames(data), collapse = ", ")
+      coln = paste(tolower(colnames(data)), collapse = ", ")
       meanAcc = mean(data$Acceleration)
       mAmm = paste(as.character(round(meanAcc, 2)), " (",
                    as.character(round(min(data$Acceleration, na.rm = T), 2)), ", ",
@@ -160,8 +164,8 @@ get.rawData.sum = function(data, type){
       
       tab = data.frame(Variable = c("Column names",
                                     "Survey length (days)",
-                                    "First date", "Last date",
-                                    "Mean Acc. (Min, Max)",
+                                    "First date and time", "Last date and time",
+                                    "Mean acceleration (min, max)",
                                     "Median acceleration (1st and 3rd quantile)",
                                     "Number of recordings"),
                        Value = c(coln,
@@ -171,7 +175,7 @@ get.rawData.sum = function(data, type){
                                  mAmm,
                                  mAqq,
                                  as.character(nrow(data))))
-      colnames(tab) = c("", "")
+      colnames(tab) = c("Data summary", "")
       if (meanAcc > 0){
          showNotification(paste("Warning: Mean Acceleration in data set", type, 
                                 "is > 0. You may installed the Mini-Buoy upside down.", sep = " "),
@@ -194,11 +198,6 @@ get.rawData.sum = function(data, type){
 #' @param ui.input: UI-input
 #' @return data.frame
 get.filteredData <- function(data, ui.input, filetype) {
-   # remove na-values
-   if (ui.input[[paste("removeNA", filetype, sep = ".")]]) {
-      data = data[complete.cases(data),]
-   }
-
    # Filter by date and time of first and last day
    daterange = ui.input[[paste("daterange", filetype, sep = ".")]]
    start = ui.input[[paste("timerangeStart", filetype, sep = ".")]]
@@ -225,23 +224,21 @@ update.filter.ui = function(ui.output, ui.input, filetype, minMaxDatetime) {
    
    time.start = as.character(format(minMaxDatetime[1], format = "%H:%M:%S"))
    time.end = as.character(format(minMaxDatetime[2], format = "%H:%M:%S"))
-
+   
    ui.output[[fO]] <- renderUI({
-      #req(ui.input$LoadFilter)
       tagList(
-         checkboxInput(paste("removeNA", filetype, sep = ".")
-                       , "Remove blank rows", T),
-         
          # Date and time range
          h5(strong("Select the start and end dates/times of the survey")),
          
          fluidRow(# Date
-            column(2, p(
-               strong('Date')
-            )),
-            column(
-               10, dateRangeInput(paste("daterange", filetype, sep = ".")
-                                  , "Range")
+            column(2, p(strong('Date'))),
+            column(10, 
+                   dateRangeInput(inputId = paste("daterange", filetype, sep = "."), 
+                                  label = "Range",
+                                  start = minMaxDatetime[1],
+                                  end = minMaxDatetime[2],
+                                  min = minMaxDatetime[1],
+                                  max = minMaxDatetime[2])
             )),
          
          fluidRow(
@@ -253,21 +250,17 @@ update.filter.ui = function(ui.output, ui.input, filetype, minMaxDatetime) {
                                 "End", value = time.end, placeholder = time.end))
          ),
          
-         
-         # Buttons
-         fluidRow(column(5, (
-            actButton(paste("FilterApply", filetype, sep = ".")
-                      , "Apply filter", "update")
-         )),
-         column(5, (
-            actButton(paste("FilterDelete", filetype, sep = ".")
-                      , "Delete filter", "update")
-         )),),
+         actButton(ID =paste("FilterApply", filetype, sep = "."),
+                   label="Apply filter", type="update"),
+         actButton(ID =paste("FilterDelete", filetype, sep = "."),
+                   label="Remove filter", type="update"),
+
          output.html(paste("dataPoints", filetype, sep = "."))
       )
    })
    return(ui.output)
 }
+
 
 #' ########### SAVE #############
 
@@ -379,7 +372,7 @@ save.csv = function(path, name, csvObject, ui.input) {
    # Gets list(noti_note, noti_type, path)
    nots = get.notifications(ui.input)
    if (nots[[2]] == "message") {
-      path = paste(path, "csv-files", sep = "/")
+      path = paste(path, "table-files", sep = "/")
    }
    filename = get.filename(path, name, "csv", ui.input)
    
@@ -392,4 +385,26 @@ save.csv = function(path, name, csvObject, ui.input) {
       showNotification("Error: File not saved!",
                        type = "error")
    }
+}
+
+save.xlsx = function(path, name, csvObject, ui.input){
+  format = ui.input$fileFor
+  
+  # Gets list(noti_note, noti_type, path)
+  nots = get.notifications(ui.input)
+  if (nots[[2]] == "message"){
+    path = paste(path, "table-files", sep = "/")
+  }
+  
+  filename = get.filename(path, name, "xlsx", ui.input)
+  res = try(write_xlsx(csvObject,
+                       path = filename))
+  
+  if (file.exists(filename)){
+    showNotification(nots[[1]], 
+                     type = nots[[2]])
+  } else {
+    showNotification("Error: File not saved!",
+                     type = "error")
+  }
 }

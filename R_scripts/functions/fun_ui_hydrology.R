@@ -1,122 +1,189 @@
 
-########################
-# HYDRODYNAMICS TARGET #
-########################
+#################
+# HYDRODYNAMICS #
+#################
 
+# Target    ####
+## Structure     ####
 hydTargetOutput = function(){
   return(
     list(
+      box(title = "Custom settings",
+          width = "100%",
+          collapsible = T,
+          collapsed = T,
+          status = "success",
+          hyd.target.box.settings()),
       fluidRow(
-        box(title = "Results",
-                   width = "3", height = "95%",
+        box(title = "Summary",
+                   width = "5", height = "95%",
                    collapsible = T, status = "success",
                    hyd.target.box.text()),
         
-        box(title = "Summary table",
-                   width = "9", height = "95%",
+        box(title = "Table",
+                   width = "7", height = "95%",
                    collapsible = T, status = "success",
                    hyd.target.box.table())
       ),
       
-      box(title = "Select a plot",
+      box(title = "Plots",
           width = "100%",
           collapsible = T, status = "success",
-          hyd.target.box.figures())#,
-      
-      # box(title = "Disclaimer",
-      #     width = "100%",
-      #     collapsible = T, status = "info",
-      #     p("Load md. file containing disclaimer. @Cai: please prepare such file and name it 'disclaimer.md' (store it it man)."))
+          hyd.target.box.figures())
     )
   )
-  
 }
 
-
-hyd.target.box.text = function(){
+## Settings     ####
+hyd.target.box.settings = function(){
   return(
     list(
       uiOutput("hydro.window.target.show"),
+
+      # Default values: gaps = 20, full = 20, part = 90, tilt = 75
+      splitLayout(
+        numericInput(inputId = "hydro.set.gaps.target",
+                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated (minutes)'>Minimum gap</abbr>"),
+                     value = 20),
+        numericInput(inputId = "hydro.set.part.target",
+                     label = HTML("<abbr title='Time window to search for partially inundated cases at the start and end of inundation events (minutes).'>Partial inundation window</abbr>"),
+                     value = 90)
+        ),
+      splitLayout(
+        numericInput(inputId = "hydro.set.full.target",
+                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated (minutes)'>Minimum full inundation</abbr>"),
+                     value = 20),
+        numericInput(inputId = "hydro.set.tilt.target",
+                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Tilt full inundation</abbr>"),
+                     value = 75)          
+      ),
+
+      actButton("hydro.set.apply.target", "Apply custom settings", "update"),
+      actButton("hydro.set.reset.target", "Reset custom settings", "grey")
+
+    )
+  )
+}
+
+## Text     ####
+hyd.target.box.text = function(){
+  return(
+    list(
       output.html("hydro.text.target")
     )
   )
 }
 
+## Table     ####
 hyd.target.box.table = function(){
   return(
     list(
       output.table("hydro.table.target"),
-      actButton("hydro.table.target.save", "Save table", "saveCsv")
+      actButton("hydro.table.target.save", "Download results", "saveCsv")
     )
   )
 }
 
+## Plots     ####
 hyd.target.box.figures = function(){
   return(list(
     tabsetPanel(
       tabPanel("Daily inundation", br(),
-               output.figure("fig.inundation.target"),
-               actButton("save.fig.inundation.target",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.inundation.target")),
+               # actButton("save.fig.inundation.target",
+               #           "Save figure", 
+               #           "saveFigure")),
       tabPanel("Current velocity", br(),
-               output.figure("fig.velocity.target"),
-               actButton("save.fig.velocity.target",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.velocity.target")),
+               # actButton("save.fig.velocity.target",
+               #           "Save figure", 
+               #           "saveFigure")),
       tabPanel("Wave orbital velocity", br(),
-               output.figure("fig.wave.velocity.target"),
-               actButton("save.fig.wave.velocity.target",
-                         "Save figure", 
-                         "saveFigure"))
-    ))
+               plotlyOutput("fig.wave.velocity.target")),
+               # actButton("save.fig.wave.velocity.target",
+               #           "Save figure", 
+               #           "saveFigure"))
+    ),
+    actButton("save.figs.target",
+              "Download plots", 
+              "saveFigure")
+    )
   )
 }
 
 
-###########################
-# HYDRODYNAMICS REFERENCE #
-###########################
-
+# Reference    ####
+## Structure     ####
 hydReferenceOutput = function(){
   return(
     list(
+      box(title = "Custom settings",
+          width = "100%",
+          collapsible = T,
+          collapsed = T,
+          status = "success",
+          hyd.reference.box.settings()),
       fluidRow(
-        box(title = "Results",
-                   width = 3, height = "95%",
+        box(title = "Summary",
+                   width = 5, height = "95%",
                    collapsible = T, status = "success",
                    hyd.reference.box.text()),
         
-        box(title = "Summary table",
-                   width = 9, height = "95%",
+        box(title = "Table",
+                   width = 7, height = "95%",
                    collapsible = T, status = "success",
                    hyd.reference.box.table())
       ),
       
-      box(title = "Select a plot",
+      box(title = "Plots",
           width = "100%",
           collapsible = T, status = "success",
-          hyd.reference.box.figures())#,
-      
-      # box(title = "Disclaimer",
-      #     width = "100%",
-      #     collapsible = T, status = "info",
-      #     p("Load md. file containing disclaimer. @Cai: please prepare such file and name it 'disclaimer.md' (store it it man)."))
+          hyd.reference.box.figures())
     )
   )
   
 }
 
-
-hyd.reference.box.text = function(){
+## Settings     ####
+hyd.reference.box.settings = function(){
   return(
     list(
       uiOutput("hydro.window.reference.show"),
+      
+      # Default values: gaps = 20, full = 20, part = 90, tilt = 75
+      splitLayout(
+        numericInput(inputId = "hydro.set.gaps.reference",
+                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated (minutes)'>Minimum gap</abbr>"),
+                     value = 20),
+        numericInput(inputId = "hydro.set.part.reference",
+                     label = HTML("<abbr title='Time window to search for partially inundated cases at the start and end of inundation events (minutes).'>Partial inundation window</abbr>"),
+                     value = 90)
+      ),
+      splitLayout(
+        numericInput(inputId = "hydro.set.full.reference",
+                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated (minutes)'>Minimum full inundation</abbr>"),
+                     value = 20),
+        numericInput(inputId = "hydro.set.tilt.reference",
+                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Tilt full inundation</abbr>"),
+                     value = 75)
+      ),
+      
+      actButton("hydro.set.apply.reference", "Apply custom settings", "update"),
+      actButton("hydro.set.reset.reference", "Reset custom settings", "grey")
+    )
+  )
+}
+
+## Text     ####
+hyd.reference.box.text = function(){
+  return(
+    list(
       output.html("hydro.text.reference")
     )
   )
 }
 
+## Table     ####
 hyd.reference.box.table = function(){
   return(
     list(
@@ -125,21 +192,22 @@ hyd.reference.box.table = function(){
     )  )
 }
 
+## Plots     ####
 hyd.reference.box.figures = function(){
   return(list(
     tabsetPanel(
       tabPanel("Daily inundation", br(),
-               output.figure("fig.inundation.reference"),
+               plotlyOutput("fig.inundation.reference"),
                actButton("save.fig.inundation.reference",
                          "Save figure", 
                          "saveFigure")),
       tabPanel("Current velocity", br(),
-               output.figure("fig.velocity.reference"),
+               plotlyOutput("fig.velocity.reference"),
                actButton("save.fig.velocity.reference",
                          "Save figure", 
                          "saveFigure")),
       tabPanel("Wave orbital velocity", br(),
-               output.figure("fig.wave.velocity.reference"),
+               plotlyOutput("fig.wave.velocity.reference"),
                actButton("save.fig.wave.velocity.reference",
                          "Save figure", 
                          "saveFigure"))
@@ -148,22 +216,19 @@ hyd.reference.box.figures = function(){
 }
 
 
-
-############################
-# HYDRODYNAMICS COMPARISON #
-############################
-
+# Comparison     ####
+## Structure     ####
 hydComparisonOutput = function(){
   return(
     list(
       fluidRow(
-        # box(title = "Results",
-        #            width = 3, height = "95%",
-        #            collapsible = T, status = "success",
-        #            hyd.comparison.box.text()),
+        box(title = "Summary",
+                   width = 3, height = "95%",
+                   collapsible = T, status = "success",
+                   hyd.comparison.box.text()),
         
-        box(title = "Summary table",
-                   width = 12, height = "95%",
+        box(title = "Table",
+                   width = 9, height = "95%",
                    collapsible = T, status = "success",
                    hyd.comparison.box.table())
       ),
@@ -171,53 +236,42 @@ hydComparisonOutput = function(){
       box(title = "Select a plot",
           width = "100%",
           collapsible = T, status = "success",
-          hyd.comparison.box.figures())#,
-      
-      # box(title = "Disclaimer",
-      #     width = "100%",
-      #     collapsible = T, status = "info",
-      #     p("Load md. file containing disclaimer. @Cai: please prepare such file and name it 'disclaimer.md' (store it it man)."))
+          hyd.comparison.box.figures())
     )
   )
   
 }
 
 
+## Text     ####
 hyd.comparison.box.text = function(){
   return(
     p("TEXT")
   )
 }
 
+## Table     ####
 hyd.comparison.box.table = function(){
   return(
     list(
       output.table("comparison.table.target"),
-      actButton("comparison.table.save", "Save table", "saveCsv")
+      actButton("comparison.table.save", "Download results", "saveCsv")
     )
   )
 }
 
+## Plots     ####
 hyd.comparison.box.figures = function(){
   return(list(
     tabsetPanel(
       tabPanel("Daily inundation", br(),
-               output.figure("fig.inundation.comparison"),
-               actButton("save.fig.inundation.comparison",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.inundation.comparison")),
       
       tabPanel("Current velocity", br(),
-               output.figure("fig.velocity.comparison"),
-               actButton("save.fig.velocity.comparison",
-                         "Save figure", 
-                         "saveFigure")),
-      
-      tabPanel("Parameters", br(),
-               output.figure("fig.parameter.comparison"),
-               actButton("save.fig.parameter.comparison",
-                         "Save figure", 
-                         "saveFigure"))
+               plotlyOutput("fig.velocity.comparison"))
+    ),
+    actButton("save.fig.comparison",
+              "Download plots", 
+              "saveFigure")
     ))
-  )
 }

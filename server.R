@@ -2,12 +2,9 @@
 options(shiny.maxRequestSize = 15 * 1024 ^ 4)
 
 shinyServer(function(input, output, session) {
-  ########################
-  ### PROJECT SETTINGS ###
-  ########################
+  # Project Settings  ####
+  ## Variables        ####
   
-  #### Variables ####
-
   #' Shiny function that returns 'available volumes on the system'
   volumes = getVolumes()
   
@@ -90,8 +87,8 @@ shinyServer(function(input, output, session) {
   }
   
   
+  ## UI output        ####
   
-  #### UI output ####
   #' Function to render all ggplots with defined theme
   output$theme_output <- renderUI({
     #req(input$figTheme)
@@ -110,13 +107,12 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  
-  #### Buttons ####
+  ## Buttons        ####
   
   #' Button to create a project (Project Settings > Project)
   #' Requires a folder to be selected (Folder select)
   #' If directory does not exist create two folders:
-  #' 'csv-files', 'graphics'
+  #' 'table-files', 'graphics'
   #' Sets project name = project folder name
   observeEvent(input$crtPrj, {
     # If no folder have been selected show error
@@ -129,7 +125,7 @@ shinyServer(function(input, output, session) {
     } else {
       req(input$folder)
       csvPath = paste(projectPath(),
-                      "/csv-files/", sep = "")
+                      "/table-files/", sep = "")
       figPath = paste(projectPath(),
                       "/graphics/", sep = "")
       if (!dir.exists(csvPath)) {
@@ -147,13 +143,10 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ##############
-  #### DATA ####
-  ##############
+  # Data        ####
+  ## Upload        ####
+  ### Variables        ####
   
-  #### UPLOAD ####
-  ##### Variables #####
-
   #' Variable indicating which Mini Buoy Design is selected
   get.design.T <- reactive({
     if (input$raw_default_T){
@@ -223,7 +216,7 @@ shinyServer(function(input, output, session) {
     # If column Acceleration is not numeric or is all NA
     # delete data frame
     if (!is.numeric(dataR$Acceleration) | all(is.na(dataR$Acceleration))){
-      print("Raw data upload TARGET failed")
+      print("Raw data upload REFERENCE failed")
       dataR = NULL
     }
     return(dataR)
@@ -267,7 +260,6 @@ shinyServer(function(input, output, session) {
     get.fileName("Reference", input)
   })
 
-  
 
   #' Create empty reactive value with a placeholder for the
   #' data sets belonging to Target and reference sites
@@ -281,7 +273,7 @@ shinyServer(function(input, output, session) {
   #' Assigned to reactive value if empty
   Target <- reactive({
     if (is.null(values$Target)){
-      print("TARGET data: create")
+      print("TARGET data: create") 
       values$Target <- rawData_T()
     }
     if (!input$raw_default_T & ! bool.file.upload.target()){
@@ -348,6 +340,8 @@ shinyServer(function(input, output, session) {
       }
     }
     Target = Target()
+    filter_helper.T(input, output)
+    
     
   })
 
@@ -387,6 +381,8 @@ shinyServer(function(input, output, session) {
       }
     }
     Reference = Reference()
+    filter_helper.R(input, output)
+    
   })
   
   
@@ -413,8 +409,9 @@ shinyServer(function(input, output, session) {
     return(time.overlap)
   })
   
-  #### TABLE OUTPUTS ####
   
+  ### Table Outputs        ####
+
   tab.with.file.upload.message = function(message, color = "#cc0000",
                                           backgroundColor = '#ffcccc'){
     m = matrix(
@@ -423,7 +420,7 @@ shinyServer(function(input, output, session) {
       )
     )
     return(
-      datatable(m, options = list(dom = 't'), colnames=NULL) %>%
+      datatable(m, options = list(dom = 't', ordering = F), colnames=NULL) %>%
         formatStyle(
           1,
           color = color,
@@ -433,52 +430,58 @@ shinyServer(function(input, output, session) {
     )
   }
   
-  
   output$raw.target.sum <- DT::renderDataTable(
     rownames = F,
     {
-      if (!input$raw_default_T & is.null(input$fileTarget$datapath)){
-        return(tab.with.file.upload.message(text.upload.missing,
-                                            color = "blue", backgroundColor = "white"))
-        
+      rawDataTable_T = rawData_T()
+      if (is.numeric(rawDataTable_T$Acceleration) & !all(is.na(rawDataTable_T$Acceleration))){
+        t = get.rawData.sum(rawDataTable_T, "TARGET")
+        return(t)
       } else {
-        rawDataTable_T = rawData_T()
-        if (is.numeric(rawDataTable_T$Acceleration) & !all(is.na(rawDataTable_T$Acceleration))){
-          t = get.rawData.sum(rawDataTable_T, "TARGET")
-          return(t)
-        } else {
-          return(tab.with.file.upload.message(message.upload.fail))
-        }
+        return(tab.with.file.upload.message(message.upload.fail))
       }
-      
-      
     },
-    options = list(dom = 't'),
+    options = list(dom = 't', ordering=F),
   )
   
   output$raw.reference.sum <- DT::renderDataTable(
     rownames = F,
     {
-      if (!input$raw_default_R & is.null(input$fileReference$datapath)){
-        return(tab.with.file.upload.message(text.upload.missing,
-                                            color = "blue", backgroundColor = "white"))
-        
+      rawDataTable_R = rawData_R()
+      if (is.numeric(rawDataTable_R$Acceleration) & !all(is.na(rawDataTable_R$Acceleration))){
+        t = get.rawData.sum(rawDataTable_R, "REFERENCE")
+        return(t)
       } else {
-        rawDataTable_R = rawData_R()
-        if (is.numeric(rawDataTable_R$Acceleration)){
-          return(get.rawData.sum(rawDataTable_R, "REFERENCE"))
-        } else {
-          return(tab.with.file.upload.message(message.upload.fail))
-        }
+        return(tab.with.file.upload.message(message.upload.fail))
       }
     },
     options = list(dom = 't'),
   )
   
+  
+  output$previewTarget <- renderUI({
+    if (input$raw_default_T | !is.null(input$fileTarget$datapath)){
+      list(tags$head(tags$style(HTML("#previewTarget > br{display:none}"))),
+           output.table("raw.target.sum"),
+           actButton("setData.T", "Use data", "create"))
+    }
+  })
+  
+  output$previewReference <- renderUI({
+    if (input$raw_default_R | !is.null(input$fileReference$datapath)){
+      list(tags$head(tags$style(HTML("#previewReference > br{display:none}"))),
+           output.table("raw.reference.sum"),
+           actButton("setData.R", "Use data", "create"))
+    }
+  })
+  
   #' Eventlistener: if both, target and reference data, are set
   #' calculate overlapping time window and show warning or error
   #' message
   observeEvent(input$setData.T | input$setData.R, {
+    # &req needed because buttons are set on server side and not 
+    # available from beginning
+    req(isTruthy(input$setData.T) & isTruthy(input$setData.R))
     if (input$setData.T == 0 || input$setData.R == 0) {
       return()
     }
@@ -512,42 +515,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  
-  #### FILTER ####
-  
-  #' Buttons to load filter options
-  #' Assigns unfiltered  target data as reactive
-  #' value 'Target'
-  observeEvent(input$LoadFilter.T, {
-    if (is.null(values$Target)){
-      showNotification(
-        message.upload.no.data("TARGET"),
-        type = "error",
-        duration = NULL,
-        closeButton = T
-      )
-    } else {
-      print("TARGET data: filter load/delete")
-      values$Target <- rawData_T()
-      filter_helper.T(input, output)
-    }
-
-  })
-  
-  observeEvent(input$LoadFilter.R, {
-    if (is.null(values$Reference)){
-      showNotification(
-        message.upload.no.data("REFERENCE"),
-        type = "error",
-        duration = NULL,
-        closeButton = T
-      )
-    } else {
-      print("REFERENCE data: filter load/delete")
-      values$Reference <- rawData_R()
-      filter_helper.R(input, output)
-    }
-  })
+  ## Filter        ####
   
   #' Buttons to apply filter
   #' Assigns filter selected options to Target and reference site data sets
@@ -577,7 +545,7 @@ shinyServer(function(input, output, session) {
     values$Reference <- rawData_R()
   })
   
-  #### UI ####
+  ### UI        ####
   
   #' Reactive variables to get start and end data of data set
   minMaxDatetime.T <- reactive({
@@ -608,15 +576,8 @@ shinyServer(function(input, output, session) {
     minMaxDatetime = minMaxDatetime.T()
     output = update.filter.ui(ui.output = output, ui.input = input,
                               filetype = "T", minMaxDatetime = minMaxDatetime)
-    updateDateRangeInput(
-      session,
-      "daterange.T",
-      start = minMaxDatetime[1],
-      end = minMaxDatetime[2],
-      min = minMaxDatetime[1],
-      max = minMaxDatetime[2]
-    )
   }
+  
   filter_helper.R = function(input, output) {
     if (!is.null(input$fileReference)) {
       req(input$setData.R)
@@ -635,7 +596,7 @@ shinyServer(function(input, output, session) {
   }
   
 
-  #### Text output ####
+  ### Text        ####
   
   #' UI Text output of remaining data points after filtering
   #' (Data > Filter > Subset data)
@@ -660,7 +621,25 @@ shinyServer(function(input, output, session) {
                             data_after = Reference())
   })
   
-  #### Graphics ####
+  output$filterEmpty.T <- renderText({ 
+    if (is.null(rawData_T())){
+      paste(message.upload.no.data("TARGET"))
+    } else if (input$setData.T == 0){
+      paste(message.upload.no.data("TARGET"),
+            "Hint: you might forgot to click `Use data` when uploading your data set.")
+    }
+  })
+  
+  output$filterEmpty.R <- renderText({ 
+    if (is.null(rawData_R())){
+      paste(message.upload.no.data("REFERENCE"))
+    } else if (input$setData.R == 0){
+      paste(message.upload.no.data("REFERENCE"),
+            "Hint: you might forgot to click `Use data` when uploading your data set.")
+    }
+  })
+  
+  ### Plots        ####
   
   #' Reactive variable holding the
   #' data set with (filtered) data
@@ -702,28 +681,27 @@ shinyServer(function(input, output, session) {
   })
 
   #' Render plot shown in data > filter
-  output$filterPlot <- renderPlot({
+  output$filterPlot <- renderPlotly({
     filterPlot()
   })
   
   
   
   
-  #### Buttons ####
-
+  ### Buttons        ####
+  
   #' Eventlistener to save filtered data
   #' (Data > Filter)
+  #' Not saved as excel format as max. number of rows in limited to ~1 Mil.
   observeEvent(input$save_dat_filter, {
-    save.csv(
-      path = projectPath(),
-      name = paste(
-        "Acceleration_filtered",
-        as.character(input$DataSet),
-        sep = "_"
-      ),
-      csvObject = DataSetInput(),
-      ui.input = input
-    )
+    save.csv(path = projectPath(), 
+              name =  paste(
+                "Acceleration_filtered_",
+                as.character(input$filterPlot_DataSet),
+                sep = ""
+              ),
+              csvObject =  DataSetInput(),
+              ui.input = input)
   })
   
   #' Eventlistener to save plot with filtered data
@@ -744,70 +722,65 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ########################
-  ##### HYDRODYNAMICS ####
-  ########################
+  # Hydrodynamics        ####
+  ## Info Texts        ####
+  
   
   
   text.upload.missing = "Please upload your data or select a default data set."
   text.too.short = "Uploaded/ filtered data set < 2 days."
   
+  ## Functions for both R&T   ####
+  
+  #' Shortens data set to overlapping time window
+  get.overlapping.data = function(dataset) {
+    time.overlap = get.time.overlap(data.t = Target(),
+                                    data.r = Reference())
+    return(dataset %>%
+             filter(datetime >= time.overlap[1] &
+                      datetime <= time.overlap[2]))
+  }
+  
+  ## Target        ####
+  ### UI        ####
+  
   #' Render output option depending on data availability
   output$hydro.window.target.show = renderUI({
     if (!bool.no.target() & !bool.no.reference()) {
-      list(
-        checkboxInput(
-          "hydro.window.target",
-          "Use only overlapping times of the target and reference data",
-          F
-        ),
-        hr()
+      checkboxInput(
+        "hydro.window.target",
+        "Use overlapping target and reference data",
+        F
       )
     }
   })
   
-  output$hydro.window.reference.show = renderUI({
-    if (!bool.no.target() & !bool.no.reference()) {
-      list(
-        checkboxInput(
-          "hydro.window.reference",
-          "Use only overlapping times of the target and reference data",
-          F
-        ),
-        hr()
-      )
+  output$hydro.text.target <- renderUI({
+    if (bool.no.target()){
+      print(text.upload.missing)
+    } else if (is.null(TargetHydroStats())){
+      print(text.too.short)
+    } else {
+      HTML(get.stats.text(TargetHydroStats()))
     }
   })
   
+  ### Variables        ####
   
-  get.hydrodynamics.overlap = function(dataset) {
-    time.overlap = get.time.overlap(data.t = Target(),
-                                    data.r = Reference())
-    if (dataset == "Target") {
-      Target = Target() %>%
-        filter(datetime >= time.overlap[1] &
-                 datetime <= time.overlap[2])
-      hydroData = get.hydrodynamics(data = Target,
-                                    design = get.design.T())
-    }
-    if (dataset == "Reference") {
-      Reference = Reference() %>%
-        filter(datetime >= time.overlap[1] &
-                 datetime <= time.overlap[2])
-      hydroData = get.hydrodynamics(data = Reference,
-                                    design = get.design.R())
-    }
-    return(hydroData)
-  }
+  TargetCustomInput = reactive({
+    return(data.frame(gaps = input$hydro.set.gaps.target,
+                      full = input$hydro.set.full.target,
+                      part = input$hydro.set.part.target,
+                      tilt = input$hydro.set.tilt.target)
+    )
+  })
   
-  ##### TARGET ####
-  ##### Variables ####
-
   TargetHydro = reactive({
     if (is.null(values$TargetHydro)){
       print("TARGET hydro: create")
       values$TargetHydro = get.hydrodynamics(data = Target(),
-                                             design = get.design.T())
+                                             design = get.design.T(),
+                                             ui.input_settings = "Default")
     }
     return(values$TargetHydro)
   })
@@ -821,7 +794,8 @@ shinyServer(function(input, output, session) {
       if (input$FilterApply.T[1] != 0){
         print("TARGET hydro: update with filtered data")
         values$TargetHydro = get.hydrodynamics(data = Target(),
-                                               design = get.design.T())
+                                               design = get.design.T(),
+                                               ui.input_settings = "Default")
       }}
   })
   
@@ -830,57 +804,50 @@ shinyServer(function(input, output, session) {
       if (input$FilterDelete.T[1] != 0){
         print("TARGET hydro: update with full data")
         values$TargetHydro = get.hydrodynamics(data = Target(),
-                                               design = get.design.T())
+                                               design = get.design.T(),
+                                               ui.input_settings = "Default")
       }}
   })
   
-  observeEvent(input$LoadFilter.T, {
-    if (!is.null(input$LoadFilter.T[1]) & !is.null(values$TargetHydro)){
-      if (input$LoadFilter.T[1] > 1){
-        print("TARGET hydro: update with full data")
-        values$TargetHydro = get.hydrodynamics(data = Target(),
-                                               design = get.design.T())
-      }}
-  })
 
-  observeEvent(input$hydro.window.target, {
-    if (!is.null(input$hydro.window.target) & !is.null(values$TargetHydro)){
+  observeEvent(input$hydro.set.apply.target, {
+    print("TARGET hydro: update with custom settings")
+    Target = Target()
+    if (!is.null(input$hydro.window.target)){
       if (input$hydro.window.target) {
         print("TARGET hydro: update with overlapping data")
-        values$TargetHydro = get.hydrodynamics.overlap(dataset = "Target")
-      } else {
-        print("TARGET hydro: update with full data")
-        values$TargetHydro = get.hydrodynamics(data = Target(),
-                                               design = get.design.T())
+        Target = get.overlapping.data(dataset = Target)
       }
-    } 
+    }
+    values$TargetHydro = data.frame()
+    values$TargetHydro = get.hydrodynamics(data = Target,
+                                           design = get.design.T(),
+                                           ui.input_settings = TargetCustomInput())
   })
   
+  observeEvent(input$hydro.set.reset.target, {
+    print("TARGET hydro: update with default settings")
+    values$TargetHydro = data.frame()
+    if (!is.null(input$hydro.window.target)){
+      updateCheckboxInput(session, "hydro.window.target", value = F)
+    }
+    values$TargetHydro = get.hydrodynamics(data = Target(),
+                                           design = get.design.T(),
+                                           ui.input_settings = "Default")
+  })
  
   TargetHydroStats <- reactive({
     TargetHydro = TargetHydro()
     timewindow = difftime(max(TargetHydro$datetime), min(TargetHydro$datetime), units = "days")
     if (timewindow < 2){
-      TargetHydroStats = NULL
+      TargetHydroStats = data.frame()
     } else {
       TargetHydroStats = get.summary.statisics(TargetHydro)
       }
     return(TargetHydroStats)
   })
   
-  ##### Text ####
-
-  output$hydro.text.target <- renderUI({
-    if (bool.no.target()){
-      print(text.upload.missing)
-    } else if (is.null(TargetHydroStats())){
-      print(text.too.short)
-    } else {
-      HTML(get.stats.text(TargetHydroStats()))
-    }
-  })
-  
-  ##### Table ####
+  ### Table     ####
 
   #' Render table showing hydrodynamics of target data
   output$hydro.table.target <- DT::renderDataTable(
@@ -900,18 +867,46 @@ shinyServer(function(input, output, session) {
     options = list(dom = "ltip"), 
   )
   
+  get.xlsx.object.target = reactive({
+    TargetHydro = TargetHydro()
+    stats.daily = get.daily.statistics(TargetHydro)
+    stats.event = get.event.statistics(TargetHydro)
+    stats.summary = TargetHydroStats()
+    stats.tidal = get.tidal.statistics(TargetHydro)
+    settings = data.frame(gaps = input$hydro.set.gaps.target,
+                          full = input$hydro.set.full.target,
+                          part = input$hydro.set.part.target,
+                          tilt = input$hydro.set.tilt.target)
+    
+    sheets = list('Summary' = stats.summary, 
+                  'Daily'   = stats.daily,
+                  'Events'  = stats.event,
+                  'Tides'   = stats.tidal,
+                  'Data' = TargetHydro,
+                  'Settings' = settings)
+    return(sheets)
+  })
+  
   #' Eventlistener to save hydrodynamics summary target
   #' (Hydrodynamics > Summary table)
   observeEvent(input$hydro.table.target.save, {
-    save.csv(
-      path = projectPath(),
-      name = "Hydrodynamics_Target",
-      csvObject = TargetHydroStats(),
-      ui.input = input
-    )
+    sheets = get.xlsx.object.target()
+    if (input$fileFor == "xlsx"){
+      save.xlsx(path = projectPath(), 
+                name = "Hydrodynamics_Target",
+                csvObject = sheets,
+                ui.input = input)
+    } else {
+      for (n in names(sheets)) {
+        save.csv(path = projectPath(), 
+                 name = paste("Hydrodynamics_Target", n, sep ="_"),
+                 csvObject = data.frame(sheets[n]),
+                 ui.input = input)
+      }
+    }
   })
 
-  #### Figures ####
+  ### Figures ####
   #### Inundation #####
   
   #' Reactive variable holding the
@@ -927,22 +922,11 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.inundation.target <- renderPlot({
+  output$fig.inundation.target <- renderPlotly({
     fig.inundation.target()
   })
   
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > Target)
-  observeEvent(input$save.fig.inundation.target, {
-    name = "DailyInundation_Target"
-    save.figure(
-      path = projectPath(),
-      name = name,
-      plotObject = fig.inundation.target(),
-      ui.input = input
-    )
-  })
-  
+
   #### Current velocity #####
   
   #' Reactive variable holding the
@@ -958,23 +942,11 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.velocity.target <- renderPlot({
+  output$fig.velocity.target <- renderPlotly({
     fig.velocity.target()
   })
   
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > Target)
-  observeEvent(input$save.fig.velocity.target, {
-    name = "CurrentVelocity_Target"
-    save.figure(
-      path = projectPath(),
-      name = name,
-      plotObject = fig.velocity.target(),
-      ui.input = input
-    )
-  })
-  
-  
+
   #### Wave orbital velocity #####
 
   #' Reactive variable holding the
@@ -996,31 +968,66 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.wave.velocity.target <- renderPlot({
+  output$fig.wave.velocity.target <- renderPlotly({
     fig.wave.velocity.target()
   })
   
-  #' Eventlistener to save plot with inundation data
+  #### Save all plots #####
+  
+  #' Eventlistener to save hydro plots
   #' (Hydrodynamics > Target)
-  observeEvent(input$save.fig.wave.velocity.target, {
-    name = "WaveOrbitalVelocity_Target"
+  observeEvent(input$save.figs.target, {
     save.figure(
       path = projectPath(),
-      name = name,
+      name = "DailyInundation_Target",
+      plotObject = fig.inundation.target(),
+      ui.input = input
+    )
+    save.figure(
+      path = projectPath(),
+      name = "CurrentVelocity_Target",
+      plotObject = fig.velocity.target(),
+      ui.input = input
+    )
+    save.figure(
+      path = projectPath(),
+      name = "WaveOrbitalVelocity_Target",
       plotObject = fig.wave.velocity.target(),
       ui.input = input
     )
   })
   
   
-  ##### REFERENCE ####
-  ##### Variables ####
+  ## Reference      ####
+  ### UI            ####
+  
+  
+  output$hydro.window.reference.show = renderUI({
+    if (!bool.no.target() & !bool.no.reference()) {
+      checkboxInput(
+        "hydro.window.reference",
+        "Use overlapping target and reference data",
+        F
+      )
+    }
+  })
+  
+  ### Variables     ####
+  
+  ReferenceCustomInput = reactive({
+    return(data.frame(gaps = input$hydro.set.gaps.reference,
+                      full = input$hydro.set.full.reference,
+                      part = input$hydro.set.part.reference,
+                      tilt = input$hydro.set.tilt.reference)
+    )
+  })
   
   ReferenceHydro = reactive({
     if (is.null(values$ReferenceHydro)){
       print("REFERENCE hydro: create")
       values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                                design = get.design.T())
+                                                design = get.design.R(),
+                                                ui.input_settings = "Default")
     }
     return(values$ReferenceHydro)
   })
@@ -1030,7 +1037,8 @@ shinyServer(function(input, output, session) {
       if (input$FilterApply.R[1] != 0){
         print("REFERENCE hydro: update with filtered data")
         values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                                  design = get.design.R())
+                                                  design = get.design.R(),
+                                                  ui.input_settings = "Default")
       }}
   })
   
@@ -1039,33 +1047,39 @@ shinyServer(function(input, output, session) {
       if (input$FilterDelete.R[1] != 0){
         print("REFERENCE hydro: update with full data")
         values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                                  design = get.design.R())
+                                                  design = get.design.R(),
+                                                  ui.input_settings = "Default")
       }}
   })
   
-  observeEvent(input$LoadFilter.R, {
-    if (!is.null(input$LoadFilter.R[1]) & !is.null(values$ReferenceHydro)){
-      if (input$LoadFilter.R[1] > 1){
-        print("REFERENCE hydro: update with full data")
-        values$TargetHydro = get.hydrodynamics(data = Target(),
-                                               design = get.design.T())
-      }}
-  })
+
   
-  observeEvent(input$hydro.window.reference, {
-    if (!is.null(input$hydro.window.reference) & !is.null(values$ReferenceHydro)){
+  observeEvent(input$hydro.set.apply.reference, {
+    print("REFERENCE hydro: update with custom settings")
+    Reference = Reference()
+    if (!is.null(input$hydro.window.reference)) {
       if (input$hydro.window.reference) {
         print("REFERENCE hydro: update with overlapping data")
-        values$ReferenceHydro = get.hydrodynamics.overlap(dataset = "Reference")
-        
-      } else {
-        print("REFERENCE hydro: update with full data")
-        values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                                  design = get.design.R())
+        Reference = get.overlapping.data(dataset = Reference())
       }
-    } 
+    }
+    values$ReferenceHydro = data.frame()
+    values$ReferenceHydro = get.hydrodynamics(data = Reference,
+                                              design = get.design.R(),
+                                              ui.input_settings = ReferenceCustomInput())
   })
   
+
+  observeEvent(input$hydro.set.reset.reference, {
+    print("REFERENCE hydro: update with default settings")
+    values$ReferenceHydro = data.frame()
+    if (!is.null(input$hydro.window.reference)){
+      updateCheckboxInput(session, "hydro.window.reference", value = F)
+    }
+    values$ReferenceHydro = get.hydrodynamics(data = Reference(),
+                                              design = get.design.R(),
+                                              ui.input_settings = "Default")
+  })
   
   
   ReferenceHydroStats <- reactive({
@@ -1081,7 +1095,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ##### Text ####
+  ### Text          ####
   
   output$hydro.text.reference <- renderUI({
     if (bool.no.reference()){
@@ -1094,7 +1108,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ##### Table ####
+  ### Table         ####
   
   #' Render table showing hydrodynamics of reference data
   output$hydro.table.reference <- DT::renderDataTable(
@@ -1113,18 +1127,46 @@ shinyServer(function(input, output, session) {
     options = list(dom = 't'),
   )
   
+  get.xlsx.object.reference = reactive({
+    ReferenceHydro = ReferenceHydro()
+    stats.daily = get.daily.statistics(ReferenceHydro)
+    stats.event = get.event.statistics(ReferenceHydro)
+    stats.summary = ReferenceHydroStats()
+    stats.tidal = get.tidal.statistics(ReferenceHydro)
+    settings = data.frame(gaps = input$hydro.set.gaps.reference,
+                          full = input$hydro.set.full.reference,
+                          part = input$hydro.set.part.reference,
+                          tilt = input$hydro.set.tilt.reference)
+    
+    sheets = list('Summary' = stats.summary, 
+                  'Daily'   = stats.daily,
+                  'Events'  = stats.event,
+                  'Tides'   = stats.tidal,
+                  'Data' = ReferenceHydro,
+                  'Settings' = settings)
+    return(sheets)
+  })
+  
   #' Eventlistener to save hydrodynamics summary reference
   #' (Hydrodynamics > Summary table)
   observeEvent(input$hydro.table.reference.save, {
-    save.csv(
-      path = projectPath(),
-      name = "Hydrodynamics_Reference",
-      csvObject = ReferenceHydroStats(),
-      ui.input = input
-    )
+    sheets = get.xlsx.object.reference()
+    if (input$fileFor == "xlsx"){
+      save.xlsx(path = projectPath(), 
+                name = "Hydrodynamics_Reference",
+                csvObject =  sheets,
+                ui.input = input)
+    } else {
+      for (n in names(sheets)) {
+        save.csv(path = projectPath(), 
+                 name = paste("Hydrodynamics_Reference", n, sep ="_"),
+                 csvObject = data.frame(sheets[n]),
+                 ui.input = input)
+      }
+    }
   })
   
-  #### Figures ####
+  ### Figures         ####
   #### Inundation #####
   
   #' Reactive variable holding the
@@ -1140,22 +1182,11 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Reference
-  output$fig.inundation.reference <- renderPlot({
+  output$fig.inundation.reference <- renderPlotly({
     fig.inundation.reference()
   })
   
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > Reference)
-  observeEvent(input$save.fig.inundation.reference, {
-    name = "DailyInundation_Reference"
-    save.figure(
-      path = projectPath(),
-      name = name,
-      plotObject = fig.inundation.reference(),
-      ui.input = input
-    )
-  })
-  
+
   #### Current velocity #####
   
   #' Reactive variable holding the
@@ -1171,23 +1202,11 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > reference
-  output$fig.velocity.reference <- renderPlot({
+  output$fig.velocity.reference <- renderPlotly({
     fig.velocity.reference()
   })
   
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > reference)
-  observeEvent(input$save.fig.velocity.reference, {
-    name = "CurrentVelocity_Reference"
-    save.figure(
-      path = projectPath(),
-      name = name,
-      plotObject = fig.velocity.reference(),
-      ui.input = input
-    )
-  })
-  
-  
+
   #### Wave orbital velocity #####
   
   #' Reactive variable holding the
@@ -1210,31 +1229,45 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > reference
-  output$fig.wave.velocity.reference <- renderPlot({
+  output$fig.wave.velocity.reference <- renderPlotly({
     fig.wave.velocity.reference()
   })
   
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > reference)
-  observeEvent(input$save.fig.wave.velocity.reference, {
-    name = "WaveOrbitalVelocity_Reference"
+  
+  #### Save all plots #####
+  
+  #' Eventlistener to save hydro plots
+  #' (Hydrodynamics > Target)
+  observeEvent(input$save.figs.target, {
     save.figure(
       path = projectPath(),
-      name = name,
+      name = "DailyInundation_Target",
+      plotObject = fig.inundation.reference(),
+      ui.input = input
+    )
+    save.figure(
+      path = projectPath(),
+      name = "CurrentVelocity_Target",
+      plotObject = fig.velocity.reference(),
+      ui.input = input
+    )
+    save.figure(
+      path = projectPath(),
+      name = "WaveOrbitalVelocity_Target",
       plotObject = fig.wave.velocity.reference(),
       ui.input = input
     )
   })
   
   
-  ##### COMPARISON ####
-  ##### Variables ####
+  ## Comparison       ####
+  ### Variables       ####
   
   #' Reactive function containing a list the statistical comparison
   #' and hydrodynamics of reference and target for overlapping time
-  ComparisonStats <- reactive({
-    TargetHydro = get.hydrodynamics.overlap(dataset = "Target")
-    ReferenceHydro = get.hydrodynamics.overlap(dataset = "Reference")
+  ComparisonStats <- reactive({ 
+    TargetHydro = get.overlapping.data(dataset = TargetHydro())
+    ReferenceHydro = get.overlapping.data(dataset = ReferenceHydro())
     
     TargetHydroStats = get.summary.statisics(data = TargetHydro)
     ReferenceHydroStats = get.summary.statisics(data = ReferenceHydro)
@@ -1247,16 +1280,26 @@ shinyServer(function(input, output, session) {
     })
   
   
-  ##### Table ####
+  ### Table         ####
+  
+
+  #' Helper funtion to render background color in table according to comparison
+  #' color with opacity = 50%
+  table.background.js <- "(/higher/).test(value) ? '#56B4E950' : (/lower/).test(value) ? '#0072B250' : ''"
+  
   
   #' Render table showing hydrodynamics of comparison data
   output$comparison.table.target <- DT::renderDataTable(
     rownames = F,
     {
       if (bool.overlap()) {
-        ComparisonStats = ComparisonStats()[["Comparison"]]
-        return(ComparisonStats %>% 
-                 mutate_if(is.numeric,round, 2))
+        ComparisonStats = ComparisonStats()[["Comparison"]] %>% 
+          select(Parameter:Reference, TargetIs) %>% 
+          mutate_if(is.numeric,round, 2) %>% 
+          rename("Target is" = "TargetIs")
+        return(datatable(ComparisonStats) %>% 
+                           formatStyle(ncol(ComparisonStats), backgroundColor = JS(table.background.js)
+                         ))
       } else {
         if (bool.no.reference() | bool.no.target()){
           tab.with.file.upload.message("Please upload your target AND reference data or select default data sets.",
@@ -1274,17 +1317,25 @@ shinyServer(function(input, output, session) {
   #' Eventlistener to save hydrodynamics summary comparison
   #' (Hydrodynamics > Summary table)
   observeEvent(input$comparison.table.save, {
-    save.csv(
-      path = projectPath(),
-      name = "Hydrodynamics_Comparison",
-      csvObject = ComparisonStats()[["Comparison"]],
-      ui.input = input
-    )
+    sheets = get.xlsx.object.reference()
+    if (input$fileFor == "xlsx"){
+      save.xlsx(path = projectPath(), 
+                name = "Hydrodynamics_Comparison",
+                csvObject = sheets,
+                ui.input = input)
+    } else {
+      for (n in names(sheets)) {
+        save.csv(path = projectPath(), 
+                 name = paste("Hydrodynamics_Comparison", n, sep ="_"),
+                 csvObject = data.frame(sheets[n]),
+                 ui.input = input)
+      }
+    }
   })
   
   
-  #### Figures ####
-  #### Inundation #####
+  ### Figures           ####
+  #### Inundation       ####
   
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
@@ -1298,23 +1349,10 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.inundation.comparison <- renderPlot({
+  output$fig.inundation.comparison <- renderPlotly({
     fig.inundation.comparison()
   })
-  
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > Target)
-  observeEvent(input$save.fig.inundation.comparison, {
-    name = "DailyInundation_Comparison"
-    save.figure(
-      path = projectPath(),
-      name = name,
-      plotObject = fig.inundation.comparison(),
-      ui.input = input
-    )
-  })
-  
-  
+
   #### Current velocity #####
   
   #' Reactive variable holding the
@@ -1329,49 +1367,36 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.velocity.comparison <- renderPlot({
+  output$fig.velocity.comparison <- renderPlotly({
     fig.velocity.comparison()
   })
+
   
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > Target)
-  observeEvent(input$save.fig.velocity.comparison, {
-    name = "CurrentVelocity_Comparison"
+  #### Save all plots #####
+
+  #' Eventlistener to save comparison plots
+  #' (Hydrodynamics > Comparison)
+  observeEvent(input$save.fig.comparison, {
     save.figure(
       path = projectPath(),
-      name = name,
+      name = "DailyInundation_Comparison",
+      plotObject = fig.inundation.comparison(),
+      ui.input = input
+    )
+
+    save.figure(
+      path = projectPath(),
+      name = "CurrentVelocity_Comparison",
       plotObject = fig.velocity.comparison(),
       ui.input = input
     )
-  })
-  
-  
-  #### Parameter bar plot #####
-  
-  #' Reactive variable holding the
-  #' plot shown in Hydrodynamics > Target
-  fig.parameter.comparison <- reactive({
-    if (bool.no.target() | bool.no.reference()){
-      plot.emptyMessage("No figure available. Please upload data.")
-    } else {
-      plot.parameterComparison(stats.table = ComparisonStats()[["Comparison"]])
-    }
-  })
-  
-  #' Render plot shown in Hydrodynamics > Target
-  output$fig.parameter.comparison <- renderPlot({
-    fig.parameter.comparison()
-  })
-  
-  #' Eventlistener to save plot with inundation data
-  #' (Hydrodynamics > Target)
-  observeEvent(input$save.fig.parameter.comparison, {
-    name = "Parameter_Comparison"
+
     save.figure(
       path = projectPath(),
-      name = name,
+      name = "Parameter_Comparison",
       plotObject = fig.parameter.comparison(),
       ui.input = input
     )
   })
+  
 })

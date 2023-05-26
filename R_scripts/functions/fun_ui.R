@@ -22,42 +22,46 @@ output.html = function(outputID){
 
 #### STYLES ####
 
-actButton <- function(ID, label, type){
-  if (type == "saveCsv"){
+actButton <- function(ID, label, type, class="btn btn-default", addStyling = ""){
+  if (type == "saveCsv" | type == "saveFigure"){
     return(actionButton(ID, label,
-                        style = paste(buttonStyles("blue"), 
-                                      "margin-bottom: 2rem", sep = ";"),
-                        icon("file-download")))
+                        style = buttonStyles("blue", addStyling), 
+                        class=class,
+                        icon("file-download", style="margin-right:.5em")))
   }
-  if (type == "saveFigure"){
+  if (type == "create" | type == "update"){
     return(actionButton(ID, label,
-                        style = paste(buttonStyles("blue"), 
-                                      "margin-bottom: 2rem", sep = ";"),
-                        icon("file-download")))
+                        style = buttonStyles("green", addStyling), 
+                        class=class,
+                        icon("tag", style="margin-right:.5em")))
   }
-  if (type == "create"){
+  if (type == "grey"){
     return(actionButton(ID, label,
-                        style = paste(buttonStyles("green"),
-                                      "margin-bottom: 2rem", sep = ";"),
-                        icon("tag",style="margin-right:.5em")))
-  }
-  if (type == "update"){
-    return(actionButton(ID, label,
-                        style = buttonStyles("green"), 
-                        icon("broom")))
+                        style = buttonStyles("grey",  addStyling), 
+                        class=class,
+                        icon("broom", style="margin-right:.5em")))
   }
   
 }
 
-buttonStyles = function(type = "blue"){
+buttonStyles = function(type = "blue", addStyling = ""){
+  cc = "#444"         # font color
+  bckc = ""           # background color
+  bordc = ""          # border color
   if (type == "blue")
   { 
-    return("color: #fff; background-color: #3c8dbc; border-color: #2e6da4; margin-bottom: 2rem; margin-top: 2rem")
+    cc = "#fff"
+    bckc = "#3c8dbc"
+    bordc = "#2e6da4"
   }
   if (type == "green")
   {
-    return("color: #fff; background-color: #0F8B6E; border-color:  #175C4C; margin-bottom: 2rem; margin-top: 2rem")
-  }
+    cc = "#fff"
+    bckc = "#0F8B6E"
+    bordc = "#175C4C"
+  } 
+  return(paste("color: ", cc, "; background-color: ", bckc, "; border-color:  ", bordc, "; margin-bottom: 2rem; margin-top: 2rem; margin-right: 2rem;",
+               addStyling, sep = " "))
 }
 
 numericInputRow <- function(inputId, label, value = ""){

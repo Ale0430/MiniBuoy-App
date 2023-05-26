@@ -41,9 +41,12 @@ settingsOutput = function(){
              fluidRow(
                box(title="File output (optional)",
                    status="warning", solidHeader = F,
-                   collapsible = T, collapsed = T, 
+                   collapsible = T, collapsed = F, 
                    width=12,
                    p(em("Define attributes for output files (optional)")),
+                   selectInput("fileFor", "File format",
+                               c("csv"="csv",
+                                 "xlsx" = "xlsx")),
                    selectInput("figFor", "Figure format",
                                c("jpg"="jpg",
                                  "rdata" = "rdata",

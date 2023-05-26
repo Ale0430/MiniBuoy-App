@@ -2,24 +2,39 @@
 
 #### ABOUT ####
 
-introOutput = function(){
+
+introOutput = function() {
   fluidRow(
-    box(title = "The Mini Buoy" ,
-        status = "info", 
-        solidHeader = F, 
-        width = 6, 
-        height = "100%",
-        collapsible = T,
-        includeMarkdown("./man/MinibuoyIntro.md"),
-        column(12, img(src = 'MiniBuoyMotion.png', width = "100%"), align = "center")
+    box(
+      title = "The Mini Buoy" ,
+      status = "info",
+      solidHeader = F,
+      width = 6,
+      height = "100%",
+      collapsible = T,
+      includeMarkdown("./man/MinibuoyIntro_1.md"),
+      column(
+        12,
+        align = "center",
+        actionButton(
+          "handbook",
+          "Open handbook",
+          style = buttonStyles("green"),
+          onclick = "window.open('https://cailadd90.github.io/MiniBuoyHandbook/', '_blank')"
+        )
+      ),
+      includeMarkdown("./man/MinibuoyIntro_2.md"),
+      column(12, img(src = 'MiniBuoyMotion.png', width = "100%"), align = "center")
     ),
-    box(title = "Mini Buoy Models",
-        status = "info", 
-        solidHeader = F,
-        collapsible = T, 
-        width = 6, 
-        height = "100%",
-        box.settings_sensors())
+    box(
+      title = "Designs",
+      status = "info",
+      solidHeader = F,
+      collapsible = T,
+      width = 6,
+      height = "100%",
+      box.settings_sensors()
+    )
   )
 }
 

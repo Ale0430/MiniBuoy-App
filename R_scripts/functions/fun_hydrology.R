@@ -4,8 +4,18 @@
 #### Functions to calculate Hydrodynamic indicators ####
 
 #' Function to predict inundation status, current and wave orbital velocities:
-get.hydrodynamics = function(data, design, gaps = 20, full = 20, part = 90, tilt = 75) {
-  
+get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
+  if (is.data.frame(ui.input_settings)){
+    gaps = ui.input_settings$gaps
+    full = ui.input_settings$full
+    part = ui.input_settings$part
+    tilt = ui.input_settings$tilt
+  } else {
+    gaps = 20
+    full = 20
+    part = 90
+    tilt = 75
+  }
   # gaps: minimum gap in an inundation event to be closed (where points were misclassified as non inundated)
   # full: minimum duration of a fully inundated event (otherwise event is reclassified as partially inundated)
   # part: time window to search for partially inundated cases at the start and end of inundation events
@@ -415,7 +425,7 @@ get.stats.text = function(data){
       } else {
         '<b>symmetrical</b>, implying no net transport of coarse sediment.<br/><br/><br/>'
       },
-    'The longest window of opportunity was <b>, ',
+    'The longest window of opportunity was <b>',
     Statistics %>%
       filter(ParameterShort == 'MaxWoO') %>%
       select(Value) %>% round(., 1),
@@ -428,7 +438,7 @@ get.stats.text = function(data){
     } else {
       'which is too short to expect natural seedling establishment at this site.<br/><br/>'
     },
-    'Inundation frequency was <b>, ',
+    'Inundation frequency was <b>',
     Statistics %>%
       filter(ParameterShort == 'Inundation') %>%
       select(Value) %>% round(., 2),
@@ -475,11 +485,14 @@ get.stats.text = function(data){
 
 #' Function for site comparison
 get.comparison = function(stats.t, stats.r){ 
-  comparison = stats.t %>% 
-    left_join(., stats.r, 'Parameter') %>%
+  comparison = stats.t  %>% 
+    left_join(., stats.r %>% 
+                select(-Units), 'Parameter') %>%
     rename(Target = Value.x, Reference = Value.y) %>%
-    mutate('Difference Absolute' = Target - Reference, 
-           'Difference to Ref. (%)' = (Target - Reference) / Reference * 100) 
+    mutate(DifferenceAbsolute = Target - Reference, 
+           DifferencePercentage = DifferenceAbsolute / Reference * 100,
+           TargetIs = paste(round(abs(DifferencePercentage), 1),
+                               ifelse(DifferencePercentage > 0, "% higher", "% lower"))) 
   
   return(comparison)
 } 
