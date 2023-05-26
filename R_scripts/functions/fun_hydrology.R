@@ -15,14 +15,20 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     full = ui.input_settings$full
     part = ui.input_settings$part
     tilt = ui.input_settings$tilt
-    chop = 0
-    
+    chop = ui.input_settings$chop / 100
   } else {
     gaps = 20
     full = 20
     part = 90
     tilt = 75
-    chop = 1
+    chop = 0.5
+    if (chop < 1){
+      showNotification(paste("NOTE: ", chop * 100, 
+                             " % of the data are used in searching for partially 
+                           inundated cases. Refine proportion in custom settings.",
+                             sep = ""),
+                       type = "warning")
+    }
   }
 
   # calculate sampling rate (for selecting the correct current and wave orbital velocity calibration later on):

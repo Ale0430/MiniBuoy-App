@@ -57,6 +57,11 @@ hyd.target.box.settings = function(){
                      label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Tilt full inundation</abbr>"),
                      value = 75)          
       ),
+      sliderInput(inputId = "hydro.set.chop.target",
+                  label = HTML("<abbr title='Proportion of data to be used in searching for partially inundated cases (%)'>Proportion data</abbr>"),
+                  value = 50, step = 5,
+                  min = 20, max = 100,
+                  pre = "%"),
 
       actButton("hydro.set.apply.target", "Apply custom settings", "update"),
       actButton("hydro.set.reset.target", "Reset custom settings", "grey")
@@ -90,19 +95,10 @@ hyd.target.box.figures = function(){
     tabsetPanel(
       tabPanel("Daily inundation", br(),
                plotlyOutput("fig.inundation.target")),
-               # actButton("save.fig.inundation.target",
-               #           "Save figure", 
-               #           "saveFigure")),
       tabPanel("Current velocity", br(),
                plotlyOutput("fig.velocity.target")),
-               # actButton("save.fig.velocity.target",
-               #           "Save figure", 
-               #           "saveFigure")),
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.target")),
-               # actButton("save.fig.wave.velocity.target",
-               #           "Save figure", 
-               #           "saveFigure"))
     ),
     actButton("save.figs.target",
               "Download plots", 
@@ -167,6 +163,11 @@ hyd.reference.box.settings = function(){
                      label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Tilt full inundation</abbr>"),
                      value = 75)
       ),
+      sliderInput(inputId = "hydro.set.chop.reference",
+                  label = HTML("<abbr title='Proportion of data to be used in searching for partially inundated cases (%)'>Proportion data</abbr>"),
+                  value = 50, step = 5,
+                  min = 20, max = 100,
+                  pre = "%"),
       
       actButton("hydro.set.apply.reference", "Apply custom settings", "update"),
       actButton("hydro.set.reset.reference", "Reset custom settings", "grey")
