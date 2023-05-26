@@ -21,8 +21,6 @@ if(!require("data.table")) install.packages("data.table")
 if(!require("lubridate")) install.packages("lubridate")
 # Package to speed up date time transformation -> fastPOSIXct()
 if(!require("fasttime")) install.packages("fasttime") 
-# Package to modify ggplot axis -> args in scale_y_continuous
-if(!require("scales")) install.packages("scales")
 # Package to calculate running standard deviation -> runsd()
 if(!require("caTools")) install.packages("caTools")
 # Package to close gaps within inundation events -> na.approx()

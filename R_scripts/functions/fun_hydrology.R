@@ -167,7 +167,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     ungroup() %>%
     # reclassify the sequence of inundation events with corrected inundation status classification:
     mutate(
-      Event = recode(Status, 'N' = 0, 'P' = 0, 'F' = 1),
+      Event = recode(Status, 'N' = 0, 'P' = 1, 'F' = 1), # note: P = 1 to include partial cases in event classification and thus inundation duration
       Event = replace(cumsum(!Event), !Event, NA),
       Event = as.integer(factor((Event)))) %>%
     # remove any duplicates that may have been introduced:
@@ -227,58 +227,61 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
   data.classified = data.classified %>%
     mutate(Day = as.Date(datetime)) %>%
     left_join(FullCheck, by = c('Day')) %>%
-    dplyr::select(-Day) %>% 
-    mutate(Date = datetime)
+    dplyr::select(datetime, Tilt, Status, Event, Tide, CurrentVelocity, WaveOrbitalVelocity, FullDay) %>% 
+    mutate_if(is.character, as.factor)
   
   return(data.classified)
 }
 
 # List of functions for extracting hydrodynamic parameters:
-hydro.SurvMins           = function(data) { data %>% summarise(Value = difftime(max(Date), min(Date), units = 'mins')[[1]]) }
+hydro.SurvMins           = function(data) { data %>% summarise(Value = difftime(max(datetime), min(datetime), units = 'mins')[[1]]) }
 hydro.SurvDays           = function(data) { data %>% hydro.SurvMins() / 60 / 24 }
 hydro.NumEvents          = function(data) { data %>% na.omit() %>% summarise(Value = n_distinct(Event)) }
-hydro.DurEvents          = function(data) { data %>% group_by(Event) %>% na.omit() %>% summarise(Value = difftime(max(Date), min(Date), units = 'mins')[[1]]) }
+hydro.DurEvents          = function(data) { data %>% group_by(Event) %>% summarise(Value = difftime(max(datetime), min(datetime), units = 'mins')[[1]]) %>% na.omit() }
 hydro.IndDurMins         = function(data) { data %>% hydro.DurEvents() %>% summarise(Value = sum(Value)) }
 hydro.NonIndDurMins      = function(data) { data %>% summarise(hydro.SurvMins(.) - hydro.IndDurMins(.)) }
 hydro.IndDurPerc         = function(data) { data %>% summarise(hydro.IndDurMins(.) / hydro.SurvMins(.) * 100) }
 hydro.NonIndDurPerc      = function(data) { data %>% summarise(hydro.NonIndDurMins(.) / hydro.SurvMins(.) * 100) }
-hydro.IndDurDay          = function(data) { data %>% filter(FullDay == T) %>% group_by(floor_date(Date, 'days')) %>% summarise(Value = as.numeric(sum(!is.na(Event)) * (.$Date[2] - .$Date[1]))) %>% rename(datetime = 1) }
-hydro.NonIndDurDay       = function(data) { data %>% filter(FullDay == T) %>% group_by(floor_date(Date, 'days')) %>% summarise(Value = as.numeric(sum(is.na(Event)) * (.$Date[2] - .$Date[1]))) %>% rename(datetime = 1) }
+hydro.IndDurDay          = function(data) { data %>% filter(FullDay == T) %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = as.numeric(sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1]))) %>% rename(datetime = 1) }
+hydro.NonIndDurDay       = function(data) { data %>% filter(FullDay == T) %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = as.numeric(sum(is.na(Event)) * (.$datetime[2] - .$datetime[1]))) %>% rename(datetime = 1) }
 hydro.IndDurPercDay      = function(data) { data %>% hydro.IndDurDay()    %>% mutate(Value = (Value / 1440) * 100) }
 hydro.NonIndDurPercDay   = function(data) { data %>% hydro.NonIndDurDay() %>% mutate(Value = (Value / 1440) * 100) }
-hydro.IndFreqDay         = function(data) { data %>% filter(FullDay == T) %>% na.omit() %>% group_by(floor_date(Date, 'days')) %>% summarise(Value = n_distinct(Event)) %>% rename(datetime = 1) }
+hydro.IndFreqDay         = function(data) { data %>% filter(FullDay == T) %>% na.omit() %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = n_distinct(Event)) %>% rename(datetime = 1) }
 hydro.IndFreqDayMean     = function(data) { data %>% hydro.IndFreqDay()   %>% summarise(Value = mean(Value, na.rm = T)) }
 hydro.IndFreqDayMed      = function(data) { data %>% hydro.IndFreqDay()   %>% summarise(Value = median(Value, na.rm = T)) }
-hydro.MaxWoO             = function(data) { data %>% mutate(Value = ifelse(is.na(Event), 0, 1)) %>% summarise(data.frame(unclass(rle(Value))) %>% filter(values == 0)) %>% summarise(Value = as.numeric(max(lengths) * (data$Date[2] - data$Date[1]) / 60 / 24)) }
+# hydro.MaxWoO             = function(data) { data %>% mutate(Value = ifelse(is.na(Event), 0, 1)) %>% summarise(data.frame(unclass(rle(Value))) %>% filter(values == 0)) %>% summarise(Value = as.numeric(max(lengths) * (data$datetime[2] - data$datetime[1]) / 60 / 24)) }
+hydro.MaxWoO = function(data) { 
+  df = data %>% mutate(Value = ifelse(is.na(Event), 0, 1))
+  df = filter(data.frame(unclass(rle(df$Value))), values == 0)
+  df = as.numeric(max(df$lengths) * (data$datetime[2] - data$datetime[1]) / 60 / 24)
+  df = data.frame(df) %>% rename(Value = 1)
+  return(df) }
 
-# hydro.WoODurConsec           = function(data) { data %>% hydro.NonIndDurDay() %>% mutate(Value = ifelse(Value == 1440, 1, 0)) %>% reframe(data.frame(Value = rle(Value)$lengths, values = rle(Value)$values) %>% filter(values == 1) %>% select(Value)) }
-# hydro.WoODurConsecMax        = function(data) { data %>% hydro.WoODurConsec() %>% summarise(Value = max(Value)) } # was: ifelse(dim(hydro.WoODurConsec(data))[1] == 0, 0, max(hydro.WoODurConsec(data), na.rm = T))
-
-hydro.PeakCurEventTide   = function(data) { data %>% group_by(Event, Tide) %>% summarise(Value = max(CurrentVelocity)) }
+hydro.PeakCurEventTide   = function(data) { data %>% group_by(Event, Tide) %>% na.omit() %>% summarise(Value = max(CurrentVelocity)) }
 hydro.PeakCurEvent       = function(data) { data %>% group_by(Event)       %>% na.omit() %>% summarise(Value = max(CurrentVelocity)) }
-hydro.PeakCurDay         = function(data) { data %>% filter(FullDay == T)  %>% na.omit() %>% group_by(floor_date(Date, 'days')) %>% summarise(Value = max(CurrentVelocity)) %>% rename(datetime = 1) }
+hydro.PeakCurDay         = function(data) { data %>% filter(FullDay == T)  %>% na.omit() %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = max(CurrentVelocity)) %>% rename(datetime = 1) }
 hydro.UpperQCurEventTide = function(data) { data %>% group_by(Event, Tide) %>% na.omit() %>% summarise(Value = quantile(CurrentVelocity, 0.75, names = F)) }
 hydro.UpperQCurEvent     = function(data) { data %>% group_by(Event)       %>% na.omit() %>% summarise(Value = quantile(CurrentVelocity, 0.75, names = F)) }
-hydro.UpperQCurDay       = function(data) { data %>% filter(FullDay == T)  %>% na.omit() %>% group_by(floor_date(Date, 'days')) %>% summarise(Value = quantile(CurrentVelocity, 0.75, names = F)) %>% rename(datetime = 1) }
+hydro.UpperQCurDay       = function(data) { data %>% filter(FullDay == T)  %>% na.omit() %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = quantile(CurrentVelocity, 0.75, names = F)) %>% rename(datetime = 1) }
 hydro.MeanCurEventTide   = function(data) { data %>% group_by(Event, Tide) %>% na.omit() %>% summarise(Value = mean(CurrentVelocity)) }
 hydro.MeanCurEvent       = function(data) { data %>% group_by(Event)       %>% na.omit() %>% summarise(Value = mean(CurrentVelocity)) }
-hydro.MeanCurDay         = function(data) { data %>% filter(FullDay == T)  %>% na.omit() %>% group_by(floor_date(Date, 'days')) %>% summarise(Value = mean(CurrentVelocity)) %>% rename(datetime = 1) }
+hydro.MeanCurDay         = function(data) { data %>% filter(FullDay == T)  %>% na.omit() %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = mean(CurrentVelocity)) %>% rename(datetime = 1) }
 hydro.MedCurEventTide    = function(data) { data %>% group_by(Event, Tide) %>% na.omit() %>% summarise(Value = median(CurrentVelocity)) }
 hydro.MedCurEvent        = function(data) { data %>% group_by(Event)       %>% na.omit() %>% summarise(Value = median(CurrentVelocity)) }
-hydro.MedCurDay          = function(data) { data %>% filter(FullDay == T)  %>% na.omit() %>% group_by(floor_date(Date, 'days')) %>% summarise(Value = median(CurrentVelocity)) %>% rename(datetime = 1) }
+hydro.MedCurDay          = function(data) { data %>% filter(FullDay == T)  %>% na.omit() %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = median(CurrentVelocity)) %>% rename(datetime = 1) }
 hydro.CurPeak            = function(data) { data %>% na.omit() %>% summarise(Value = max(CurrentVelocity)) }
 hydro.CurUpperQ          = function(data) { data %>% na.omit() %>% summarise(Value = quantile(CurrentVelocity, 0.75, names = F)) }
 hydro.CurMean            = function(data) { data %>% na.omit() %>% summarise(Value = mean(CurrentVelocity)) }
 hydro.CurMed             = function(data) { data %>% na.omit() %>% summarise(Value = median(CurrentVelocity)) }
 
 hydro.PeakWaveEvent      = function(data) { data %>% group_by(Event)      %>% na.omit() %>% summarise(Value = max(WaveOrbitalVelocity)) }
-hydro.PeakWaveDay        = function(data) { data %>% filter(FullDay == T) %>% na.omit() %>% group_by(floor_date(Date, 'days')) %>% summarise(Value = max(WaveOrbitalVelocity)) %>% rename(datetime = 1) }
+hydro.PeakWaveDay        = function(data) { data %>% filter(FullDay == T) %>% na.omit() %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = max(WaveOrbitalVelocity)) %>% rename(datetime = 1) }
 hydro.UpperQWaveEvent    = function(data) { data %>% group_by(Event)      %>% na.omit() %>% summarise(Value = quantile(WaveOrbitalVelocity, 0.75, names = F)) }
-hydro.UpperQWaveDay      = function(data) { data %>% filter(FullDay == T) %>% na.omit() %>% group_by(floor_date(Date, 'days')) %>% summarise(Value = quantile(WaveOrbitalVelocity, 0.75, names = F)) %>% rename(datetime = 1) }
+hydro.UpperQWaveDay      = function(data) { data %>% filter(FullDay == T) %>% na.omit() %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = quantile(WaveOrbitalVelocity, 0.75, names = F)) %>% rename(datetime = 1) }
 hydro.MeanWaveEvent      = function(data) { data %>% group_by(Event)      %>% na.omit() %>% summarise(Value = mean(WaveOrbitalVelocity)) }
-hydro.MeanWaveDay        = function(data) { data %>% filter(FullDay == T) %>% na.omit() %>% group_by(floor_date(Date, 'days')) %>% summarise(Value = mean(WaveOrbitalVelocity)) %>% rename(datetime = 1) }
+hydro.MeanWaveDay        = function(data) { data %>% filter(FullDay == T) %>% na.omit() %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = mean(WaveOrbitalVelocity)) %>% rename(datetime = 1) }
 hydro.MedWaveEvent       = function(data) { data %>% group_by(Event)      %>% na.omit() %>% summarise(Value = median(WaveOrbitalVelocity)) }
-hydro.MedWaveDay         = function(data) { data %>% filter(FullDay == T) %>% na.omit() %>% group_by(floor_date(Date, 'days')) %>% summarise(Value = median(WaveOrbitalVelocity)) %>% rename(datetime = 1) }
+hydro.MedWaveDay         = function(data) { data %>% filter(FullDay == T) %>% na.omit() %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = median(WaveOrbitalVelocity)) %>% rename(datetime = 1) }
 hydro.WavePeak           = function(data) { data %>% na.omit() %>% summarise(Value = max(WaveOrbitalVelocity)) }
 hydro.WaveUpperQ         = function(data) { data %>% na.omit() %>% summarise(Value = quantile(WaveOrbitalVelocity, 0.75, names = F)) }
 hydro.WaveMean           = function(data) { data %>% na.omit() %>% summarise(Value = mean(WaveOrbitalVelocity)) }
@@ -317,19 +320,19 @@ get.summary.statisics = function(data) {
 get.daily.statistics = function(data) {
   
   rbind.data.frame(
-    cbind(Parameter = 'Inundation duration',        Units = '[min]', hydro.IndDurDay(data)),
-    cbind(Parameter = 'Emersion duration',          Units = '[min]', hydro.NonIndDurDay(data)),
-    cbind(Parameter = 'Inundation proportion',      Units = '[%]',   hydro.IndDurPercDay(data)),
-    cbind(Parameter = 'Emersion proportion',        Units = '[%]',   hydro.NonIndDurPercDay(data)),
-    cbind(Parameter = 'Inundation frequency',       Units = '[n]',   hydro.IndFreqDay(data)),
-    cbind(Parameter = 'Peak current velocity',      Units = '[m/s]', hydro.PeakCurDay(data)),
-    cbind(Parameter = 'Upper current velocity',     Units = '[m/s]', hydro.UpperQCurDay(data)),
-    cbind(Parameter = 'Mean current velocity',      Units = '[m/s]', hydro.MeanCurDay(data)),
-    cbind(Parameter = 'Medain current velocity',    Units = '[m/s]', hydro.MedCurDay(data)),
-    cbind(Parameter = 'Peak wave orbital velocity', Units = '[m/s]', hydro.PeakWaveDay(data)),
-    cbind(Parameter = 'Upper current velocity',     Units = '[m/s]', hydro.UpperQWaveDay(data)),
-    cbind(Parameter = 'Mean current velocity',      Units = '[m/s]', hydro.MeanWaveDay(data)),
-    cbind(Parameter = 'Median current velocity',    Units = '[m/s]', hydro.MedWaveDay(data)))
+    cbind(Parameter = 'Inundation duration',          Units = '[min]', hydro.IndDurDay(data)),
+    cbind(Parameter = 'Emersion duration',            Units = '[min]', hydro.NonIndDurDay(data)),
+    cbind(Parameter = 'Inundation proportion',        Units = '[%]',   hydro.IndDurPercDay(data)),
+    cbind(Parameter = 'Emersion proportion',          Units = '[%]',   hydro.NonIndDurPercDay(data)),
+    cbind(Parameter = 'Inundation frequency',         Units = '[n]',   hydro.IndFreqDay(data)),
+    cbind(Parameter = 'Peak current velocity',        Units = '[m/s]', hydro.PeakCurDay(data)),
+    cbind(Parameter = 'Upper current velocity',       Units = '[m/s]', hydro.UpperQCurDay(data)),
+    cbind(Parameter = 'Mean current velocity',        Units = '[m/s]', hydro.MeanCurDay(data)),
+    cbind(Parameter = 'Median current velocity',      Units = '[m/s]', hydro.MedCurDay(data)),
+    cbind(Parameter = 'Peak wave orbital velocity',   Units = '[m/s]', hydro.PeakWaveDay(data)),
+    cbind(Parameter = 'Upper wave orbital velocity',  Units = '[m/s]', hydro.UpperQWaveDay(data)),
+    cbind(Parameter = 'Mean wave orbital velocity',   Units = '[m/s]', hydro.MeanWaveDay(data)),
+    cbind(Parameter = 'Median wave orbital velocity', Units = '[m/s]', hydro.MedWaveDay(data)))
   
 }
 

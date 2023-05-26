@@ -121,7 +121,7 @@ plot.control = function(data, chop = 0.5) {
   return(
     data %>%
       slice(round(seq(1, n(), length.out = (chop * n())), 0)) %>%
-      ggplot(aes(Date, Tilt, colour = Status)) +
+      ggplot(aes(x = datetime, y = Tilt, colour = Status)) +
       geom_point(size = 0.1) +
       scale_x_datetime(date_labels = '%e %b') +
       scale_y_continuous(limits = c(0, 90), breaks = seq(0, 90, 30)) +
@@ -151,7 +151,6 @@ plot.inundation = function(data) {
             colour = 'lightblue'
          ) +
          scale_y_continuous(expand = expansion(mult = c(0, .1)), 
-                            label = comma,
                             sec.axis = sec_axis(trans=~./60,
                                                 name = 'Daily inundation (hours/day)')) +
          labs(y = 'Daily inundation (min/day)') +
@@ -272,7 +271,6 @@ plot.inundationComparison = function(data.t, data.r){
              geom_bar(stat = 'identity', position = 'dodge') +
              scale_fill_manual(values = defaultColors) +
              scale_y_continuous(expand = expansion(mult = c(0, .1)),
-                                label = comma,
                                 sec.axis = sec_axis(trans=~./60,
                                                     name = 'Daily inundation (hours/day)')) +
              labs(y = 'Daily inundation (min/day)',
