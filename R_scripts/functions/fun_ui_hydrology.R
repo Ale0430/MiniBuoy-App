@@ -93,12 +93,16 @@ hyd.target.box.table = function(){
 hyd.target.box.figures = function(){
   return(list(
     tabsetPanel(
+      tabPanel("Raw data", br(),
+               plotlyOutput("fig.control.target")),
       tabPanel("Daily inundation", br(),
                plotlyOutput("fig.inundation.target")),
       tabPanel("Current velocity", br(),
                plotlyOutput("fig.velocity.target")),
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.target")),
+      tabPanel("Velocity stage plot", br(),
+               plotOutput("fig.stage.target")),
     ),
     actButton("save.figs.target",
               "Download plots", 
@@ -197,6 +201,11 @@ hyd.reference.box.table = function(){
 hyd.reference.box.figures = function(){
   return(list(
     tabsetPanel(
+      tabPanel("Raw data", br(),
+               plotlyOutput("fig.control.reference"),
+               actButton("save.fig.control.reference",
+                         "Save figure", 
+                         "saveFigure")),
       tabPanel("Daily inundation", br(),
                plotlyOutput("fig.inundation.reference"),
                actButton("save.fig.inundation.reference",
@@ -211,7 +220,12 @@ hyd.reference.box.figures = function(){
                plotlyOutput("fig.wave.velocity.reference"),
                actButton("save.fig.wave.velocity.reference",
                          "Save figure", 
-                         "saveFigure"))
+                         "saveFigure")),
+      tabPanel("Velocity stage plot", br(),
+               plotlyOutput("fig.stage.reference"),
+               actButton("save.fig.stage.reference",
+                         "Save figure", 
+                         "saveFigure")),
     ))
   )
 }
@@ -265,6 +279,9 @@ hyd.comparison.box.table = function(){
 hyd.comparison.box.figures = function(){
   return(list(
     tabsetPanel(
+      tabPanel("Raw data", br(),
+               plotlyOutput("fig.control.comparison")),
+      
       tabPanel("Daily inundation", br(),
                plotlyOutput("fig.inundation.comparison")),
       
