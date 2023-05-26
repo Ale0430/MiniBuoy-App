@@ -189,7 +189,6 @@ plot.waveVelocity = function(data) {
 plot.stage = function(data, design) {
   return(
     data %>%
-      na.omit() %>%
       group_by(Event, Tide) %>%
       mutate(
         HighTide = ifelse(Tide == 'Flood', (0:n()/n()* 100), (n():0)/n() * 100),
@@ -197,6 +196,7 @@ plot.stage = function(data, design) {
       group_by(Event) %>%
       mutate(Size = length(Event)) %>%
       ungroup() %>%
+      na.omit() %>%
       filter(Size == max(Size)) %>%
       ggplot(aes(Velocity, HighTide)) +
       geom_segment((aes(xend = c(tail(Velocity, n = -1), NA),
