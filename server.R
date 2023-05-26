@@ -1403,24 +1403,6 @@ shinyServer(function(input, output, session) {
   
   
   ### Figures           ####
-  #### Control #####
-  #' Reactive variable holding the
-  #' plot shown in Hydrodynamics > Comparison
-  fig.control.comparison <- reactive({
-    if (bool.no.target() | bool.no.reference()){
-      plot.emptyMessage("No figure available. Please upload data.")
-    } else {
-      subplot(list(plot.control(ComparisonStats()[["Target"]]), 
-                   plot.control(ComparisonStats()[["Reference"]])))
-    }
-  })
-  
-  #' Render plot shown in Hydrodynamics > Target
-  output$fig.control.comparison <- renderPlotly({
-    fig.control.comparison()
-  })
-  
-  
   #### Inundation       ####
   
   #' Reactive variable holding the

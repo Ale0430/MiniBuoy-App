@@ -267,12 +267,8 @@ hyd.comparison.box.table = function(){
 hyd.comparison.box.figures = function(){
   return(list(
     tabsetPanel(
-      tabPanel("Raw data", br(),
-               plotlyOutput("fig.control.comparison")),
-      
       tabPanel("Daily inundation", br(),
                plotlyOutput("fig.inundation.comparison")),
-      
       tabPanel("Current velocity", br(),
                plotlyOutput("fig.velocity.comparison"))
     ),
