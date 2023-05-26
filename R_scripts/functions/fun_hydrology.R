@@ -498,17 +498,45 @@ get.stats.text = function(data){
   return(m)
 }
 
-#' Function for site comparison
-get.comparison = function(stats.t, stats.r){ 
-  comparison = stats.t  %>% 
-    left_join(., stats.r %>% 
-                select(-Units), 'Parameter') %>%
-    rename(Target = Value.x, Reference = Value.y) %>%
-    mutate(DifferenceAbsolute = Target - Reference, 
-           DifferencePercentage = DifferenceAbsolute / Reference * 100,
-           TargetIs = paste(round(abs(DifferencePercentage), 1),
-                               ifelse(DifferencePercentage > 0, "% higher", "% lower"))) 
+
+#' Function for statistical comparison of each parameter in site comparison
+#' hydro.t, hydro.r: TargetHydro, ReferenceHydro
+get.comparison = function(hydro.t, hydro.r, stats.t, stats.r) { 
+  
+  # Get summary statistics:
+  summary.r = stats.r %>% rename(Reference = Value)
+  summary.t = stats.t %>% rename(Target = Value)
+  summary.c = left_join(summary.r, summary.t, by = c('Parameter', 'Units')) %>%
+    mutate(Target               = round(Target, 2),
+           Reference            = round(Reference, 2),
+           DifferencePercentage = (Target - Reference) / Target * 100,
+           TargetIs             = paste0(round(abs(DifferencePercentage), 1),
+                                         ifelse(DifferencePercentage > 0, '% higher', '% lower')))
+  
+  # Get event statistics:
+  event.t = get.event.statistics(hydro.t) %>% mutate(Site = 'Target')
+  event.r = get.event.statistics(hydro.r) %>% mutate(Site = 'Reference')
+  event.c = bind_rows(event.t, event.r) %>%
+    spread(Site, Value) %>%
+    group_by(Parameter, Units) %>%
+    summarise(p.value   = wilcox.test(Target, Reference, exact = F)$p.value) %>%
+    mutate(SignificantlyDifferent = ifelse(p.value < 0.05, 'Yes', 'No'))
+  
+  comparison = left_join(summary.c, event.c, by = c('Parameter', 'Units')) %>%
+    filter(Parameter %in% c('Survey days',
+                            'Inundation events',
+                            'Median inundation frequency',
+                            'Maximum Window of Opportunity',
+                            'Inundation proportion',
+                            'Mean current velocity', 
+                            'Peak current velocity',
+                            'Mean wave orbital velocity',
+                            'Peak wave orbital velocity',
+                            'Peak ebb-flood ratio')) %>%
+    select(Parameter, Units, Reference, Target, SignificantlyDifferent, TargetIs)
   
   return(comparison)
-} 
+  
+}
+
 
