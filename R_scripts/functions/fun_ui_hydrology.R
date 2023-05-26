@@ -40,23 +40,28 @@ hyd.target.box.settings = function(){
     list(
       uiOutput("hydro.window.target.show"),
 
-      # Default values: gaps = 20, full = 20, part = 90, tilt = 75
+      # Default values: gaps = 20, full = 20, part = 90, tilt = 75, chop = 50
       splitLayout(
         numericInput(inputId = "hydro.set.gaps.target",
                      label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated (minutes)'>Minimum gap</abbr>"),
                      value = 20),
         numericInput(inputId = "hydro.set.part.target",
-                     label = HTML("<abbr title='Time window to search for partially inundated cases at the start and end of inundation events (minutes).'>Partial inundation window</abbr>"),
+                     label = HTML("<abbr title='Time window to search for partially inundated cases at the start and end of inundation events (minutes).'>Search window</abbr>"),
                      value = 90)
         ),
       splitLayout(
         numericInput(inputId = "hydro.set.full.target",
-                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated (minutes)'>Minimum full inundation</abbr>"),
+                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated (minutes)'>Minimum duration</abbr>"),
                      value = 20),
         numericInput(inputId = "hydro.set.tilt.target",
-                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Tilt full inundation</abbr>"),
+                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Minimun tilt</abbr>"),
                      value = 75)          
       ),
+      sliderInput(inputId = "hydro.set.chop.target",
+                  label = HTML("<abbr title='Using less data increases the speed of the analysis and has a minimal effect on the accuracy of detecting partially inundated cases. (%)'>Partial data search</abbr>"),
+                  value = 50, step = 5,
+                  min = 20, max = 100,
+                  pre = "%"),
 
       actButton("hydro.set.apply.target", "Apply custom settings", "update"),
       actButton("hydro.set.reset.target", "Reset custom settings", "grey")
@@ -90,19 +95,10 @@ hyd.target.box.figures = function(){
     tabsetPanel(
       tabPanel("Daily inundation", br(),
                plotlyOutput("fig.inundation.target")),
-               # actButton("save.fig.inundation.target",
-               #           "Save figure", 
-               #           "saveFigure")),
       tabPanel("Current velocity", br(),
                plotlyOutput("fig.velocity.target")),
-               # actButton("save.fig.velocity.target",
-               #           "Save figure", 
-               #           "saveFigure")),
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.target")),
-               # actButton("save.fig.wave.velocity.target",
-               #           "Save figure", 
-               #           "saveFigure"))
     ),
     actButton("save.figs.target",
               "Download plots", 
@@ -150,23 +146,28 @@ hyd.reference.box.settings = function(){
     list(
       uiOutput("hydro.window.reference.show"),
       
-      # Default values: gaps = 20, full = 20, part = 90, tilt = 75
+      # Default values: gaps = 20, full = 20, part = 90, tilt = 75, chop = 50
       splitLayout(
         numericInput(inputId = "hydro.set.gaps.reference",
                      label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated (minutes)'>Minimum gap</abbr>"),
                      value = 20),
         numericInput(inputId = "hydro.set.part.reference",
-                     label = HTML("<abbr title='Time window to search for partially inundated cases at the start and end of inundation events (minutes).'>Partial inundation window</abbr>"),
+                     label = HTML("<abbr title='Time window to search for partially inundated cases at the start and end of inundation events (minutes).'>Search window</abbr>"),
                      value = 90)
       ),
       splitLayout(
         numericInput(inputId = "hydro.set.full.reference",
-                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated (minutes)'>Minimum full inundation</abbr>"),
+                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated (minutes)'>Minimum duration</abbr>"),
                      value = 20),
         numericInput(inputId = "hydro.set.tilt.reference",
-                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Tilt full inundation</abbr>"),
+                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Minimun tilt</abbr>"),
                      value = 75)
       ),
+      sliderInput(inputId = "hydro.set.chop.reference",
+                  label = HTML("<abbr title='Using less data increases the speed of the analysis and has a minimal effect on the accuracy of detecting partially inundated cases. (%)'>Partial data search</abbr>"),
+                  value = 50, step = 5,
+                  min = 20, max = 100,
+                  pre = "%"),
       
       actButton("hydro.set.apply.reference", "Apply custom settings", "update"),
       actButton("hydro.set.reset.reference", "Reset custom settings", "grey")
