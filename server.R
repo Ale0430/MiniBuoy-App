@@ -1319,7 +1319,7 @@ shinyServer(function(input, output, session) {
       plot.emptyMessage(text.too.short)
     } else {
       plot.stage(data   = ReferenceHydro(),
-                 design = get.design.T())
+                 design = get.design.R())
     }
   })
   
