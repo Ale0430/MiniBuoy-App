@@ -910,16 +910,20 @@ shinyServer(function(input, output, session) {
   ### Figures ####
   #### Inundation #####
   
-  #' Reactive variable holding the
-  #' plot shown in Hydrodynamics > Target
-  fig.inundation.target <- reactive({
+  fig.helper.target = function(actual.plot.function){
     if (bool.no.target()){
       plot.emptyMessage("No figure available. Please upload data.")
     } else if (is.null(TargetHydroStats())) {
       plot.emptyMessage(text.too.short)
-      } else {
-        plot.inundation(data = TargetHydro())
+    } else {
+      actual.plot.function
     }
+  }
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.inundation.target <- reactive({
+    fig.helper.target(plot.inundation(data = TargetHydro()))
   })
   
   #' Render plot shown in Hydrodynamics > Target
@@ -932,13 +936,7 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
   fig.control.target <- reactive({
-    if (bool.no.target()){
-      plot.emptyMessage("No figure available. Please upload data.")
-    } else if (is.null(TargetHydroStats())) {
-      plot.emptyMessage(text.too.short)
-    } else {
-      plot.control(data = TargetHydro())
-    }
+    fig.helper.target(plot.control(data = TargetHydro()))
   })
   
   #' Render plot shown in Hydrodynamics > Target
@@ -952,13 +950,7 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
   fig.velocity.target <- reactive({
-    if (bool.no.target()) {
-      plot.emptyMessage("No figure available. Please upload data.")
-    } else if (is.null(TargetHydroStats())) {
-      plot.emptyMessage(text.too.short)
-    } else {
-      plot.velocity(data = TargetHydro())
-    }
+    fig.helper.target(plot.velocity(data = TargetHydro()))
   })
   
   #' Render plot shown in Hydrodynamics > Target
@@ -972,18 +964,13 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
   fig.wave.velocity.target <- reactive({
-    if (bool.no.target()) {
-      plot.emptyMessage("No figure available. Please upload data.")
-    } else if (is.null(TargetHydroStats())) {
-      plot.emptyMessage(text.too.short)
+    design = get.design.T()
+    if (design == "B4+"){
+      fig.helper.target(plot.waveVelocity(data = TargetHydro()))
     } else {
-      design = get.design.T()
-      if (design == "B4+"){
-        plot.waveVelocity(data = TargetHydro())
-      } else {
-        plot.emptyMessage(paste("'", design, "' Mini Buoy design does not measure wave orbital velocity",
-                                sep = ""))
-      }
+      plot.emptyMessage(paste("'", design, 
+                              "' Mini Buoy design does not measure wave orbital velocity",
+                              sep = ""))
     }
   })
   
@@ -999,14 +986,8 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
   fig.stage.target <- reactive({
-    if (bool.no.target()) {
-      plot.emptyMessage("No figure available. Please upload data.")
-    } else if (is.null(TargetHydroStats())) {
-      plot.emptyMessage(text.too.short)
-    } else {
-      plot.stage(data   = TargetHydro(),
-                 design = get.design.T())
-    }
+    fig.helper.target(plot.stage(data   = TargetHydro(),
+                                 design = get.design.T()))
   })
   
   #' Render plot shown in Hydrodynamics > Target
@@ -1224,18 +1205,23 @@ shinyServer(function(input, output, session) {
   })
   
   ### Figures         ####
+  
+  fig.helper.reference = function(actual.plot.function){
+    if (bool.no.reference()){
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else if (is.null(ReferenceHydroStats())) {
+      plot.emptyMessage(text.too.short)
+    } else {
+      actual.plot.function
+    }
+  }
+  
   #### Inundation #####
   
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Reference
   fig.inundation.reference <- reactive({
-    if (bool.no.reference()){
-      plot.emptyMessage("No figure available. Please upload data.")
-    } else if (is.null(ReferenceHydroStats())){
-      print(text.too.short)
-    } else {
-      plot.inundation(data = ReferenceHydro())
-    }
+    fig.helper.reference(plot.inundation(data = ReferenceHydro()))
   })
   
   #' Render plot shown in Hydrodynamics > Reference
@@ -1247,13 +1233,7 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
   fig.control.reference <- reactive({
-    if (bool.no.target()){
-      plot.emptyMessage("No figure available. Please upload data.")
-    } else if (is.null(ReferenceHydroStats())) {
-      plot.emptyMessage(text.too.short)
-    } else {
-      plot.control(data = ReferenceHydro())
-    }
+    fig.helper.reference(plot.control(data = ReferenceHydro()))
   })
   
   #' Render plot shown in Hydrodynamics > Target
@@ -1267,13 +1247,7 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > reference
   fig.velocity.reference <- reactive({
-    if (bool.no.reference()) {
-      plot.emptyMessage("No figure available. Please upload data.")
-    } else if (is.null(ReferenceHydroStats())){
-      print(text.too.short)
-    } else {
-      plot.velocity(data = ReferenceHydro())
-    }
+    fig.helper.reference(plot.velocity(data = ReferenceHydro()))
   })
   
   #' Render plot shown in Hydrodynamics > reference
@@ -1287,19 +1261,13 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > reference
   fig.wave.velocity.reference <- reactive({
-    if (bool.no.reference()) {
-      plot.emptyMessage("No figure available. Please upload data.")
-    } else if (is.null(ReferenceHydroStats())){
-      print(text.too.short)
+    design = get.design.R()
+    if (design == "B4+"){
+      fig.helper.reference(plot.waveVelocity(data = ReferenceHydro()))
     } else {
-      design = get.design.R()
-      if (design == "B4+"){
-        plot.waveVelocity(data = ReferenceHydro())
-      } else {
-        plot.emptyMessage(paste("'", design, 
-                                "' Mini Buoy design does not measure wave orbital velocity",
-                                sep = ""))
-      }
+      plot.emptyMessage(paste("'", design, 
+                              "' Mini Buoy design does not measure wave orbital velocity",
+                              sep = ""))
     }
   })
   
@@ -1313,14 +1281,8 @@ shinyServer(function(input, output, session) {
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Reference
   fig.stage.reference <- reactive({
-    if (bool.no.reference()) {
-      plot.emptyMessage("No figure available. Please upload data.")
-    } else if (is.null(ReferenceHydroStats())) {
-      plot.emptyMessage(text.too.short)
-    } else {
-      plot.stage(data   = ReferenceHydro(),
-                 design = get.design.R())
-    }
+    fig.helper.reference(plot.stage(data   = ReferenceHydro(),
+                                    design = get.design.R()))
   })
   
   #' Render plot shown in Hydrodynamics > Reference
@@ -1332,10 +1294,10 @@ shinyServer(function(input, output, session) {
   
   #' Eventlistener to save hydro plots
   #' (Hydrodynamics > Target)
-  observeEvent(input$save.figs.target, {
+  observeEvent(input$save.figs.reference, {
     save.figure(
       path = projectPath(),
-      name = "DailyInundation_Target",
+      name = "DailyInundation_Reference",
       plotObject = fig.inundation.reference(),
       ui.input = input
     )
@@ -1347,13 +1309,13 @@ shinyServer(function(input, output, session) {
     )
     save.figure(
       path = projectPath(),
-      name = "CurrentVelocity_Target",
+      name = "CurrentVelocity_Reference",
       plotObject = fig.velocity.reference(),
       ui.input = input
     )
     save.figure(
       path = projectPath(),
-      name = "WaveOrbitalVelocity_Target",
+      name = "WaveOrbitalVelocity_Reference",
       plotObject = fig.wave.velocity.reference(),
       ui.input = input
     )

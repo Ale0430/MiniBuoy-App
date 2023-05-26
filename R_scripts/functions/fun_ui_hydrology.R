@@ -202,32 +202,20 @@ hyd.reference.box.figures = function(){
   return(list(
     tabsetPanel(
       tabPanel("Raw data", br(),
-               plotlyOutput("fig.control.reference"),
-               actButton("save.fig.control.reference",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.control.reference")),
       tabPanel("Daily inundation", br(),
-               plotlyOutput("fig.inundation.reference"),
-               actButton("save.fig.inundation.reference",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.inundation.reference")),
       tabPanel("Current velocity", br(),
-               plotlyOutput("fig.velocity.reference"),
-               actButton("save.fig.velocity.reference",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.velocity.reference")),
       tabPanel("Wave orbital velocity", br(),
-               plotlyOutput("fig.wave.velocity.reference"),
-               actButton("save.fig.wave.velocity.reference",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.wave.velocity.reference")),
       tabPanel("Velocity stage plot", br(),
-               plotlyOutput("fig.stage.reference"),
-               actButton("save.fig.stage.reference",
-                         "Save figure", 
-                         "saveFigure")),
-    ))
-  )
+               plotlyOutput("fig.stage.reference")),
+    ),
+    actButton("save.figs.reference",
+              "Download plots", 
+              "saveFigure")
+  ))
 }
 
 
