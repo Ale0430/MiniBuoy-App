@@ -22,7 +22,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     part = 90
     tilt = 75
     chop = 0.5
-    if (chop < 1){
+    if (chop < 1 & nrow(data) > 0){
       showNotification(paste("NOTE: ", chop * 100, 
                              " % of the data are used in searching for partially 
                            inundated cases. Refine proportion in custom settings.",

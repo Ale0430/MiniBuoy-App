@@ -891,20 +891,28 @@ shinyServer(function(input, output, session) {
   #' Eventlistener to save hydrodynamics summary target
   #' (Hydrodynamics > Summary table)
   observeEvent(input$hydro.table.target.save, {
-    sheets = get.xlsx.object.target()
-    if (input$fileFor == "xlsx"){
-      save.xlsx(path = projectPath(), 
-                name = "Hydrodynamics_Target",
-                csvObject = sheets,
-                ui.input = input)
-    } else {
-      for (n in names(sheets)) {
-        save.csv(path = projectPath(), 
-                 name = paste("Hydrodynamics_Target", n, sep ="_"),
-                 csvObject = data.frame(sheets[n]),
-                 ui.input = input)
+    tryCatch(
+      {
+        sheets = get.xlsx.object.target()
+        if (input$fileFor == "xlsx"){
+          save.xlsx(path = projectPath(), 
+                    name = "Hydrodynamics_Target",
+                    csvObject = sheets,
+                    ui.input = input)
+        } else {
+          for (n in names(sheets)) {
+            save.csv(path = projectPath(), 
+                     name = paste("Hydrodynamics_Target", n, sep ="_"),
+                     csvObject = data.frame(sheets[n]),
+                     ui.input = input)
+          }
+        }
+      },
+      error=function(e) {
+        showNotification("Error: No results available!",
+                         type = "error")
       }
-    }
+    )
   })
 
   ### Figures ####
@@ -1152,20 +1160,28 @@ shinyServer(function(input, output, session) {
   #' Eventlistener to save hydrodynamics summary reference
   #' (Hydrodynamics > Summary table)
   observeEvent(input$hydro.table.reference.save, {
-    sheets = get.xlsx.object.reference()
-    if (input$fileFor == "xlsx"){
-      save.xlsx(path = projectPath(), 
-                name = "Hydrodynamics_Reference",
-                csvObject =  sheets,
-                ui.input = input)
-    } else {
-      for (n in names(sheets)) {
-        save.csv(path = projectPath(), 
-                 name = paste("Hydrodynamics_Reference", n, sep ="_"),
-                 csvObject = data.frame(sheets[n]),
-                 ui.input = input)
+    tryCatch(
+      {
+        sheets = get.xlsx.object.reference()
+        if (input$fileFor == "xlsx"){
+          save.xlsx(path = projectPath(), 
+                    name = "Hydrodynamics_Reference",
+                    csvObject =  sheets,
+                    ui.input = input)
+        } else {
+          for (n in names(sheets)) {
+            save.csv(path = projectPath(), 
+                     name = paste("Hydrodynamics_Reference", n, sep ="_"),
+                     csvObject = data.frame(sheets[n]),
+                     ui.input = input)
+          }
+        }
+      },
+      error=function(e) {
+        showNotification("Error: No results available!",
+                         type = "error")
       }
-    }
+    )
   })
   
   ### Figures         ####
@@ -1319,20 +1335,28 @@ shinyServer(function(input, output, session) {
   #' Eventlistener to save hydrodynamics summary comparison
   #' (Hydrodynamics > Summary table)
   observeEvent(input$comparison.table.save, {
-    sheets = get.xlsx.object.reference()
-    if (input$fileFor == "xlsx"){
-      save.xlsx(path = projectPath(), 
-                name = "Hydrodynamics_Comparison",
-                csvObject = sheets,
-                ui.input = input)
-    } else {
-      for (n in names(sheets)) {
-        save.csv(path = projectPath(), 
-                 name = paste("Hydrodynamics_Comparison", n, sep ="_"),
-                 csvObject = data.frame(sheets[n]),
-                 ui.input = input)
+    tryCatch(
+      {
+        sheets = get.xlsx.object.reference()
+        if (input$fileFor == "xlsx"){
+          save.xlsx(path = projectPath(), 
+                    name = "Hydrodynamics_Comparison",
+                    csvObject = sheets,
+                    ui.input = input)
+        } else {
+          for (n in names(sheets)) {
+            save.csv(path = projectPath(), 
+                     name = paste("Hydrodynamics_Comparison", n, sep ="_"),
+                     csvObject = data.frame(sheets[n]),
+                     ui.input = input)
+          }
+        }
+      },
+      error=function(e) {
+        showNotification("Error: No results available!",
+                         type = "error")
       }
-    }
+    )
   })
   
   
