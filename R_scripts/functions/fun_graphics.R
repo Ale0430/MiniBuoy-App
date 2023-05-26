@@ -160,28 +160,49 @@ plot.inundation = function(data) {
 }
 
 #' Current velocity
-plot.velocity = function(data) {
-   return(
-      data %>%
-         ggplot(aes(x = datetime, y = CurrentVelocity)) +
-         geom_point(size = 0.2) +
-         geom_line(aes(y = rollmean(CurrentVelocity, 20, na.pad = T)), colour = 'blue') +
-         scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
-         labs(y = 'Median current velocity (m/s)') + 
-         theme(axis.title.x = element_blank())
-   )
+plot.velocity = function(data, site) {
+  return(
+    data %>%
+      mutate(Site = site) %>%
+      filter(!is.na(Event)) %>% 
+      group_by(Event) %>% 
+      mutate(min_v = min(CurrentVelocity, na.rm = T),
+             max_v = max(CurrentVelocity, na.rm = T),
+             med_v = median(CurrentVelocity, na.rm = T),
+             n = n()) %>% 
+      filter(CurrentVelocity == max_v) %>% 
+      ggplot(., aes(x = datetime, y = med_v, col = Site, size = n)) +
+      geom_pointrange(aes(ymin=min_v, ymax=max_v)) +
+      scale_color_manual(values = defaultColors) +
+      scale_size_continuous(range = c(0.6, 1.6)) +
+      guides(col = F, size = F) +
+      scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+      labs(y = 'Median current velocity (m/s)') + 
+      theme(axis.title.x = element_blank())
+  )
 }
 
+
 #' Wave orbital velocity
-plot.waveVelocity = function(data) {
+plot.waveVelocity = function(data, site) {
    return(
-      data %>%
-         ggplot(aes(x = datetime, y = WaveOrbitalVelocity)) +
-         geom_point(size = 0.2) +
-         geom_line(aes(y = rollmean(WaveOrbitalVelocity, 20, na.pad = T)), colour = 'blue') +
-         scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
-         labs(y = 'Median wave orbtial velocity (m/s)') + 
-         theme(axis.title.x = element_blank())
+     data %>%
+       mutate(Site = site) %>% 
+       filter(!is.na(Event)) %>% 
+       group_by(Event) %>% 
+       mutate(min_v = min(WaveOrbitalVelocity, na.rm = T),
+              max_v = max(WaveOrbitalVelocity, na.rm = T),
+              med_v = median(WaveOrbitalVelocity, na.rm = T),
+              n = n()) %>% 
+       filter(WaveOrbitalVelocity == max_v) %>% 
+       ggplot(., aes(x = datetime, y = med_v, col = Site, size = n)) +
+       geom_pointrange(aes(ymin=min_v, ymax=max_v)) +
+       scale_color_manual(values = defaultColors) +
+       scale_size_continuous(range = c(0.6, 1.6)) +
+       guides(col = F, size = F) +
+       scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+       labs(y = 'Median wave orbtial velocity (m/s)') + 
+       theme(axis.title.x = element_blank())
    )
 }
 
@@ -264,23 +285,24 @@ plot.inundationComparison = function(data.t, data.r){
 #' Current velocity
 plot.velocityComparison = function(data.t, data.r){
    return(
-      data.t %>% 
-         mutate(Type = "Target") %>% 
-         bind_rows(data.r %>% 
-                      mutate(Type = "Reference")) %>%
-         mutate(Type = factor(Type,
-                              levels = c("Target", "Reference"))) %>% 
-         group_by(Type) %>% 
-         mutate(rmCurrentVel = rollmean(CurrentVelocity, 20, na.pad = T)) %>% 
-         ggplot(aes(x = datetime, y = rmCurrentVel, col = Type, linetype = Type)) +
-         geom_line(size = 1) + 
-         scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
-         scale_linetype_manual(name = "Site", values = defaultLineTypes) +
-         scale_color_manual(name = "Site", values = defaultColors) +
-         labs(y = 'Median current velocity (m/s)',
-              color = "Site",
-              linetype = "Site") + 
-         theme(axis.title.x = element_blank())
+     data.t %>% 
+       mutate(Site = "Target") %>% 
+       bind_rows(data.r %>% 
+                   mutate(Site = "Reference")) %>%
+       group_by(Site, Event) %>% 
+       mutate(min_v = min(CurrentVelocity, na.rm = T),
+              max_v = max(CurrentVelocity, na.rm = T),
+              med_v = median(CurrentVelocity, na.rm = T),
+              n = n()) %>% 
+       filter(CurrentVelocity == max_v) %>% 
+       ggplot(., aes(x = datetime, y = med_v, col = Site, size = n)) +
+       geom_pointrange(aes(ymin=min_v, ymax=max_v)) +
+       scale_color_manual(values = defaultColors) +
+       scale_size_continuous(range = c(0.2, 1)) +
+       guides(size = F) +
+       scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+       labs(y = 'Median current velocity (m/s)') + 
+       theme(axis.title.x = element_blank())
    )
 }
 
