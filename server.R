@@ -1399,7 +1399,8 @@ shinyServer(function(input, output, session) {
 
       }
     },
-    options = list(dom = 't'),
+    options = list(dom = 't', ordering = F, 
+                   columnDefs = list(list(className = 'dt-center', targets = 1:5))),
   )
   
   #' Eventlistener to save hydrodynamics summary comparison
