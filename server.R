@@ -1360,7 +1360,9 @@ shinyServer(function(input, output, session) {
     TargetHydroStats = get.summary.statisics(data = TargetHydro)
     ReferenceHydroStats = get.summary.statisics(data = ReferenceHydro)
     
-    ComparisonStats = get.comparison(stats.t = TargetHydroStats,
+    ComparisonStats = get.comparison(hydro.t = TargetHydro,
+                                     hydro.r = ReferenceHydro,
+                                     stats.t = TargetHydroStats,
                                      stats.r = ReferenceHydroStats)
     return(list(Comparison=ComparisonStats, 
                 Target=TargetHydro,
@@ -1382,12 +1384,10 @@ shinyServer(function(input, output, session) {
     {
       if (bool.overlap()) {
         ComparisonStats = ComparisonStats()[["Comparison"]] %>% 
-          select(Parameter:Reference, TargetIs) %>% 
           mutate_if(is.numeric,round, 2) %>% 
-          rename("Target is" = "TargetIs")
-        return(datatable(ComparisonStats) %>% 
-                           formatStyle(ncol(ComparisonStats), backgroundColor = JS(table.background.js)
-                         ))
+          rename("Significantly different" = "SignificantlyDifferent",
+                 "Target is" = "TargetIs")
+        return(ComparisonStats)
       } else {
         if (bool.no.reference() | bool.no.target()){
           tab.with.file.upload.message("Please upload your target AND reference data or select default data sets.",
