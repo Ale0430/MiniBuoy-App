@@ -328,7 +328,7 @@ get.daily.statistics = function(data) {
     cbind(Parameter = 'Peak current velocity',        Units = '[m/s]', hydro.PeakCurDay(data)),
     cbind(Parameter = 'Upper current velocity',       Units = '[m/s]', hydro.UpperQCurDay(data)),
     cbind(Parameter = 'Mean current velocity',        Units = '[m/s]', hydro.MeanCurDay(data)),
-    cbind(Parameter = 'Medain current velocity',      Units = '[m/s]', hydro.MedCurDay(data)),
+    cbind(Parameter = 'Median current velocity',      Units = '[m/s]', hydro.MedCurDay(data)),
     cbind(Parameter = 'Peak wave orbital velocity',   Units = '[m/s]', hydro.PeakWaveDay(data)),
     cbind(Parameter = 'Upper wave orbital velocity',  Units = '[m/s]', hydro.UpperQWaveDay(data)),
     cbind(Parameter = 'Mean wave orbital velocity',   Units = '[m/s]', hydro.MeanWaveDay(data)),
