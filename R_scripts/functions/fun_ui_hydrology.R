@@ -93,12 +93,16 @@ hyd.target.box.table = function(){
 hyd.target.box.figures = function(){
   return(list(
     tabsetPanel(
+      tabPanel("Raw data", br(),
+               plotlyOutput("fig.control.target")),
       tabPanel("Daily inundation", br(),
                plotlyOutput("fig.inundation.target")),
       tabPanel("Current velocity", br(),
                plotlyOutput("fig.velocity.target")),
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.target")),
+      tabPanel("Velocity stage plot", br(),
+               plotOutput("fig.stage.target"))
     ),
     actButton("save.figs.target",
               "Download plots", 
@@ -197,23 +201,21 @@ hyd.reference.box.table = function(){
 hyd.reference.box.figures = function(){
   return(list(
     tabsetPanel(
+      tabPanel("Raw data", br(),
+               plotlyOutput("fig.control.reference")),
       tabPanel("Daily inundation", br(),
-               plotlyOutput("fig.inundation.reference"),
-               actButton("save.fig.inundation.reference",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.inundation.reference")),
       tabPanel("Current velocity", br(),
-               plotlyOutput("fig.velocity.reference"),
-               actButton("save.fig.velocity.reference",
-                         "Save figure", 
-                         "saveFigure")),
+               plotlyOutput("fig.velocity.reference")),
       tabPanel("Wave orbital velocity", br(),
-               plotlyOutput("fig.wave.velocity.reference"),
-               actButton("save.fig.wave.velocity.reference",
-                         "Save figure", 
-                         "saveFigure"))
-    ))
-  )
+               plotlyOutput("fig.wave.velocity.reference")),
+      tabPanel("Velocity stage plot", br(),
+               plotOutput("fig.stage.reference"))
+    ),
+    actButton("save.figs.reference",
+              "Download plots", 
+              "saveFigure")
+  ))
 }
 
 
@@ -267,7 +269,6 @@ hyd.comparison.box.figures = function(){
     tabsetPanel(
       tabPanel("Daily inundation", br(),
                plotlyOutput("fig.inundation.comparison")),
-      
       tabPanel("Current velocity", br(),
                plotlyOutput("fig.velocity.comparison"))
     ),
