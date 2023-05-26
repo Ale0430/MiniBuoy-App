@@ -102,7 +102,7 @@ hyd.target.box.figures = function(){
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.target")),
       tabPanel("Velocity stage plot", br(),
-               plotOutput("fig.stage.target")),
+               plotOutput("fig.stage.target"))
     ),
     actButton("save.figs.target",
               "Download plots", 
@@ -210,7 +210,7 @@ hyd.reference.box.figures = function(){
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.reference")),
       tabPanel("Velocity stage plot", br(),
-               plotlyOutput("fig.stage.reference")),
+               plotOutput("fig.stage.reference"))
     ),
     actButton("save.figs.reference",
               "Download plots", 
