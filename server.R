@@ -1385,7 +1385,7 @@ shinyServer(function(input, output, session) {
       if (bool.overlap()) {
         ComparisonStats = ComparisonStats()[["Comparison"]] %>% 
           mutate_if(is.numeric,round, 2) %>% 
-          rename("Significantly different" = "SignificantlyDifferent",
+          rename("Meaningfully different" = "SignificantlyDifferent",
                  "Target is" = "TargetIs")
         return(ComparisonStats)
       } else {
