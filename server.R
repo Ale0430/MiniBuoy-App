@@ -1368,6 +1368,22 @@ shinyServer(function(input, output, session) {
     })
   
   
+  ### Text          ####
+  
+  ### VERSION 1: Can't get it to work:
+  # output$hydro.text.comparison <- renderUI({
+  #   ComparisonStats = ComparisonStats()[["Comparison"]] %>%
+  #     mutate_if(is.numeric,round, 2) %>%
+  #     rename("Significantly different" = "SignificantlyDifferent",
+  #            "Target is" = "TargetIs")
+  #   HTML(get.comparison.text(ComparisonStats()))
+  #   })
+  
+  ### VERSION 2: Still didn't work:
+  # output$hydro.text.comparison <- renderUI({
+  #   HTML(get.comparison.text(ComparisonStats()))
+  # })
+  
   ### Table         ####
   
 
@@ -1400,6 +1416,7 @@ shinyServer(function(input, output, session) {
     options = list(dom = 't', ordering = F, 
                    columnDefs = list(list(className = 'dt-center', targets = 1:5))),
   )
+
   
   #' Eventlistener to save hydrodynamics summary comparison
   #' (Hydrodynamics > Summary table)

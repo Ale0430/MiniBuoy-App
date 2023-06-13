@@ -239,7 +239,7 @@ hydComparisonOutput = function(){
 ## Text     ####
 hyd.comparison.box.text = function(){
   return(
-    p("TEXT")
+    output.html('hydro.text.comparison')
   )
 }
 
