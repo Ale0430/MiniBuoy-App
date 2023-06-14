@@ -1,7 +1,1 @@
-Mini Buoys will calculate:
-  
-<ol type="a">
-  <li>inundation duration</li>
-  <li>current velocity</li>
-  <li>wave orbital velocity (B4+ only)</li>
-</ol>
+Mini Buoys will calculate inundation duration, current velocity, and wave orbital velocity (B4+ only) along intertidal areas. Hydrodynamics are calculated from acceleration (tilt) data, gathered by acceleration loggers housed inside bottom mounted floats.<br/><br/>
