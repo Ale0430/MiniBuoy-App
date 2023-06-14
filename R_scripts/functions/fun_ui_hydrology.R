@@ -57,11 +57,6 @@ hyd.target.box.settings = function(){
                      label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Minimun tilt</abbr>"),
                      value = 75)          
       ),
-      sliderInput(inputId = "hydro.set.chop.target",
-                  label = HTML("<abbr title='Using less data increases the speed of the analysis and has a minimal effect on the accuracy of detecting partially inundated cases. (%)'>Partial data search</abbr>"),
-                  value = 50, step = 5,
-                  min = 20, max = 100,
-                  pre = "%"),
 
       actButton("hydro.set.apply.target", "Apply custom settings", "update"),
       actButton("hydro.set.reset.target", "Reset custom settings", "grey")
