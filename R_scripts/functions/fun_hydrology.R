@@ -525,7 +525,7 @@ get.comparison = function(hydro.t, hydro.r, stats.t, stats.r) {
   comparison = left_join(summary.c, event.c, by = c('Parameter', 'Units')) %>%
     filter(Parameter %in% c('Survey days',
                             'Inundation events',
-                            'Median inundation frequency',
+                            'Mean inundation frequency',
                             'Maximum Window of Opportunity',
                             'Inundation proportion',
                             'Mean current velocity', 
