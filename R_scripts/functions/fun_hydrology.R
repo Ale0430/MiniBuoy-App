@@ -435,7 +435,7 @@ get.stats.text = function(data){
       {
         '<b>flood dominant</b>, implying a landward net movement of coarse sediment.<br/><br/>'
       } else {
-        '<b>symmetrical</b>, implying no net transport of coarse sediment.<br/><br/><br/>'
+        '<b>symmetrical</b>, implying no net transport of coarse sediment.<br/><br/>'
       },
     'The longest window of opportunity was <b>',
     Statistics %>%
