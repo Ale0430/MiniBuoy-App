@@ -771,8 +771,7 @@ shinyServer(function(input, output, session) {
     return(data.frame(gaps = input$hydro.set.gaps.target,
                       full = input$hydro.set.full.target,
                       part = input$hydro.set.part.target,
-                      tilt = input$hydro.set.tilt.target,
-                      chop = input$hydro.set.chop.target)
+                      tilt = input$hydro.set.tilt.target)
     )
   })
   
@@ -1065,8 +1064,7 @@ shinyServer(function(input, output, session) {
     return(data.frame(gaps = input$hydro.set.gaps.reference,
                       full = input$hydro.set.full.reference,
                       part = input$hydro.set.part.reference,
-                      tilt = input$hydro.set.tilt.reference,
-                      chop = input$hydro.set.chop.reference)
+                      tilt = input$hydro.set.tilt.reference)
     )
   })
   
