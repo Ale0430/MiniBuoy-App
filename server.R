@@ -1370,19 +1370,12 @@ shinyServer(function(input, output, session) {
   
   ### Text          ####
   
-  ### VERSION 1: Can't get it to work:
-  # output$hydro.text.comparison <- renderUI({
-  #   ComparisonStats = ComparisonStats()[["Comparison"]] %>%
-  #     mutate_if(is.numeric,round, 2) %>%
-  #     rename("Significantly different" = "SignificantlyDifferent",
-  #            "Target is" = "TargetIs")
-  #   HTML(get.comparison.text(ComparisonStats()))
-  #   })
+  output$hydro.text.comparison <- renderUI({
+    t = get.comparison.text(ComparisonStats()[["Comparison"]])
+    HTML(t)
+  })
   
-  ### VERSION 2: Still didn't work:
-  # output$hydro.text.comparison <- renderUI({
-  #   HTML(get.comparison.text(ComparisonStats()))
-  # })
+
   
   ### Table         ####
   
