@@ -560,33 +560,25 @@ get.comparison.text = function(data){
   Statistics$Positive  = c('lower', 'lower', 'higher', 'lower', 'lower', 'lower', 'lower')
   Statistics$Outcome = ifelse(gsub('[^a-zA-Z]', '', Statistics$TargetIs) == Statistics$Positive, 'good' , 'bad')
   
-  # Mini Buoys will calculate:
-  #   
-  #   <ol type="a">
-  #   <li>inundation duration</li>
-  #   <li>current velocity</li>
-  #   <li>wave orbital velocity (B4+ only)</li>
-  #   </ol>
-  
   good = paste(if(Statistics$Outcome[1] == 'good') { '<li>Shorter inundation duration</li>' },
                if(Statistics$Outcome[2] == 'good') { '<li>Less frequent inundation</li>' },
                if(Statistics$Outcome[3] == 'good') { '<li>Longer Windows of Opportunity (inundation-free days)</li>' },
-               if(Statistics$Outcome[4] == 'good' & Statistics$Outcome[5] == 'good' & Statistics$SignificantlyDifferent[4] == 'Yes' & Statistics$SignificantlyDifferent[5] == 'Yes') { '<li>Significantly lower average and peak current velocities</li>' 
-               } else if(Statistics$Outcome[5] == 'good' & Statistics$SignificantlyDifferent[5] == 'Yes') { '<li>Significantly lower average current velocities inundation</li>' 
-               } else if(Statistics$Outcome[4] == 'good' & Statistics$SignificantlyDifferent[4] == 'Yes') { '<li>Significantly lower peak current velocities</li>' },
-               if(Statistics$Outcome[6] == 'good' & Statistics$Outcome[7] == 'good' & Statistics$SignificantlyDifferent[6] == 'Yes' & Statistics$SignificantlyDifferent[7] == 'Yes') { '<li>Significantly lower average and peak wave orbital velocities</li>' 
-               } else if(Statistics$Outcome[7] == 'good' & Statistics$SignificantlyDifferent[7] == 'Yes') { '<li>Significantly lower average wave orbital velocities</li>' 
-               } else if(Statistics$Outcome[6] == 'good' & Statistics$SignificantlyDifferent[6] == 'Yes') { '<li>Significantly lower peak current velocities</li>' }
+               if(Statistics$Outcome[4] == 'good' & Statistics$Outcome[5] == 'good' & Statistics$SignificantlyDifferent[4] == 'Yes' & Statistics$SignificantlyDifferent[5] == 'Yes') { '<li>Meaningfully lower average and peak current velocities</li>' 
+               } else if(Statistics$Outcome[5] == 'good' & Statistics$SignificantlyDifferent[5] == 'Yes') { '<li>Meaningfully lower average current velocities inundation</li>' 
+               } else if(Statistics$Outcome[4] == 'good' & Statistics$SignificantlyDifferent[4] == 'Yes') { '<li>Meaningfully lower peak current velocities</li>' },
+               if(Statistics$Outcome[6] == 'good' & Statistics$Outcome[7] == 'good' & Statistics$SignificantlyDifferent[6] == 'Yes' & Statistics$SignificantlyDifferent[7] == 'Yes') { '<li>Meaningfully lower average and peak wave orbital velocities</li>' 
+               } else if(Statistics$Outcome[7] == 'good' & Statistics$SignificantlyDifferent[7] == 'Yes') { '<li>Meaningfully lower average wave orbital velocities</li>' 
+               } else if(Statistics$Outcome[6] == 'good' & Statistics$SignificantlyDifferent[6] == 'Yes') { '<li>Meaningfully lower peak current velocities</li>' }
   )
   bad  = paste(if(Statistics$Outcome[1] == 'bad') { '<li>Longer inundation duration</li>' },
                if(Statistics$Outcome[2] == 'bad') { '<li>More frequent inundation</li>' },
                if(Statistics$Outcome[3] == 'bad') { '<li>Shorter Windows of Opportunity (inundation-free days)</li>' },
-               if(Statistics$Outcome[4] == 'bad' & Statistics$Outcome[5] == 'bad' & Statistics$SignificantlyDifferent[4] == 'Yes' & Statistics$SignificantlyDifferent[5] == 'Yes') { '<li>Significantly higher average and peak current velocities</li>' 
-               } else if(Statistics$Outcome[5] == 'bad' & Statistics$SignificantlyDifferent[5] == 'Yes') { '<li>Significantly higher average current velocities inundation</li>' 
-               } else if(Statistics$Outcome[4] == 'bad' & Statistics$SignificantlyDifferent[4] == 'Yes') { '<li>Significantly higher peak current velocities</li>' },
-               if(Statistics$Outcome[6] == 'bad' & Statistics$Outcome[7] == 'bad' & Statistics$SignificantlyDifferent[6] == 'Yes' & Statistics$SignificantlyDifferent[7] == 'Yes') { '*Significantly higher average and peak wave orbital velocities</li>' 
-               } else if(Statistics$Outcome[7] == 'bad' & Statistics$SignificantlyDifferent[7] == 'Yes') { '<li>Significantly higher average wave orbital velocities</li>' 
-               } else if(Statistics$Outcome[6] == 'bad' & Statistics$SignificantlyDifferent[6] == 'Yes') { '<li>Significantly higher peak current velocities</li>' }
+               if(Statistics$Outcome[4] == 'bad' & Statistics$Outcome[5] == 'bad' & Statistics$SignificantlyDifferent[4] == 'Yes' & Statistics$SignificantlyDifferent[5] == 'Yes') { '<li>Meaningfully higher average and peak current velocities</li>' 
+               } else if(Statistics$Outcome[5] == 'bad' & Statistics$SignificantlyDifferent[5] == 'Yes') { '<li>Meaningfully higher average current velocities inundation</li>' 
+               } else if(Statistics$Outcome[4] == 'bad' & Statistics$SignificantlyDifferent[4] == 'Yes') { '<li>Meaningfully higher peak current velocities</li>' },
+               if(Statistics$Outcome[6] == 'bad' & Statistics$Outcome[7] == 'bad' & Statistics$SignificantlyDifferent[6] == 'Yes' & Statistics$SignificantlyDifferent[7] == 'Yes') { '*Meaningfully higher average and peak wave orbital velocities</li>' 
+               } else if(Statistics$Outcome[7] == 'bad' & Statistics$SignificantlyDifferent[7] == 'Yes') { '<li>Meaningfully higher average wave orbital velocities</li>' 
+               } else if(Statistics$Outcome[6] == 'bad' & Statistics$SignificantlyDifferent[6] == 'Yes') { '<li>Meaningfully higher peak current velocities</li>' }
   )
   conc = paste(
     '<b>Conclusion:</b><br/>',
