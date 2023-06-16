@@ -15,22 +15,14 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     full = ui.input_settings$full
     part = ui.input_settings$part
     tilt = ui.input_settings$tilt
-    chop = ui.input_settings$chop / 100
   } else {
     gaps = 20
     full = 20
     part = 90
     tilt = 75
-    chop = 0.5
-    if (chop < 1 & nrow(data) > 0){
-      showNotification(paste("NOTE: ", chop * 100, 
-                             " % of the data are used in searching for partially 
-                           inundated cases. Refine proportion in custom settings.",
-                             sep = ""),
-                       type = "warning")
-    }
   }
-
+  chop = 0.25
+  
   # calculate sampling rate (for selecting the correct current and wave orbital velocity calibration later on):
   rate = as.numeric(data$datetime[2] - data$datetime[1])
   
@@ -525,7 +517,7 @@ get.comparison = function(hydro.t, hydro.r, stats.t, stats.r) {
   comparison = left_join(summary.c, event.c, by = c('Parameter', 'Units')) %>%
     filter(Parameter %in% c('Survey days',
                             'Inundation events',
-                            'Median inundation frequency',
+                            'Mean inundation frequency',
                             'Maximum Window of Opportunity',
                             'Inundation proportion',
                             'Mean current velocity', 
