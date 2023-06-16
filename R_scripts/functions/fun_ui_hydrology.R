@@ -216,12 +216,12 @@ hydComparisonOutput = function(){
     list(
       fluidRow(
         box(title = "Summary",
-                   width = 3, height = "95%",
+                   width = 4, height = "95%",
                    collapsible = T, status = "success",
                    hyd.comparison.box.text()),
         
         box(title = "Table",
-                   width = 9, height = "95%",
+                   width = 8, height = "95%",
                    collapsible = T, status = "success",
                    hyd.comparison.box.table())
       ),
@@ -239,7 +239,7 @@ hydComparisonOutput = function(){
 ## Text     ####
 hyd.comparison.box.text = function(){
   return(
-    p("TEXT")
+    output.html('hydro.text.comparison')
   )
 }
 

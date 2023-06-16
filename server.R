@@ -1170,7 +1170,7 @@ shinyServer(function(input, output, session) {
                  mutate_if(is.numeric, round, 2))
       }
     },
-    options = list(dom = 't'),
+    options = list(dom = 'ltip'),
   )
   
   get.xlsx.object.reference = reactive({
@@ -1368,6 +1368,15 @@ shinyServer(function(input, output, session) {
     })
   
   
+  ### Text          ####
+  
+  output$hydro.text.comparison <- renderUI({
+    t = get.comparison.text(ComparisonStats()[["Comparison"]])
+    HTML(t)
+  })
+  
+
+  
   ### Table         ####
   
 
@@ -1400,6 +1409,7 @@ shinyServer(function(input, output, session) {
     options = list(dom = 't', ordering = F, 
                    columnDefs = list(list(className = 'dt-center', targets = 1:5))),
   )
+
   
   #' Eventlistener to save hydrodynamics summary comparison
   #' (Hydrodynamics > Summary table)
