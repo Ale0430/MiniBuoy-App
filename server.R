@@ -1170,7 +1170,7 @@ shinyServer(function(input, output, session) {
                  mutate_if(is.numeric, round, 2))
       }
     },
-    options = list(dom = 't'),
+    options = list(dom = 'ltip'),
   )
   
   get.xlsx.object.reference = reactive({
