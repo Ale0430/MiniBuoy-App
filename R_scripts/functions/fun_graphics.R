@@ -175,7 +175,7 @@ plot.velocity = function(data, site) {
       scale_color_manual(values = defaultColors) +
       scale_size_continuous(range = c(0.6, 1.6)) +
       guides(col = F, size = F) +
-      scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+      scale_y_continuous(expand = expansion(mult = c(0, .1))) +
       labs(y = 'Median current velocity (m/s)') + 
       theme(axis.title.x = element_blank())
   )
@@ -199,7 +199,7 @@ plot.waveVelocity = function(data, site) {
        scale_color_manual(values = defaultColors) +
        scale_size_continuous(range = c(0.6, 1.6)) +
        guides(col = F, size = F) +
-       scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+       scale_y_continuous(expand = expansion(mult = c(0, .1))) +
        labs(y = 'Median wave orbtial velocity (m/s)') + 
        theme(axis.title.x = element_blank())
    )
@@ -298,7 +298,7 @@ plot.velocityComparison = function(data.t, data.r){
        scale_color_manual(values = defaultColors) +
        scale_size_continuous(range = c(0.2, 1)) +
        guides(size = F) +
-       scale_y_continuous(expand = expansion(mult = c(0, .1)), label = comma) +
+       scale_y_continuous(expand = expansion(mult = c(0, .1))) +
        labs(y = 'Median current velocity (m/s)') + 
        theme(axis.title.x = element_blank())
    )
