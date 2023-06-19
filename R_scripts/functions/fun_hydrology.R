@@ -230,6 +230,8 @@ hydro.SurvMins           = function(data) { data %>% summarise(Value = difftime(
 hydro.SurvDays           = function(data) { data %>% hydro.SurvMins() / 60 / 24 }
 hydro.NumEvents          = function(data) { data %>% na.omit() %>% summarise(Value = n_distinct(Event)) }
 hydro.DurEvents          = function(data) { data %>% group_by(Event) %>% summarise(Value = difftime(max(datetime), min(datetime), units = 'mins')[[1]]) %>% na.omit() }
+hydro.IndDurHrsDay       = function(data) { data %>% hydro.IndDurMins() / 60 / data %>% hydro.SurvDays() }
+hydro.NonIndDurHrsDay    = function(data) { data %>% hydro.NonIndDurMins() / 60 / data %>% hydro.SurvDays() }
 hydro.IndDurMins         = function(data) { data %>% hydro.DurEvents() %>% summarise(Value = sum(Value)) }
 hydro.NonIndDurMins      = function(data) { data %>% summarise(hydro.SurvMins(.) - hydro.IndDurMins(.)) }
 hydro.IndDurPerc         = function(data) { data %>% summarise(hydro.IndDurMins(.) / hydro.SurvMins(.) * 100) }
@@ -287,25 +289,24 @@ hydro.UpperQAssym        = function(data) { data %>% hydro.UpperQAssymEvent()   
 get.summary.statisics = function(data) {
   
   rbind.data.frame(
-    cbind(Parameter = 'Survey minutes',                Units = '[min]',   hydro.SurvMins(data)),
-    cbind(Parameter = 'Survey days',                   Units = '[day]',   hydro.SurvDays(data)),
-    cbind(Parameter = 'Inundation events',             Units = '[n]',     hydro.NumEvents(data)),
-    cbind(Parameter = 'Inundation duration',           Units = '[min]',   hydro.IndDurMins(data)),
-    cbind(Parameter = 'Emersion duration',             Units = '[min]',   hydro.NonIndDurMins(data)),
-    cbind(Parameter = 'Inundation proportion',         Units = '[%]',     hydro.IndDurPerc(data)),
-    cbind(Parameter = 'Emersion proportion',           Units = '[%]',     hydro.NonIndDurPerc(data)),
-    cbind(Parameter = 'Mean inundation frequency',     Units = '[n/day]', hydro.IndFreqDayMean(data)),
-    cbind(Parameter = 'Median inundation frequency',   Units = '[n/day]', hydro.IndFreqDayMed(data)),
-    cbind(Parameter = 'Maximum Window of Opportunity', Units = '[day]',   hydro.MaxWoO(data)),
-    cbind(Parameter = 'Peak current velocity',         Units = '[m/s]',   hydro.CurPeak(data)),
-    cbind(Parameter = 'Upper current velocity',        Units = '[m/s]',   hydro.CurUpperQ(data)),
-    cbind(Parameter = 'Mean current velocity',         Units = '[m/s]',   hydro.CurMean(data)),
-    cbind(Parameter = 'Median current velocity',       Units = '[m/s]',   hydro.CurMed(data)),
-    cbind(Parameter = 'Peak wave orbital velocity',    Units = '[m/s]',   hydro.WavePeak(data)),
-    cbind(Parameter = 'Upper wave orbital velocity',   Units = '[m/s]',   hydro.WaveUpperQ(data)),
-    cbind(Parameter = 'Mean wave orbital velocity',    Units = '[m/s]',   hydro.WaveMean(data)),
-    cbind(Parameter = 'Median wave orbital velocity',  Units = '[m/s]',   hydro.WaveMed(data)),
-    cbind(Parameter = 'Peak ebb-flood ratio',          Units = '[-]',     hydro.PeakAssym(data)))
+    cbind(Parameter = 'Survey days',                   Units = '[day]',     hydro.SurvDays(data)),
+    cbind(Parameter = 'Inundation events',             Units = '[n]',       hydro.NumEvents(data)),
+    cbind(Parameter = 'Inundation duration',           Units = '[hrs/day]', hydro.IndDurHrsDay(data)),
+    cbind(Parameter = 'Emersion duration',             Units = '[hrs/day]', hydro.NonIndDurHrsDay(data)),
+    cbind(Parameter = 'Inundation proportion',         Units = '[%]',       hydro.IndDurPerc(data)),
+    cbind(Parameter = 'Emersion proportion',           Units = '[%]',       hydro.NonIndDurPerc(data)),
+    cbind(Parameter = 'Mean inundation frequency',     Units = '[n/day]',   hydro.IndFreqDayMean(data)),
+    cbind(Parameter = 'Median inundation frequency',   Units = '[n/day]',   hydro.IndFreqDayMed(data)),
+    cbind(Parameter = 'Maximum Window of Opportunity', Units = '[day]',     hydro.MaxWoO(data)),
+    cbind(Parameter = 'Peak ebb-flood ratio',          Units = '[-]',       hydro.PeakAssym(data)),
+    cbind(Parameter = 'Peak current velocity',         Units = '[m/s]',     hydro.CurPeak(data)),
+    cbind(Parameter = 'Upper current velocity',        Units = '[m/s]',     hydro.CurUpperQ(data)),
+    cbind(Parameter = 'Mean current velocity',         Units = '[m/s]',     hydro.CurMean(data)),
+    cbind(Parameter = 'Median current velocity',       Units = '[m/s]',     hydro.CurMed(data)),
+    cbind(Parameter = 'Peak wave orbital velocity',    Units = '[m/s]',     hydro.WavePeak(data)),
+    cbind(Parameter = 'Upper wave orbital velocity',   Units = '[m/s]',     hydro.WaveUpperQ(data)),
+    cbind(Parameter = 'Mean wave orbital velocity',    Units = '[m/s]',     hydro.WaveMean(data)),
+    cbind(Parameter = 'Median wave orbital velocity',  Units = '[m/s]',     hydro.WaveMed(data)))
 
   }
 
