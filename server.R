@@ -1462,20 +1462,38 @@ shinyServer(function(input, output, session) {
   
   #' Reactive variable holding the
   #' plot shown in Hydrodynamics > Target
-  fig.velocity.comparison <- reactive({
+  fig.currents.comparison <- reactive({
     if (bool.no.target() | bool.no.reference()){
       plot.emptyMessage("No figure available. Please upload data.")
     } else {
-      plot.velocityComparison(data.t = ComparisonStats()[["Target"]],
-                                data.r = ComparisonStats()[["Reference"]])
+      plot.currentsComparison(data.t = ComparisonStats()[["Target"]],
+                              data.r = ComparisonStats()[["Reference"]])
     }
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.velocity.comparison <- renderPlotly({
-    fig.velocity.comparison()
+  output$fig.currents.comparison <- renderPlotly({
+    fig.currents.comparison()
   })
 
+  #### Wave orbital velocity #####
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.waves.comparison <- reactive({
+    if (bool.no.target() | bool.no.reference()){
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else {
+      plot.wavesComparison(data.t = ComparisonStats()[["Target"]],
+                           data.r = ComparisonStats()[["Reference"]])
+    }
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.waves.comparison <- renderPlotly({
+    fig.waves.comparison()
+  })
+  
   
   #### Save all plots #####
 
@@ -1499,10 +1517,17 @@ shinyServer(function(input, output, session) {
     save.figure(
       path = projectPath(),
       name = "CurrentVelocity_Comparison",
-      plotObject = fig.velocity.comparison(),
+      plotObject = fig.currents.comparison(),
       ui.input = input
     )
 
+    save.figure(
+      path = projectPath(),
+      name = "WaveOrbitalVelocity_Comparison",
+      plotObject = fig.waves.comparison(),
+      ui.input = input
+    )
+    
     save.figure(
       path = projectPath(),
       name = "Parameter_Comparison",
