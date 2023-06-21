@@ -157,6 +157,12 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
         dCheck < tilt ~ 'P',
         TRUE ~ as.character(Status))) %>%
     ungroup() %>%
+    # convert short inundated events to non inundated:
+    group_by(Event) %>%
+    mutate(
+      fCheck = length(Event) < full,
+      Status = ifelse(fCheck == T, 'P', Status)) %>%
+    ungroup() %>%
     # reclassify the sequence of inundation events with corrected inundation status classification:
     mutate(
       Event = recode(Status, 'N' = 0, 'P' = 1, 'F' = 1), # note: P = 1 to include partial cases in event classification and thus inundation duration
