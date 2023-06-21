@@ -68,7 +68,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     # convert short inundated events to non inundated:
     group_by(Event) %>%
     mutate(
-      Status = ifelse(length(Event[!is.na(Event)]) < full, 'N', 'F')) %>%
+      Status = ifelse(length(Event[!is.na(Event)]) < full, 'P', 'F')) %>%
     ungroup() %>%
     mutate(
       Event   = recode(Status, 'N' = 0, 'P' = 1, 'F' = 1),
