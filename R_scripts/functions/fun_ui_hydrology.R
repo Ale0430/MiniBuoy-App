@@ -55,7 +55,7 @@ hyd.target.box.settings = function(){
                      value = 20),
         numericInput(inputId = "hydro.set.tilt.target",
                      label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Minimun tilt</abbr>"),
-                     value = 75)          
+                     value = 75, min = 0, max = 90)          
       ),
 
       actButton("hydro.set.apply.target", "Apply custom settings", "update"),
@@ -160,7 +160,7 @@ hyd.reference.box.settings = function(){
                      value = 20),
         numericInput(inputId = "hydro.set.tilt.reference",
                      label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Minimun tilt</abbr>"),
-                     value = 75)
+                     value = 75, min = 0, max = 90)          
       ),
       
       actButton("hydro.set.apply.reference", "Apply custom settings", "update"),

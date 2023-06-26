@@ -18,6 +18,13 @@
     border-top-color: #3c8dbc; /* blue old:#42CCC8; /* turquoise */
 }
 /*
+ * Input field styling if input is invalid, i.e. out of bounds
+ */
+input:invalid {
+    background-color: #FFCCCC;
+}
+
+/*
 #shiny-notification-panel {
     position: fixed;
     top: 60px;
