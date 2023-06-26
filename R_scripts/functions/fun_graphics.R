@@ -261,7 +261,7 @@ plot.inundationComparison = function(data.t, data.r){
       bind_rows(data.r %>% 
                    mutate(Type = "Reference")) %>%
       mutate(Type = factor(Type,
-                           levels = c("Target", "Reference"))) %>% 
+                           levels = c("Reference", "Target"))) %>% 
       mutate(date = ceiling_date(datetime, unit = 'days')) %>%
       group_by(Type, date) %>%
       summarise(InundationMin = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) 
