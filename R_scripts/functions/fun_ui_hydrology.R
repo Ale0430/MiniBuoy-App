@@ -247,6 +247,7 @@ hyd.comparison.box.text = function(){
 hyd.comparison.box.table = function(){
   return(
     list(
+      htmlOutput('hydro.text.table'),  # original shiny function to avoid 2nd spinner
       output.table("comparison.table.target"),
       actButton("comparison.table.save", "Download results", "saveCsv")
     )

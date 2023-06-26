@@ -540,7 +540,6 @@ get.comparison = function(hydro.t, hydro.r, stats.t, stats.r) {
 
 #' Function to generate results text for comparison
 get.comparison.text = function(data){
-  
   Statistics = data %>%
     filter(
       Parameter %in% c(

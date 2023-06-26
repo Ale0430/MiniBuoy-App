@@ -1380,7 +1380,13 @@ shinyServer(function(input, output, session) {
     }
   })
   
-
+  output$hydro.text.table <- renderUI({
+    if (bool.overlap()){
+      HTML('Hydrodynamics of the reference and target sites are compared using <b>',
+           round(ComparisonStats()[["Comparison"]][1, "Reference"], 1),
+           '</b> days of overlapping data.<br/>')
+    }
+  })
   
   ### Table         ####
   
@@ -1396,6 +1402,7 @@ shinyServer(function(input, output, session) {
     {
       if (bool.overlap()) {
         ComparisonStats = ComparisonStats()[["Comparison"]] %>% 
+          slice(2:n()) %>% 
           mutate_if(is.numeric,round, 2) %>% 
           rename("Meaningfully different" = "SignificantlyDifferent",
                  "Target is" = "TargetIs")
