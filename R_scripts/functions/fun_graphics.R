@@ -281,30 +281,6 @@ plot.inundationComparison = function(data.t, data.r){
 
 
 #' Current velocity
-plot.velocityComparison = function(data.t, data.r){
-   return(
-     data.t %>% 
-       mutate(Site = "Target") %>% 
-       bind_rows(data.r %>% 
-                   mutate(Site = "Reference")) %>%
-       group_by(Site, Event) %>% 
-       mutate(min_v = min(CurrentVelocity, na.rm = T),
-              max_v = max(CurrentVelocity, na.rm = T),
-              med_v = median(CurrentVelocity, na.rm = T),
-              n = n()) %>% 
-       filter(CurrentVelocity == max_v) %>% 
-       ggplot(., aes(x = datetime, y = med_v, col = Site, size = n)) +
-       geom_pointrange(aes(ymin=min_v, ymax=max_v)) +
-       scale_color_manual(values = defaultColors) +
-       scale_size_continuous(range = c(0.2, 1)) +
-       guides(size = F) +
-       scale_y_continuous(expand = expansion(mult = c(0, .1))) +
-       labs(y = 'Median current velocity (m/s)') + 
-       theme(axis.title.x = element_blank())
-   )
-}
-
-#' Current velocity
 plot.currentsComparison = function(data.t, data.r){
    return(
      data.t %>% 
