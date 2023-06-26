@@ -1371,8 +1371,13 @@ shinyServer(function(input, output, session) {
   ### Text          ####
   
   output$hydro.text.comparison <- renderUI({
-    t = get.comparison.text(ComparisonStats()[["Comparison"]])
-    HTML(t)
+    if (bool.overlap()){
+      HTML(get.comparison.text(ComparisonStats()[["Comparison"]]))
+    } else if (bool.no.reference() | bool.no.target()){
+      HTML("Please upload your target AND reference data or select default data sets.")
+    } else {
+      HTML("No overlapping time window.")
+    }
   })
   
 
