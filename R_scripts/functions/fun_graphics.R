@@ -117,24 +117,27 @@ plot.filteredRawData <- function(data, ui.input) {
 ######## HYDRO: TARGET + REFERENCE ########
 
 #' Control
-plot.control = function(data, chop = 0.5) {
+plot.control = function(data, chop = 0.25) {
   return(
     data %>%
       slice(round(seq(1, n(), length.out = (chop * n())), 0)) %>%
+      mutate(Status = factor(Status,
+                             levels = c('N', 'P', 'F'),
+                             labels = c("not inundated",
+                                        "partially inundated",
+                                        "fully inundated"))) %>% 
       ggplot(aes(x = datetime, y = Tilt, colour = Status)) +
-      geom_point(size = 0.1) +
+      geom_point(size = 0.7) +
       scale_x_datetime(date_labels = '%e %b') +
       scale_y_continuous(limits = c(0, 90), breaks = seq(0, 90, 30)) +
-      scale_color_manual(breaks = c('N', 'P', 'F'),
-                         values = c('#A7C7E7', '#C1E1C1', '#3D426B'),
-                         name   = 'Inundation status:',
-                         labels = c('non', 'partial', 'full')) +
-      labs(y = 'Tilt from horizontal (degrees)') +
+      scale_color_manual(values = c('#A7C7E7', '#9AA81D', '#3695F5')) +
+      labs(y = 'Tilt from horizontal (degrees)',
+           col = "Inundation status") +
       theme(axis.title.x = element_blank(),
             legend.key   = element_blank(),
             legend.position = 'bottom',
-            plot.title   = element_text(size = 8)) +
-      guides(colour = guide_legend(override.aes = list(size = 5))))
+            plot.title   = element_text(size = 8))
+    )
 }
 
 #' Inundation
