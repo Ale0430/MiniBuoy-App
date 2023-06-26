@@ -261,7 +261,7 @@ plot.inundationComparison = function(data.t, data.r){
       bind_rows(data.r %>% 
                    mutate(Type = "Reference")) %>%
       mutate(Type = factor(Type,
-                           levels = c("Target", "Reference"))) %>% 
+                           levels = c("Reference", "Target"))) %>% 
       mutate(date = ceiling_date(datetime, unit = 'days')) %>%
       group_by(Type, date) %>%
       summarise(InundationMin = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) 
@@ -281,7 +281,7 @@ plot.inundationComparison = function(data.t, data.r){
 
 
 #' Current velocity
-plot.velocityComparison = function(data.t, data.r){
+plot.currentsComparison = function(data.t, data.r){
    return(
      data.t %>% 
        mutate(Site = "Target") %>% 
@@ -304,6 +304,29 @@ plot.velocityComparison = function(data.t, data.r){
    )
 }
 
+#' Current velocity
+plot.wavesComparison = function(data.t, data.r){
+  return(
+    data.t %>% 
+      mutate(Site = "Target") %>% 
+      bind_rows(data.r %>% 
+                  mutate(Site = "Reference")) %>%
+      group_by(Site, Event) %>% 
+      mutate(min_v = min(WaveOrbitalVelocity, na.rm = T),
+             max_v = max(WaveOrbitalVelocity, na.rm = T),
+             med_v = median(WaveOrbitalVelocity, na.rm = T),
+             n = n()) %>% 
+      filter(WaveOrbitalVelocity == max_v) %>% 
+      ggplot(., aes(x = datetime, y = med_v, col = Site, size = n)) +
+      geom_pointrange(aes(ymin=min_v, ymax=max_v)) +
+      scale_color_manual(values = defaultColors) +
+      scale_size_continuous(range = c(0.2, 1)) +
+      guides(size = F) +
+      scale_y_continuous(expand = expansion(mult = c(0, .1))) +
+      labs(y = 'Median wave orbital velocity (m/s)') + 
+      theme(axis.title.x = element_blank())
+  )
+}
 
 
 #' Parameter bar plot

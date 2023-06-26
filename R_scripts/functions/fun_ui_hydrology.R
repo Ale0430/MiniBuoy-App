@@ -260,7 +260,9 @@ hyd.comparison.box.figures = function(){
       tabPanel("Daily inundation", br(),
                plotlyOutput("fig.inundation.comparison")),
       tabPanel("Current velocity", br(),
-               plotlyOutput("fig.velocity.comparison"))
+               plotlyOutput("fig.currents.comparison")),
+      tabPanel("Wave orbital velocity", br(),
+               plotlyOutput("fig.waves.comparison"))
     ),
     actButton("save.fig.comparison",
               "Download plots", 
