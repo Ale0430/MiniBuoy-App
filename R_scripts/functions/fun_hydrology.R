@@ -16,9 +16,9 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     part = ui.input_settings$part
     tilt = ui.input_settings$tilt
   } else {
-    gaps = 20
-    full = 20
-    part = 90
+    gaps = 60
+    full = 60
+    part = 50 # Proportion of each event. Warning: low values can fail.
     tilt = 75
   }
   chop = 0.25
@@ -26,7 +26,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
   # calculate sampling rate (for selecting the correct current and wave orbital velocity calibration later on):
   rate = as.numeric(data$datetime[2] - data$datetime[1])
   
-  data.classified = data %>%
+  data.NF = data %>%
     mutate(
       # truncate acceleration values (above 0 g):
       Acceleration = ifelse(Acceleration > 0, 0, Acceleration),
@@ -80,28 +80,38 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
       Tide = as.factor(ifelse(Status == 'N', NA, c(rep('Flood', round((n() / 2), 0)), rep('Ebb', n() - round((n() / 2), 0)))))) %>%
     ungroup()
   
-  # part must be even, convert if necessary:
-  if(part %% 2 == 0 ) { part } else { part = 2 * round(part / 2) }
+  # select a proportion of the start and end of each flood/ebb event (part) to search for partially inundated cases:
+  shift.All = data.NF %>%
+    group_by(Event) %>%
+    summarise(Flood_start = min(datetime) - ((n() * (part / 100)) * rate) * 60,
+              Ebb_start   = max(datetime) - ((n() * (part / 100)) * rate) * 60,
+              Flood_end   = min(datetime) + ((n() * (part / 100)) * rate) * 60, 
+              Ebb_end     = max(datetime) + ((n() * (part / 100)) * rate) * 60) %>%
+    gather(Name, datetime, Flood_start:Ebb_end) %>%
+    separate(Name, c('Tide', 'Name'), sep = '_') %>%
+    spread(Name, datetime) %>% 
+    arrange(start) %>%
+    na.omit()
   
-  # find data within the search window at the start and end of each flood and ebb event for detecting abrupt shifts indicative of partially inundated cases:
-  x = sapply(cumsum(rle(data.classified$Status)$lengths), function(i, part) { (i-part/2):(i+((part/2)-1)) }, part)
-  x = stack(data.frame(x))
-  # exclude non-values in case selection goes beyond the bounds of the data:
-  x = filter(x, values > 0 & values <= nrow(data.classified)) 
-
-  # subset data around flood and ebb events:
-  df.s = data.classified %>%
-    slice(x$values) %>%
-    bind_cols(Change = as.numeric(x$ind)) %>%
+  # filter the classified data between these dates:
+  shift.All = lapply(1:nrow(shift.All), function(i) {
+    
+    data.NF %>%
+      filter(between(datetime, shift.All$start[i], shift.All$end[i])) %>%
+      mutate(Change = i)
+    
+  } )
+  
+  shift.All = shift.All %>% 
+    bind_rows() %>%
     group_by(Change) %>%
     mutate(
       Tide  = as.character(Tide),
       Tide  = ifelse(is.na(Tide), unique(Tide[!is.na(Tide)]), Tide)) %>%
-    # remove events if misclassifed by rle (sometimes the last row is included as a transition, which it is not):
-    drop_na(Tide) 
+    ungroup()
   
   # subset the data (now all = 1) to reduce CPU time if the search window is large:
-  shift = df.s %>%
+  shift.All = shift.All %>%
     group_by(Change) %>%
     slice(round(seq(1, n(), length.out = (chop * n())), 0)) %>%
     mutate(
@@ -112,23 +122,19 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     ungroup()
   
   # remove any duplicated rows:
-  shift = distinct(shift, datetime, .keep_all = T)
+  shift.All = distinct(shift.All, datetime, .keep_all = T)
 
   # perform a linear interpolation to unify datasets:
-  shift = data.frame(approx(shift$datetime, y = shift$Shift, xout = seq(min(shift$datetime), max(shift$datetime), 60)))
-  names(shift) = c('datetime', 'Partial')
+  shift.All = data.frame(approx(shift.All$datetime, y = shift.All$Shift, xout = seq(min(shift.All$datetime), max(shift.All$datetime), 60)))
+  names(shift.All) = c('datetime', 'Partial')
 
   # classify partially inundated cases based on the threshold change detection score (t):
-  df.s = df.s %>% left_join(., shift, 'datetime') %>%
-    mutate(Partial = ifelse(Partial > 0, 'P', Status)) %>%
-    select(datetime, Partial, Change)
-
-  # reclassify inundation status using partially inundated cases:
-  data.classified = left_join(data.classified, df.s, by = 'datetime') %>%
-    mutate(Status = ifelse(Status == 'F' & !is.na(Partial), Partial, Status)) %>%
+  data.NPF = data.NF %>% left_join(., shift.All, 'datetime') %>%
+    mutate(Partial = ifelse(Partial > 0, 'P', Status),
+           Status  = ifelse(Status == 'F' & !is.na(Partial), Partial, Status)) %>%
     mutate_if(is.character, as.factor)
 
-  data.classified = data.classified %>%
+  data.NPF = data.NPF %>%
     mutate(
       # convert cases when tilt at 90 has been classified partially inundated to fully inundated: 
       Status = case_when(
@@ -207,7 +213,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
         else { NA })
   
   # check for full days:
-  FullCheck = data.classified %>%
+  FullCheck = data.NPF %>%
     group_by(ceiling_date(datetime, unit = 'days')) %>%
     summarise(Duration = n() * (.$datetime[2] - .$datetime[1])) %>%
     rename(datetime = 1) %>%
@@ -216,13 +222,13 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     select(Day, FullDay)
   
   # add a tag for days that have full data:
-  data.classified = data.classified %>%
+  data.NPF = data.NPF %>%
     mutate(Day = as.Date(datetime)) %>%
     left_join(FullCheck, by = c('Day')) %>%
     dplyr::select(datetime, Tilt, Status, Event, Tide, CurrentVelocity, WaveOrbitalVelocity, FullDay) %>% 
     mutate_if(is.character, as.factor)
   
-  return(data.classified)
+  return(data.NPF)
 }
 
 # List of functions for extracting hydrodynamic parameters:
