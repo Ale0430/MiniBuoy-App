@@ -25,6 +25,8 @@ if(!require("fasttime")) install.packages("fasttime")
 if(!require("caTools")) install.packages("caTools")
 # Package to close gaps within inundation events -> na.approx()
 if(!require("zoo")) install.packages("zoo")
+# Package to read classification algorithms created using caret to classify partially inundated cases in the predict() function
+if(!require("caret")) install.packages("caret")
 # Package to calculate abrupt shifts in characteristic of partially inundated cases:
 if(!require("devtools")) install.packages("devtools")
 devtools::install_github("caboulton/asdetect")
