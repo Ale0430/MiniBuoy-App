@@ -16,17 +16,16 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     part = ui.input_settings$part
     tilt = ui.input_settings$tilt
   } else {
-    gaps = 20
-    full = 20
-    part = 90
+    gaps = 1
+    full = 1
+    part = 25
     tilt = 75
   }
-  chop = 0.25
   
   # calculate sampling rate (for selecting the correct current and wave orbital velocity calibration later on):
-  rate = as.numeric(data$datetime[2] - data$datetime[1])
+  rate = as.numeric(difftime(data$datetime[2], data$datetime[1], units = 'secs'))
   
-  data.classified = data %>%
+  data.NF = data %>%
     mutate(
       # truncate acceleration values (above 0 g):
       Acceleration = ifelse(Acceleration > 0, 0, Acceleration),
@@ -34,16 +33,37 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
       Acceleration = if      (design == 'B4' | design == 'B4+') { ifelse(Acceleration < -1.15, NA, Acceleration) } 
                      else if (design == 'Pendant') { ifelse(Acceleration < -1.075, NA, Acceleration) },
       # calculate 1-minute running standard deviation (for wave orbital velocity calculation):
-      runSD = runsd(Acceleration, 60 / rate)) %>%
+      runSD = if(design == 'B4+') { runsd(Acceleration, 60 / rate) }) %>%
     # aggregate and summarise acceleration data:
     group_by(
-      datetime = if      (design == 'B4' | design == 'B4+') { ceiling_date(datetime, unit = 'minute') }
-                 else if (design == 'Pendant')              { ceiling_date(datetime, unit = '10 minutes') }) %>%
+      datetime = if      (design == 'B4' | design == 'B4+') { ceiling_date(datetime, unit = '1 minute') }
+                 else if (design == 'Pendant')              { ceiling_date(datetime, unit = '2 minutes') }) %>%
     summarise(
       Mean  = mean(Acceleration, na.rm = T),
       IQR   = quantile(Acceleration, 0.75, names = F, na.rm = T) - quantile(Acceleration, 0.25, names = F, na.rm = T),
-      runSD = mean(runSD, na.rm = T)) %>%
-    ungroup() %>%
+      runSD = if(design == 'B4+') { mean(runSD, na.rm = T) }) %>%
+    ungroup()
+  
+  # convert gaps and full arguments depending on Mini Buoy aggregation rate:
+  gaps = ifelse(gaps == 0, 
+                gaps,
+                data.NF %>%
+                  group_by(datetime = ceiling_date(datetime, unit = paste(gaps, 'hours'))) %>%
+                  summarise(Count = n()) %>%
+                  ungroup() %>%
+                  summarise(median = median(Count)) %>%
+                  as.numeric())
+  
+  full = ifelse(full == 0,
+                full,
+                data.NF %>%
+                  group_by(datetime = ceiling_date(datetime, unit = paste(full, 'hours'))) %>%
+                  summarise(Count = n()) %>%
+                  ungroup() %>%
+                  summarise(median = median(Count)) %>%
+                  as.numeric())
+  
+  data.NF = data.NF %>%
     mutate(
       # calculate tilt from acceleration data:
       Tilt = ((-180*(asin(ifelse(Mean < -1, -1, Mean))))/pi),
@@ -80,55 +100,87 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
       Tide = as.factor(ifelse(Status == 'N', NA, c(rep('Flood', round((n() / 2), 0)), rep('Ebb', n() - round((n() / 2), 0)))))) %>%
     ungroup()
   
-  # part must be even, convert if necessary:
-  if(part %% 2 == 0 ) { part } else { part = 2 * round(part / 2) }
+  # select a proportion of the start and end of each flood/ebb event (part) to search for partially inundated cases:
+  shift.All = data.NF %>%
+    group_by(Event) %>%
+    summarise(Flood_start = min(datetime) - ((difftime(max(datetime), min(datetime), units = 'mins')) * (part / 100)),
+              Ebb_start   = max(datetime) - ((difftime(max(datetime), min(datetime), units = 'mins')) * (part / 100)),
+              Flood_end   = min(datetime) + ((difftime(max(datetime), min(datetime), units = 'mins')) * (part / 100)), 
+              Ebb_end     = max(datetime) + ((difftime(max(datetime), min(datetime), units = 'mins')) * (part / 100))) %>%
+    gather(Name, datetime, Flood_start:Ebb_end) %>%
+    separate(Name, c('Tide', 'Name'), sep = '_') %>%
+    spread(Name, datetime) %>% 
+    arrange(start) %>%
+    relocate(end, .after = last_col()) %>%
+    na.omit()
   
-  # find data within the search window at the start and end of each flood and ebb event for detecting abrupt shifts indicative of partially inundated cases:
-  x = sapply(cumsum(rle(data.classified$Status)$lengths), function(i, part) { (i-part/2):(i+((part/2)-1)) }, part)
-  x = stack(data.frame(x))
-  # exclude non-values in case selection goes beyond the bounds of the data:
-  x = filter(x, values > 0 & values <= nrow(data.classified)) 
-
-  # subset data around flood and ebb events:
-  df.s = data.classified %>%
-    slice(x$values) %>%
-    bind_cols(Change = as.numeric(x$ind)) %>%
+  # filter the classified data between these dates:
+  shift.All = lapply(1:nrow(shift.All), function(i) {
+    
+    data.NF %>%
+      filter(between(datetime, shift.All$start[i], shift.All$end[i])) %>%
+      mutate(Change = i)
+    
+  } )
+  
+  shift.All = shift.All %>% 
+    bind_rows() %>%
     group_by(Change) %>%
     mutate(
       Tide  = as.character(Tide),
       Tide  = ifelse(is.na(Tide), unique(Tide[!is.na(Tide)]), Tide)) %>%
-    # remove events if misclassifed by rle (sometimes the last row is included as a transition, which it is not):
-    drop_na(Tide) 
+    ungroup()
   
-  # subset the data (now all = 1) to reduce CPU time if the search window is large:
-  shift = df.s %>%
+  # subset the data to reduce CPU time if the search window is large (off for Pendant data):
+  shift.All = shift.All %>%
     group_by(Change) %>%
-    slice(round(seq(1, n(), length.out = (chop * n())), 0)) %>%
+    slice(round(seq(1, n(), length.out = ifelse(design == 'Pendant', 1 * n(), 0.25 * n())), 0))
+  
+  # ignore short changes (< 5) that cause ASD to fail (especially important for Pendant):
+  shift.All = shift.All %>%
+    group_by(Change) %>%
+    mutate(Count = n()) %>%
+    filter(Count >= 5)
+  # ##### ADD A WARNING IN THE APP FOR WHICH EVENTS WERE MISSED:
+  # # 'Events XXX don't have enough data to check for partial inundation status! Defaulting to full inundation.'
+  
+  # detect abrupt shifts (normalise to remove direction of shift):
+  shift.All = shift.All %>%
     mutate(
-      # detect abrupt shifts (normalise to remove direction of shift):
       Shift = case_when(Tide == 'Flood' ~ as_detect(Tilt),
                         Tide == 'Ebb'   ~ as_detect(Tilt) * -1),
       Shift  = ifelse(Shift > 0, Shift, 0)) %>%
     ungroup()
   
-  # remove any duplicated rows:
-  shift = distinct(shift, datetime, .keep_all = T)
-
-  # perform a linear interpolation to unify datasets:
-  shift = data.frame(approx(shift$datetime, y = shift$Shift, xout = seq(min(shift$datetime), max(shift$datetime), 60)))
-  names(shift) = c('datetime', 'Partial')
-
+  # get the start and end dates of each shift: 
+  shift.All = shift.All %>%
+    group_by(Change, Tide) %>%
+    mutate(
+      Group = ifelse(Shift > 0, 1, 0), 
+      Group = replace(cumsum(!Group), !Group, NA),
+      Group = as.integer(factor((Group)))) %>%
+    group_by(Change, Tide, Group) %>%
+    summarise(start = min(datetime),
+              end   = max(datetime)) %>%
+    na.omit()
+  
+  shift.All = lapply(1:nrow(shift.All), function(i) {
+    
+    data.NF %>%
+      select(datetime) %>%
+      filter(between(datetime, shift.All$start[i], shift.All$end[i])) %>%
+      mutate(Partial = 'P')
+    
+  } ) %>% 
+    bind_rows()
+  
   # classify partially inundated cases based on the threshold change detection score (t):
-  df.s = df.s %>% left_join(., shift, 'datetime') %>%
-    mutate(Partial = ifelse(Partial > 0, 'P', Status)) %>%
-    select(datetime, Partial, Change)
-
-  # reclassify inundation status using partially inundated cases:
-  data.classified = left_join(data.classified, df.s, by = 'datetime') %>%
-    mutate(Status = ifelse(Status == 'F' & !is.na(Partial), Partial, Status)) %>%
+  data.NPF = data.NF %>% left_join(., shift.All, 'datetime') %>%
+    mutate(Partial = ifelse(Partial > 0, 'P', Status),
+           Status  = ifelse(Status == 'F' & !is.na(Partial), Partial, Status)) %>%
     mutate_if(is.character, as.factor)
 
-  data.classified = data.classified %>%
+  data.NPF = data.NPF %>%
     mutate(
       # convert cases when tilt at 90 has been classified partially inundated to fully inundated: 
       Status = case_when(
@@ -157,7 +209,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
         dCheck < tilt ~ 'P',
         TRUE ~ as.character(Status))) %>%
     ungroup() %>%
-    # convert short inundated events to non inundated:
+    # convert short inundated events to partially inundated:
     group_by(Event) %>%
     mutate(
       fCheck = length(Event) < full,
@@ -167,54 +219,51 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     mutate(
       Event = recode(Status, 'N' = 0, 'P' = 1, 'F' = 1), # note: P = 1 to include partial cases in event classification and thus inundation duration
       Event = replace(cumsum(!Event), !Event, NA),
-      Event = as.integer(factor((Event)))) %>%
-    # remove any duplicates that may have been introduced:
-    distinct(datetime, .keep_all = T) %>%  
-    mutate(
+      Event = as.integer(factor((Event))),
       # calculate current velocity during full inundation:
       CurrentVelocity = 
-        if      (design == 'B4'      & rate == 1)   { ifelse(Status == 'F', 1.327982676 + (-111.968186400 * Tilt) + (24.601180950 * Tilt ^ 2) + (-4.646001843 * Tilt ^ 3), NA) }
-        else if (design == 'B4'      & rate == 2)   { ifelse(Status == 'F', 1.287465546 + ( -76.484142300 * Tilt) + (16.562083690 * Tilt ^ 2) + (-2.992576646 * Tilt ^ 3), NA) }
-        else if (design == 'B4'      & rate == 3)   { ifelse(Status == 'F', 1.178190788 + ( -56.426567620 * Tilt) + (11.670334830 * Tilt ^ 2) + (-1.858891517 * Tilt ^ 3), NA) }
-        else if (design == 'B4'      & rate == 4)   { ifelse(Status == 'F', 0.974750776 + ( -39.621267190 * Tilt) + ( 7.777249437 * Tilt ^ 2) + (-1.221340473 * Tilt ^ 3), NA) }
-        else if (design == 'B4'      & rate == 5)   { ifelse(Status == 'F', 0.962632579 + ( -34.919812000 * Tilt) + ( 6.868197485 * Tilt ^ 2) + (-1.045676666 * Tilt ^ 3), NA) }
-        else if (design == 'B4'      & rate == 6)   { ifelse(Status == 'F', 1.122024526 + ( -37.746999030 * Tilt) + ( 7.505287857 * Tilt ^ 2) + (-0.983853256 * Tilt ^ 3), NA) }
-        else if (design == 'B4'      & rate == 7)   { ifelse(Status == 'F', 0.244845270 + (  -3.983081510 * Tilt) + (-1.711368654 * Tilt ^ 2) + ( 1.116835340 * Tilt ^ 3), NA) }
-        else if (design == 'B4'      & rate == 8)   { ifelse(Status == 'F', 1.236332712 + ( -36.694289410 * Tilt) + ( 8.176819558 * Tilt ^ 2) + (-1.847245525 * Tilt ^ 3), NA) }
-        else if (design == 'B4'      & rate == 9)   { ifelse(Status == 'F', 1.572679542 + ( -44.781576690 * Tilt) + (10.109522260 * Tilt ^ 2) + (-1.383777215 * Tilt ^ 3), NA) }
-        else if (design == 'B4'      & rate == 10)  { ifelse(Status == 'F', 1.041174263 + ( -27.127508680 * Tilt) + ( 5.647560250 * Tilt ^ 2) + (-1.068772529 * Tilt ^ 3), NA) }
-        else if (design == 'B4+'     & rate == 1)   { ifelse(Status == 'F', 0.947729965 + (  -0.010331140 * Tilt), NA) }
-        else if (design == 'B4+'     & rate == 2)   { ifelse(Status == 'F', 0.931892290 + (  -0.010109484 * Tilt), NA) }
-        else if (design == 'B4+'     & rate == 3)   { ifelse(Status == 'F', 0.922630764 + (  -0.009972599 * Tilt), NA) }
-        else if (design == 'B4+'     & rate == 4)   { ifelse(Status == 'F', 0.908081623 + (  -0.009762219 * Tilt), NA) }
-        else if (design == 'B4+'     & rate == 5)   { ifelse(Status == 'F', 0.900525865 + (  -0.009624605 * Tilt), NA) }
-        else if (design == 'B4+'     & rate == 6)   { ifelse(Status == 'F', 0.887583355 + (  -0.009440689 * Tilt), NA) }
-        else if (design == 'B4+'     & rate == 7)   { ifelse(Status == 'F', 0.888956883 + (  -0.009450901 * Tilt), NA) }
-        else if (design == 'B4+'     & rate == 8)   { ifelse(Status == 'F', 0.852573695 + (  -0.008953314 * Tilt), NA) }
-        else if (design == 'B4+'     & rate == 9)   { ifelse(Status == 'F', 0.862714427 + (  -0.009090706 * Tilt), NA) }
-        else if (design == 'B4+'     & rate == 10)  { ifelse(Status == 'F', 0.833515346 + (  -0.008640365 * Tilt), NA) }
-        else if (design == 'Pendant' & rate == 120) { ifelse(Status == 'F', 0.267382747 + (  -5.696430351 * Tilt) + (2.211267315 * Tilt ^ 2) + (-0.878314377 * Median ^ 3), NA) }
-        else if (design == 'Pendant' & rate == 240) { ifelse(Status == 'F', 0.265114822 + (  -2.537513647 * Tilt) + (1.003144976 * Tilt ^ 2) + (-0.445975484 * Median ^ 3), NA) }
-        else if (design == 'Pendant' & rate == 360) { ifelse(Status == 'F', 0.265893101 + (  -2.540444228 * Tilt) + (0.987726452 * Tilt ^ 2) + (-0.421841667 * Median ^ 3), NA) }
-        else if (design == 'Pendant' & rate == 480) { ifelse(Status == 'F', 0.268366319 + (  -2.573418888 * Tilt) + (1.035693222 * Tilt ^ 2) + (-0.437099348 * Median ^ 3), NA) }
-        else if (design == 'Pendant' & rate == 600) { ifelse(Status == 'F', 0.268577406 + (  -2.565829221 * Tilt) + (1.043130739 * Tilt ^ 2) + (-0.390593216 * Median ^ 3), NA) },
-      # calculate wave orbital velocity during full inundation:
-      WaveOrbitalVelocity =
-        if      (design == 'B4+' & rate == 1)  { ifelse(Status == 'F', (runSD * 1.801662524) - 0.005038870, NA) }
-        else if (design == 'B4+' & rate == 2)  { ifelse(Status == 'F', (runSD * 1.665072518) - 0.003362936, NA) }
-        else if (design == 'B4+' & rate == 3)  { ifelse(Status == 'F', (runSD * 1.687692307) - 0.005717337, NA) } 
-        else if (design == 'B4+' & rate == 4)  { ifelse(Status == 'F', (runSD * 1.597467709) - 0.000999000, NA) } 
-        else if (design == 'B4+' & rate == 5)  { ifelse(Status == 'F', (runSD * 1.617975298) - 0.002078224, NA) } 
-        else if (design == 'B4+' & rate == 6)  { ifelse(Status == 'F', (runSD * 1.655866528) - 0.004507210, NA) } 
-        else if (design == 'B4+' & rate == 7)  { ifelse(Status == 'F', (runSD * 1.707258823) - 0.007984811, NA) } 
-        else if (design == 'B4+' & rate == 8)  { ifelse(Status == 'F', (runSD * 1.595497726) - 0.001174779, NA) } 
-        else if (design == 'B4+' & rate == 9)  { ifelse(Status == 'F', (runSD * 1.513542336) + 0.002575534, NA) } 
-        else if (design == 'B4+' & rate == 10) { ifelse(Status == 'F', (runSD * 1.445359176) + 0.004573273, NA) } 
-        else { NA })
+           if (design == 'B4'  & rate == 1)  { ifelse(Status == 'F', 2.699136272 + (-0.085824310 * Tilt) + ( 9.862232219e-04 * Tilt ^ 2) + (-4.005656168e-06 * Tilt ^ 3), NA) }
+      else if (design == 'B4'  & rate == 2)  { ifelse(Status == 'F', 2.607252330 + (-0.081249794 * Tilt) + ( 9.146377720e-04 * Tilt ^ 2) + (-3.649295895E-06 * Tilt ^ 3), NA) }
+      else if (design == 'B4'  & rate == 3)  { ifelse(Status == 'F', 2.358971885 + (-0.069348001 * Tilt) + ( 7.348091059e-04 * Tilt ^ 2) + (-2.778955081E-06 * Tilt ^ 3), NA) }
+      else if (design == 'B4'  & rate == 4)  { ifelse(Status == 'F', 1.925638544 + (-0.054340391 * Tilt) + ( 5.610330015e-04 * Tilt ^ 2) + (-2.107620237E-06 * Tilt ^ 3), NA) }
+      else if (design == 'B4'  & rate == 5)  { ifelse(Status == 'F', 1.899205083 + (-0.053198643 * Tilt) + ( 5.432655714e-04 * Tilt ^ 2) + (-2.012227394E-06 * Tilt ^ 3), NA) }
+      else if (design == 'B4'  & rate == 6)  { ifelse(Status == 'F', 2.228612472 + (-0.061708940 * Tilt) + ( 6.025005906e-04 * Tilt ^ 2) + (-2.074055302E-06 * Tilt ^ 3), NA) }
+      else if (design == 'B4'  & rate == 7)  { ifelse(Status == 'F', 0.299041746 + ( 0.016861813 * Tilt) + (-4.489322709e-04 * Tilt ^ 2) + ( 2.557681188E-06 * Tilt ^ 3), NA) }
+      else if (design == 'B4'  & rate == 8)  { ifelse(Status == 'F', 2.516344340 + (-0.084257520 * Tilt) + ( 1.037862129e-03 * Tilt ^ 2) + (-4.525852876E-06 * Tilt ^ 3), NA) }
+      else if (design == 'B4'  & rate == 9)  { ifelse(Status == 'F', 3.204021725 + (-0.097213992 * Tilt) + ( 1.018015552e-03 * Tilt ^ 2) + (-3.640082156E-06 * Tilt ^ 3), NA) }
+      else if (design == 'B4'  & rate == 10) { ifelse(Status == 'F', 2.083570157 + (-0.063605569 * Tilt) + ( 7.136056159e-04 * Tilt ^ 2) + (-2.871382531e-06 * Tilt ^ 3), NA) }
+      else if (design == 'B4+' & rate == 1)  { ifelse(Status == 'F', 0.947729965 + (-0.010331140 * Tilt), NA) }
+      else if (design == 'B4+' & rate == 2)  { ifelse(Status == 'F', 0.931892290 + (-0.010109484 * Tilt), NA) }
+      else if (design == 'B4+' & rate == 3)  { ifelse(Status == 'F', 0.922630764 + (-0.009972599 * Tilt), NA) }
+      else if (design == 'B4+' & rate == 4)  { ifelse(Status == 'F', 0.908081623 + (-0.009762219 * Tilt), NA) }
+      else if (design == 'B4+' & rate == 5)  { ifelse(Status == 'F', 0.900525865 + (-0.009624605 * Tilt), NA) }
+      else if (design == 'B4+' & rate == 6)  { ifelse(Status == 'F', 0.887583355 + (-0.009440689 * Tilt), NA) }
+      else if (design == 'B4+' & rate == 7)  { ifelse(Status == 'F', 0.888956883 + (-0.009450901 * Tilt), NA) }
+      else if (design == 'B4+' & rate == 8)  { ifelse(Status == 'F', 0.852573695 + (-0.008953314 * Tilt), NA) }
+      else if (design == 'B4+' & rate == 9)  { ifelse(Status == 'F', 0.862714427 + (-0.009090706 * Tilt), NA) }
+      else if (design == 'B4+' & rate == 10) { ifelse(Status == 'F', 0.833515346 + (-0.008640365 * Tilt), NA) }
+      else if (design == 'Pendant')          { ifelse(Status == 'F', 0.957899523 + (-0.034008187 * Tilt) + (0.000473524 * Tilt ^ 2) + (-2.309457425e-06 * Tilt ^ 3), NA) } )
+  
+  # calculate wave orbital velocity during full inundation for B4+ only:
+  data.NPF = if (design == 'B4+') { 
+    data.NPF %>% 
+      mutate(
+        WaveOrbitalVelocity = 
+          if    (rate == 1)  { ifelse(Status == 'F', (runSD * 1.801662524) - 0.005038870, NA) }
+        else if (rate == 2)  { ifelse(Status == 'F', (runSD * 1.665072518) - 0.003362936, NA) }
+        else if (rate == 3)  { ifelse(Status == 'F', (runSD * 1.687692307) - 0.005717337, NA) }
+        else if (rate == 4)  { ifelse(Status == 'F', (runSD * 1.597467709) - 0.000999000, NA) }
+        else if (rate == 5)  { ifelse(Status == 'F', (runSD * 1.617975298) - 0.002078224, NA) }
+        else if (rate == 6)  { ifelse(Status == 'F', (runSD * 1.655866528) - 0.004507210, NA) }
+        else if (rate == 7)  { ifelse(Status == 'F', (runSD * 1.707258823) - 0.007984811, NA) }
+        else if (rate == 8)  { ifelse(Status == 'F', (runSD * 1.595497726) - 0.001174779, NA) }
+        else if (rate == 9)  { ifelse(Status == 'F', (runSD * 1.513542336) + 0.002575534, NA) }
+        else if (rate == 10) { ifelse(Status == 'F', (runSD * 1.445359176) + 0.004573273, NA) } ) 
+  } else { data.NPF }
   
   # check for full days:
-  FullCheck = data.classified %>%
-    group_by(ceiling_date(datetime, unit = 'days')) %>%
+  FullCheck = data.NPF %>%
+    group_by(floor_date(datetime, unit = 'days')) %>%
     summarise(Duration = n() * (.$datetime[2] - .$datetime[1])) %>%
     rename(datetime = 1) %>%
     mutate(FullDay = ifelse(Duration == '1440', T, F),
@@ -222,13 +271,14 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     select(Day, FullDay)
   
   # add a tag for days that have full data:
-  data.classified = data.classified %>%
+  data.NPF = data.NPF %>%
     mutate(Day = as.Date(datetime)) %>%
     left_join(FullCheck, by = c('Day')) %>%
-    dplyr::select(datetime, Tilt, Status, Event, Tide, CurrentVelocity, WaveOrbitalVelocity, FullDay) %>% 
     mutate_if(is.character, as.factor)
   
-  return(data.classified)
+  data.NPF = if (design == 'B4' | design == 'Pendant') { data.NPF %>% select(datetime, Tilt, Status, Event, Tide, CurrentVelocity, FullDay) } else if (design == 'B4+') { data.NPF %>% select(datetime, Tilt, Status, Event, Tide, CurrentVelocity, WaveOrbitalVelocity, FullDay) }
+  
+  return(data.NPF)
 }
 
 # List of functions for extracting hydrodynamic parameters:
@@ -292,9 +342,9 @@ hydro.UpperQAssymEvent   = function(data) { data %>% hydro.UpperQCurEventTide() 
 hydro.PeakAssym          = function(data) { data %>% hydro.PeakAssymEvent()  %>% na.omit()   %>% summarise(Value = median(Value)) }
 hydro.UpperQAssym        = function(data) { data %>% hydro.UpperQAssymEvent()   %>% summarise(Value = median(Value)) }
 
-get.summary.statisics = function(data) {
+get.summary.statistics = function(data, design) {
   
-  rbind.data.frame(
+  hydro.Summary = rbind.data.frame(
     cbind(Parameter = 'Survey days',                   Units = '[day]',     hydro.SurvDays(data)),
     cbind(Parameter = 'Inundation events',             Units = '[n]',       hydro.NumEvents(data)),
     cbind(Parameter = 'Inundation duration',           Units = '[hrs/day]', hydro.IndDurHrsDay(data)),
@@ -308,17 +358,22 @@ get.summary.statisics = function(data) {
     cbind(Parameter = 'Peak current velocity',         Units = '[m/s]',     hydro.CurPeak(data)),
     cbind(Parameter = 'Upper current velocity',        Units = '[m/s]',     hydro.CurUpperQ(data)),
     cbind(Parameter = 'Mean current velocity',         Units = '[m/s]',     hydro.CurMean(data)),
-    cbind(Parameter = 'Median current velocity',       Units = '[m/s]',     hydro.CurMed(data)),
-    cbind(Parameter = 'Peak wave orbital velocity',    Units = '[m/s]',     hydro.WavePeak(data)),
-    cbind(Parameter = 'Upper wave orbital velocity',   Units = '[m/s]',     hydro.WaveUpperQ(data)),
-    cbind(Parameter = 'Mean wave orbital velocity',    Units = '[m/s]',     hydro.WaveMean(data)),
-    cbind(Parameter = 'Median wave orbital velocity',  Units = '[m/s]',     hydro.WaveMed(data)))
-
+    cbind(Parameter = 'Median current velocity',       Units = '[m/s]',     hydro.CurMed(data)))
+  
+  if (design == 'B4+') {
+    hydro.Summary = rbind.data.frame(
+      hydro.Summary,
+      cbind(Parameter = 'Peak wave orbital velocity',    Units = '[m/s]',     hydro.WavePeak(data)),
+      cbind(Parameter = 'Upper wave orbital velocity',   Units = '[m/s]',     hydro.WaveUpperQ(data)),
+      cbind(Parameter = 'Mean wave orbital velocity',    Units = '[m/s]',     hydro.WaveMean(data)),
+      cbind(Parameter = 'Median wave orbital velocity',  Units = '[m/s]',     hydro.WaveMed(data)))
+  } else { hydro.Summary }
+  return(hydro.Summary)
   }
 
-get.daily.statistics = function(data) {
+get.daily.statistics = function(data, design) {
   
-  rbind.data.frame(
+  hydro.Daily = rbind.data.frame(
     cbind(Parameter = 'Inundation duration',          Units = '[min]', hydro.IndDurDay(data)),
     cbind(Parameter = 'Emersion duration',            Units = '[min]', hydro.NonIndDurDay(data)),
     cbind(Parameter = 'Inundation proportion',        Units = '[%]',   hydro.IndDurPercDay(data)),
@@ -327,29 +382,39 @@ get.daily.statistics = function(data) {
     cbind(Parameter = 'Peak current velocity',        Units = '[m/s]', hydro.PeakCurDay(data)),
     cbind(Parameter = 'Upper current velocity',       Units = '[m/s]', hydro.UpperQCurDay(data)),
     cbind(Parameter = 'Mean current velocity',        Units = '[m/s]', hydro.MeanCurDay(data)),
-    cbind(Parameter = 'Median current velocity',      Units = '[m/s]', hydro.MedCurDay(data)),
-    cbind(Parameter = 'Peak wave orbital velocity',   Units = '[m/s]', hydro.PeakWaveDay(data)),
-    cbind(Parameter = 'Upper wave orbital velocity',  Units = '[m/s]', hydro.UpperQWaveDay(data)),
-    cbind(Parameter = 'Mean wave orbital velocity',   Units = '[m/s]', hydro.MeanWaveDay(data)),
-    cbind(Parameter = 'Median wave orbital velocity', Units = '[m/s]', hydro.MedWaveDay(data)))
+    cbind(Parameter = 'Median current velocity',      Units = '[m/s]', hydro.MedCurDay(data)))
   
+  if (design == 'B4+') {
+    hydro.Daily = rbind.data.frame(
+      hydro.Daily,
+      cbind(Parameter = 'Peak wave orbital velocity',   Units = '[m/s]', hydro.PeakWaveDay(data)),
+      cbind(Parameter = 'Upper wave orbital velocity',  Units = '[m/s]', hydro.UpperQWaveDay(data)),
+      cbind(Parameter = 'Mean wave orbital velocity',   Units = '[m/s]', hydro.MeanWaveDay(data)),
+      cbind(Parameter = 'Median wave orbital velocity', Units = '[m/s]', hydro.MedWaveDay(data)))
+  } else { hydro.Daily }
+  return(hydro.Daily)
 }
 
-get.event.statistics = function(data) {
+get.event.statistics = function(data, design) {
 
-  rbind.data.frame(
+  hydro.Event = rbind.data.frame(
     cbind(Parameter = 'Inundation duration',          Units = '[min]', hydro.DurEvents(data)),
     cbind(Parameter = 'Peak current velocity',        Units = '[m/s]', hydro.PeakCurEvent(data)),
     cbind(Parameter = 'Upper current velocity',       Units = '[m/s]', hydro.UpperQCurEvent(data)),
     cbind(Parameter = 'Mean current velocity',        Units = '[m/s]', hydro.MeanCurEvent(data)),
     cbind(Parameter = 'Median current velocity',      Units = '[m/s]', hydro.MedCurEvent(data)),
-    cbind(Parameter = 'Peak wave orbital velocity',   Units = '[m/s]', hydro.PeakWaveEvent(data)),
-    cbind(Parameter = 'Upper wave orbital velocity',  Units = '[m/s]', hydro.UpperQWaveEvent(data)),
-    cbind(Parameter = 'Mean wave orbital velocity',   Units = '[m/s]', hydro.MeanWaveEvent(data)),
-    cbind(Parameter = 'Median wave orbital velocity', Units = '[m/s]', hydro.MedWaveEvent(data)),
     cbind(Parameter = 'Peak ebb-flood ratio',         Units = '[-]',   hydro.PeakAssymEvent(data)),
     cbind(Parameter = 'Upper ebb-flood ratio',        Units = '[-]',   hydro.UpperQAssymEvent(data)))
-    
+  
+  if (design == 'B4+') {
+    hydro.Event = rbind.data.frame(
+      hydro.Event,
+      cbind(Parameter = 'Peak wave orbital velocity',   Units = '[m/s]', hydro.PeakWaveEvent(data)),
+      cbind(Parameter = 'Upper wave orbital velocity',  Units = '[m/s]', hydro.UpperQWaveEvent(data)),
+      cbind(Parameter = 'Mean wave orbital velocity',   Units = '[m/s]', hydro.MeanWaveEvent(data)),
+      cbind(Parameter = 'Median wave orbital velocity', Units = '[m/s]', hydro.MedWaveEvent(data)))
+  } else { hydro.Event }
+  return(hydro.Event)
 }
 
 get.tidal.statistics = function(data) {
@@ -364,7 +429,7 @@ get.tidal.statistics = function(data) {
 
 
 #' Function to generate results text
-get.stats.text = function(data){
+get.stats.text = function(data, design){
   
   Statistics = data %>%
     filter(
@@ -479,28 +544,31 @@ get.stats.text = function(data){
     } else {
       ' low enough to allow coastal plants to thrive. <br/><br/>'
     },
-    'Larger proportion of wave orbital velocities are <b>',
-    Statistics %>%
-      filter(ParameterShort == 'UpperWave') %>%
-      select(Value) %>%
-      summarise(round(., digits = 2)),
-    ' m/s</b>, so can be considered',
-    if (Statistics %>%
-        filter(ParameterShort == 'UpperWave') %>%
-        select(Value) > 0.1)
+    if (design == 'B4+')
     {
-      ' high enough to cause scour and dislodge plants.'
-    } else {
-      ' low enough to allow coastal plants to thrive.<br/><br/>'
-    }
-  )
+      paste(
+        'Larger proportion of wave orbital velocities are <b>',
+        Statistics %>%
+          filter(ParameterShort == 'UpperWave') %>%
+          select(Value) %>%
+          summarise(round(., digits = 2)),
+        ' m/s</b>, so can be considered',
+        if (Statistics %>%
+            filter(ParameterShort == 'UpperWave') %>%
+            select(Value) > 0.1)
+        {
+          ' high enough to cause scour and dislodge plants.'
+        } else {
+          ' low enough to allow coastal plants to thrive.<br/><br/>' 
+        } )
+    } else { '' } )
   return(m)
 }
 
 
 #' Function for statistical comparison of each parameter in site comparison
 #' hydro.t, hydro.r: TargetHydro, ReferenceHydro
-get.comparison = function(hydro.t, hydro.r, stats.t, stats.r) { 
+get.comparison = function(hydro.t, hydro.r, stats.t, stats.r, design.t, design.r) { 
   
   # Get summary statistics:
   summary.r = stats.r %>% rename(Reference = Value)
@@ -513,8 +581,8 @@ get.comparison = function(hydro.t, hydro.r, stats.t, stats.r) {
                                          ifelse(DifferencePercentage > 0, '% higher', '% lower')))
   
   # Get event statistics:
-  event.t = get.event.statistics(hydro.t) %>% mutate(Site = 'Target')
-  event.r = get.event.statistics(hydro.r) %>% mutate(Site = 'Reference')
+  event.t = get.event.statistics(hydro.t, design.t) %>% mutate(Site = 'Target')
+  event.r = get.event.statistics(hydro.r, design.r) %>% mutate(Site = 'Reference')
   event.c = bind_rows(event.t, event.r) %>%
     spread(Site, Value) %>%
     group_by(Parameter, Units) %>%

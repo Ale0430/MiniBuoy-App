@@ -761,7 +761,7 @@ shinyServer(function(input, output, session) {
     } else if (is.null(TargetHydroStats())){
       print(text.too.short)
     } else {
-      HTML(get.stats.text(TargetHydroStats()))
+      HTML(get.stats.text(TargetHydroStats(), design = get.design.T()))
     }
   })
   
@@ -847,7 +847,7 @@ shinyServer(function(input, output, session) {
     if (timewindow < 2){
       TargetHydroStats = data.frame()
     } else {
-      TargetHydroStats = get.summary.statisics(TargetHydro)
+      TargetHydroStats = get.summary.statistics(TargetHydro, design = get.design.T())
       }
     return(TargetHydroStats)
   })
@@ -874,8 +874,8 @@ shinyServer(function(input, output, session) {
   
   get.xlsx.object.target = reactive({
     TargetHydro = TargetHydro()
-    stats.daily = get.daily.statistics(TargetHydro)
-    stats.event = get.event.statistics(TargetHydro)
+    stats.daily = get.daily.statistics(TargetHydro, design = get.design.T())
+    stats.event = get.event.statistics(TargetHydro, design = get.design.T())
     stats.summary = TargetHydroStats()
     stats.tidal = get.tidal.statistics(TargetHydro)
     settings = data.frame(gaps = input$hydro.set.gaps.target,
@@ -1144,9 +1144,9 @@ shinyServer(function(input, output, session) {
     if (timewindow < 2){
       ReferenceHydroStats = NULL
     } else {
-      ReferenceHydroStats = get.summary.statisics(ReferenceHydro)
+      ReferenceHydroStats = get.summary.statistics(ReferenceHydro, design = get.design.R())
     }
-    ReferenceHydroStats = get.summary.statisics(values$ReferenceHydro)
+    ReferenceHydroStats = get.summary.statistics(values$ReferenceHydro, design = get.design.R())
     return(ReferenceHydroStats)
   })
   
@@ -1159,7 +1159,7 @@ shinyServer(function(input, output, session) {
     } else if (is.null(ReferenceHydroStats())){
       print(text.too.short)
     } else {
-      HTML(get.stats.text(ReferenceHydroStats()))
+      HTML(get.stats.text(ReferenceHydroStats(), design = get.design.R()))
     }
   })
   
@@ -1185,8 +1185,8 @@ shinyServer(function(input, output, session) {
   
   get.xlsx.object.reference = reactive({
     ReferenceHydro = ReferenceHydro()
-    stats.daily = get.daily.statistics(ReferenceHydro)
-    stats.event = get.event.statistics(ReferenceHydro)
+    stats.daily = get.daily.statistics(ReferenceHydro, design = get.design.R())
+    stats.event = get.event.statistics(ReferenceHydro, design = get.design.R())
     stats.summary = ReferenceHydroStats()
     stats.tidal = get.tidal.statistics(ReferenceHydro)
     settings = data.frame(gaps = input$hydro.set.gaps.reference,
@@ -1365,13 +1365,15 @@ shinyServer(function(input, output, session) {
     TargetHydro = get.overlapping.data(dataset = TargetHydro())
     ReferenceHydro = get.overlapping.data(dataset = ReferenceHydro())
     
-    TargetHydroStats = get.summary.statisics(data = TargetHydro)
-    ReferenceHydroStats = get.summary.statisics(data = ReferenceHydro)
+    TargetHydroStats = get.summary.statistics(data = TargetHydro, design = get.design.T())
+    ReferenceHydroStats = get.summary.statistics(data = ReferenceHydro, design = get.design.R())
     
-    ComparisonStats = get.comparison(hydro.t = TargetHydro,
-                                     hydro.r = ReferenceHydro,
-                                     stats.t = TargetHydroStats,
-                                     stats.r = ReferenceHydroStats)
+    ComparisonStats = get.comparison(hydro.t  = TargetHydro,
+                                     hydro.r  = ReferenceHydro,
+                                     stats.t  = TargetHydroStats,
+                                     stats.r  = ReferenceHydroStats,
+                                     design.t = get.design.T(),
+                                     design.r = get.design.R())
     return(list(Comparison=ComparisonStats, 
                 Target=TargetHydro,
                 Reference=ReferenceHydro)) 
