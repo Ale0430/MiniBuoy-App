@@ -219,7 +219,10 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     mutate(
       Event = recode(Status, 'N' = 0, 'P' = 1, 'F' = 1), # note: P = 1 to include partial cases in event classification and thus inundation duration
       Event = replace(cumsum(!Event), !Event, NA),
-      Event = as.integer(factor((Event))),
+      Event = as.integer(factor((Event)))) %>%
+    # remove any duplicates that may have been introduced:
+    distinct(datetime, .keep_all = T) %>%
+    mutate( 
       # calculate current velocity during full inundation:
       CurrentVelocity = 
            if (design == 'B4'  & rate == 1)  { ifelse(Status == 'F', 2.699136272 + (-0.085824310 * Tilt) + ( 9.862232219e-04 * Tilt ^ 2) + (-4.005656168e-06 * Tilt ^ 3), NA) }
