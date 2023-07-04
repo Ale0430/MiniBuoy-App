@@ -168,13 +168,14 @@ plot.velocity = function(data, site) {
       mutate(Site = site) %>%
       filter(!is.na(Event)) %>% 
       group_by(Event) %>% 
-      mutate(min_v = min(CurrentVelocity, na.rm = T),
-             max_v = max(CurrentVelocity, na.rm = T),
-             med_v = median(CurrentVelocity, na.rm = T),
+      mutate(min_v   = min(CurrentVelocity, na.rm = T),
+             max_v   = max(CurrentVelocity, na.rm = T),
+             upper_v = quantile(CurrentVelocity, 0.95, names = F, na.rm = T),
+             med_v   = median(CurrentVelocity, na.rm = T),
              n = n()) %>% 
       filter(CurrentVelocity == max_v) %>% 
       ggplot(., aes(x = datetime, y = med_v, col = Site, size = n)) +
-      geom_pointrange(aes(ymin=min_v, ymax=max_v)) +
+      geom_pointrange(aes(ymin = med_v, ymax = upper_v)) +
       scale_color_manual(values = defaultColors) +
       scale_size_continuous(range = c(0.6, 1.6)) +
       guides(col = F, size = F) +
@@ -192,13 +193,14 @@ plot.waveVelocity = function(data, site) {
        mutate(Site = site) %>% 
        filter(!is.na(Event)) %>% 
        group_by(Event) %>% 
-       mutate(min_v = min(WaveOrbitalVelocity, na.rm = T),
-              max_v = max(WaveOrbitalVelocity, na.rm = T),
-              med_v = median(WaveOrbitalVelocity, na.rm = T),
+       mutate(min_v   = min(WaveOrbitalVelocity, na.rm = T),
+              max_v   = max(WaveOrbitalVelocity, na.rm = T),
+              upper_v = quantile(WaveOrbitalVelocity, 0.95, names = F, na.rm = T),
+              med_v   = median(WaveOrbitalVelocity, na.rm = T),
               n = n()) %>% 
        filter(WaveOrbitalVelocity == max_v) %>% 
        ggplot(., aes(x = datetime, y = med_v, col = Site, size = n)) +
-       geom_pointrange(aes(ymin=min_v, ymax=max_v)) +
+       geom_pointrange(aes(ymin = med_v, ymax = upper_v)) +
        scale_color_manual(values = defaultColors) +
        scale_size_continuous(range = c(0.6, 1.6)) +
        guides(col = F, size = F) +
@@ -210,17 +212,18 @@ plot.waveVelocity = function(data, site) {
 
 #' Velocity stage plot
 plot.stage = function(data, design) {
+  
+  id = unique(
+    (data %>%
+       filter(Event == as.character(which(table(.$Event) == max(table(.$Event))))))
+    $Event)
+  
   return(
     data %>%
-      group_by(Event, Tide) %>%
+      filter(Event == as.character(which(table(.$Event) == max(table(.$Event))))) %>%
       mutate(
-        HighTide = ifelse(Tide == 'Flood', (0:n()/n()* 100), (n():0)/n() * 100),
+        HighTide = ifelse(Tide == 'Flood', (0:n() * as.numeric(difftime(.$datetime[2], .$datetime[1], units = 'hours'))), (n():0) * as.numeric(difftime(.$datetime[2], .$datetime[1], units = 'hours'))),
         Velocity = ifelse(Tide == 'Flood', CurrentVelocity, CurrentVelocity * -1)) %>%
-      group_by(Event) %>%
-      mutate(Size = length(Event)) %>%
-      ungroup() %>%
-      na.omit() %>%
-      filter(Size == max(Size)) %>%
       ggplot(aes(Velocity, HighTide)) +
       geom_segment((aes(xend = c(tail(Velocity, n = -1), NA),
                         yend = c(tail(HighTide, n = -1), NA)))) +
@@ -233,8 +236,9 @@ plot.stage = function(data, design) {
                     ymin = Inf, ymax = -Inf),
                 fill = 'grey90') +
       geom_vline(xintercept = 0, linetype = 'dashed') +
-      labs(x     = 'Current velocity (m/s)',
-           y     = 'Duration to largest high tide detected (%)') +
+      labs(title = paste0('Inundation event ', id, ' (largest event detected)'),
+           x     = 'Current velocity (m/s)',
+           y     = 'Hours to high tide') +
       coord_cartesian(xlim = c(-1, 1)) +
       annotate(geom = 'text', x = -Inf, y = -Inf,
                label = 'Ebb',
