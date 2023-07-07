@@ -54,13 +54,8 @@ hyd.target.box.settings = function(){
                      label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated'>Minimum duration (hours)</abbr>"),
                      value = 1),
         numericInput(inputId = "hydro.set.tilt.target",
-<<<<<<< HEAD
-                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Minimun tilt</abbr>"),
-                     value = 75, min = 0, max = 90)          
-=======
                      label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated'>Minimun tilt (degrees)</abbr>"),
-                     value = 75)          
->>>>>>> 802e406 (Simpler custom settings and works across all designs)
+                     value = 75, min = 0, max = 90)          
       ),
 
       actButton("hydro.set.apply.target", "Apply custom settings", "update"),
@@ -164,13 +159,8 @@ hyd.reference.box.settings = function(){
                      label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated'>Minimum duration (hours)</abbr>"),
                      value = 1),
         numericInput(inputId = "hydro.set.tilt.reference",
-<<<<<<< HEAD
-                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated (degrees)'>Minimun tilt</abbr>"),
-                     value = 75, min = 0, max = 90)          
-=======
                      label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated'>Minimun tilt (degrees)</abbr>"),
-                     value = 75)
->>>>>>> 802e406 (Simpler custom settings and works across all designs)
+                     value = 75, min = 0, max = 90)          
       ),
       
       actButton("hydro.set.apply.reference", "Apply custom settings", "update"),
