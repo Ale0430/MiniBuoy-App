@@ -462,7 +462,7 @@ get.stats.text = function(data, design){
     Statistics %>%
       filter(ParameterShort == 'SurveyDays') %>%
       select(Value) %>% round(., 1),
-    ' days</b>, ',
+    ' day(s)</b>, ',
     if (Statistics %>%
         filter(ParameterShort == 'SurveyDays') %>%
         select(Value) < 15)
@@ -511,7 +511,7 @@ get.stats.text = function(data, design){
     Statistics %>%
       filter(ParameterShort == 'MaxWoO') %>%
       select(Value) %>% round(., 1),
-    ' days</b>, ',
+    ' day(s)</b>, ',
     if (Statistics %>%
         filter(ParameterShort == 'MaxWoO') %>%
         select(Value) > 4)
