@@ -96,7 +96,7 @@ hyd.target.box.figures = function(){
                plotlyOutput("fig.velocity.target")),
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.target")),
-      tabPanel("Velocity stage plot", br(),
+      tabPanel("Ebb-flood comparison", br(),
                plotOutput("fig.stage.target"))
     ),
     actButton("save.figs.target",
@@ -199,7 +199,7 @@ hyd.reference.box.figures = function(){
                plotlyOutput("fig.velocity.reference")),
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.reference")),
-      tabPanel("Velocity stage plot", br(),
+      tabPanel("Ebb-flood comparison", br(),
                plotOutput("fig.stage.reference"))
     ),
     actButton("save.figs.reference",
