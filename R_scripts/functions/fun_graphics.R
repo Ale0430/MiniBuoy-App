@@ -175,12 +175,13 @@ plot.velocity = function(data, site) {
              n = n()) %>% 
       filter(CurrentVelocity == max_v) %>% 
       ggplot(., aes(x = datetime, y = med_v, col = Site, size = n)) +
-      geom_pointrange(aes(ymin = med_v, ymax = upper_v)) +
+      geom_pointrange(aes(ymin = min_v, ymax = upper_v)) +
       scale_color_manual(values = defaultColors) +
       scale_size_continuous(range = c(0.6, 1.6)) +
       guides(col = F, size = F) +
       scale_y_continuous(expand = expansion(mult = c(0, .1))) +
       labs(y = 'Median current velocity (m/s)') + 
+      ggtitle('Error bars represent upper 95th percentile and minimum detected value') +
       theme(axis.title.x = element_blank())
   )
 }
@@ -200,12 +201,13 @@ plot.waveVelocity = function(data, site) {
               n = n()) %>% 
        filter(WaveOrbitalVelocity == max_v) %>% 
        ggplot(., aes(x = datetime, y = med_v, col = Site, size = n)) +
-       geom_pointrange(aes(ymin = med_v, ymax = upper_v)) +
+       geom_pointrange(aes(ymin = min_v, ymax = upper_v)) +
        scale_color_manual(values = defaultColors) +
        scale_size_continuous(range = c(0.6, 1.6)) +
        guides(col = F, size = F) +
        scale_y_continuous(expand = expansion(mult = c(0, .1))) +
        labs(y = 'Median wave orbtial velocity (m/s)') + 
+       ggtitle('Error bars represent upper 95th percentile and minimum detected value') +
        theme(axis.title.x = element_blank())
    )
 }
@@ -298,15 +300,17 @@ plot.currentsComparison = function(data.t, data.r){
        mutate(min_v = min(CurrentVelocity, na.rm = T),
               max_v = max(CurrentVelocity, na.rm = T),
               med_v = median(CurrentVelocity, na.rm = T),
+              upper_v = quantile(CurrentVelocity, 0.95, names = F, na.rm = T),
               n = n()) %>% 
        filter(CurrentVelocity == max_v) %>% 
        ggplot(., aes(x = datetime, y = med_v, col = Site, size = n)) +
-       geom_pointrange(aes(ymin=min_v, ymax=max_v)) +
+       geom_pointrange(aes(ymin=min_v, ymax=upper_v)) +
        scale_color_manual(values = defaultColors) +
        scale_size_continuous(range = c(0.2, 1)) +
        guides(size = F) +
        scale_y_continuous(expand = expansion(mult = c(0, .1))) +
        labs(y = 'Median current velocity (m/s)') + 
+       ggtitle('Error bars represent upper 95th percentile and minimum detected value') +
        theme(axis.title.x = element_blank())
    )
 }
@@ -322,15 +326,17 @@ plot.wavesComparison = function(data.t, data.r){
       mutate(min_v = min(WaveOrbitalVelocity, na.rm = T),
              max_v = max(WaveOrbitalVelocity, na.rm = T),
              med_v = median(WaveOrbitalVelocity, na.rm = T),
+             upper_v = quantile(WaveOrbitalVelocity, 0.95, names = F, na.rm = T),
              n = n()) %>% 
       filter(WaveOrbitalVelocity == max_v) %>% 
       ggplot(., aes(x = datetime, y = med_v, col = Site, size = n)) +
-      geom_pointrange(aes(ymin=min_v, ymax=max_v)) +
+      geom_pointrange(aes(ymin=min_v, ymax=upper_v)) +
       scale_color_manual(values = defaultColors) +
       scale_size_continuous(range = c(0.2, 1)) +
       guides(size = F) +
       scale_y_continuous(expand = expansion(mult = c(0, .1))) +
-      labs(y = 'Median wave orbital velocity (m/s)') + 
+      labs(y = 'Median wave orbital velocity (m/s)') +
+      ggtitle('Error bars represent upper 95th percentile and minimum detected value') +
       theme(axis.title.x = element_blank())
   )
 }
