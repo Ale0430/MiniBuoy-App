@@ -811,18 +811,23 @@ shinyServer(function(input, output, session) {
   
 
   observeEvent(input$hydro.set.apply.target, {
-    print("TARGET hydro: update with custom settings")
-    Target = Target()
-    if (!is.null(input$hydro.window.target)){
-      if (input$hydro.window.target) {
-        print("TARGET hydro: update with overlapping data")
-        Target = get.overlapping.data(dataset = Target)
+    if (input$hydro.set.tilt.target < 0 | input$hydro.set.tilt.target > 90){
+      showNotification("Error: Minimum tilt needs to be a value between 0 and 90°!",
+                       type = "error")
+    } else {
+      print("TARGET hydro: update with custom settings")
+      Target = Target()
+      if (!is.null(input$hydro.window.target)){
+        if (input$hydro.window.target) {
+          print("TARGET hydro: update with overlapping data")
+          Target = get.overlapping.data(dataset = Target)
+        }
       }
+      values$TargetHydro = data.frame()
+      values$TargetHydro = get.hydrodynamics(data = Target,
+                                             design = get.design.T(),
+                                             ui.input_settings = TargetCustomInput())      
     }
-    values$TargetHydro = data.frame()
-    values$TargetHydro = get.hydrodynamics(data = Target,
-                                           design = get.design.T(),
-                                           ui.input_settings = TargetCustomInput())
   })
   
   observeEvent(input$hydro.set.reset.target, {
@@ -1101,18 +1106,23 @@ shinyServer(function(input, output, session) {
 
   
   observeEvent(input$hydro.set.apply.reference, {
-    print("REFERENCE hydro: update with custom settings")
-    Reference = Reference()
-    if (!is.null(input$hydro.window.reference)) {
-      if (input$hydro.window.reference) {
-        print("REFERENCE hydro: update with overlapping data")
-        Reference = get.overlapping.data(dataset = Reference())
+    if (input$hydro.set.tilt.reference < 0 | input$hydro.set.tilt.reference > 90){
+      showNotification("Error: Minimum tilt needs to be a value between 0 and 90°!",
+                       type = "error")
+    } else {
+      print("REFERENCE hydro: update with custom settings")
+      Reference = Reference()
+      if (!is.null(input$hydro.window.reference)) {
+        if (input$hydro.window.reference) {
+          print("REFERENCE hydro: update with overlapping data")
+          Reference = get.overlapping.data(dataset = Reference())
+        }
       }
+      values$ReferenceHydro = data.frame()
+      values$ReferenceHydro = get.hydrodynamics(data = Reference,
+                                                design = get.design.R(),
+                                                ui.input_settings = ReferenceCustomInput())
     }
-    values$ReferenceHydro = data.frame()
-    values$ReferenceHydro = get.hydrodynamics(data = Reference,
-                                              design = get.design.R(),
-                                              ui.input_settings = ReferenceCustomInput())
   })
   
 
@@ -1371,11 +1381,22 @@ shinyServer(function(input, output, session) {
   ### Text          ####
   
   output$hydro.text.comparison <- renderUI({
-    t = get.comparison.text(ComparisonStats()[["Comparison"]])
-    HTML(t)
+    if (bool.overlap()){
+      HTML(get.comparison.text(ComparisonStats()[["Comparison"]]))
+    } else if (bool.no.reference() | bool.no.target()){
+      HTML("Please upload your target AND reference data or select default data sets.")
+    } else {
+      HTML("No overlapping time window.")
+    }
   })
   
-
+  output$hydro.text.table <- renderUI({
+    if (bool.overlap()){
+      HTML('Hydrodynamics of the reference and target sites are compared using <b>',
+           round(ComparisonStats()[["Comparison"]][1, "Reference"], 1),
+           '</b> days of overlapping data.<br/>')
+    }
+  })
   
   ### Table         ####
   
@@ -1391,6 +1412,7 @@ shinyServer(function(input, output, session) {
     {
       if (bool.overlap()) {
         ComparisonStats = ComparisonStats()[["Comparison"]] %>% 
+          slice(2:n()) %>% 
           mutate_if(is.numeric,round, 2) %>% 
           rename("Meaningfully different" = "SignificantlyDifferent",
                  "Target is" = "TargetIs")
