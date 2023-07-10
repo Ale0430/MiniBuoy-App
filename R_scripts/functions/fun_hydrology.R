@@ -357,8 +357,7 @@ get.summary.statistics = function(data, design) {
   if (design == 'B4+') {
     hydro.Summary = rbind.data.frame(
       hydro.Summary,
-      cbind(Parameter = 'Peak wave orbital velocity',    Units = '[m/s]',     hydro.WavePeak(data)),
-      cbind(Parameter = 'Upper wave orbital velocity',   Units = '[m/s]',     hydro.WaveUpperQ(data)),
+      cbind(Parameter = 'Upper wave orbital velocity',   Units = '[m/s]',     hydro.WaveUpper(data)),
       cbind(Parameter = 'Mean wave orbital velocity',    Units = '[m/s]',     hydro.WaveMean(data)),
       cbind(Parameter = 'Median wave orbital velocity',  Units = '[m/s]',     hydro.WaveMed(data)))
   } else { hydro.Summary }
@@ -379,8 +378,7 @@ get.daily.statistics = function(data, design) {
   if (design == 'B4+') {
     hydro.Daily = rbind.data.frame(
       hydro.Daily,
-      cbind(Parameter = 'Peak wave orbital velocity',   Units = '[m/s]', hydro.PeakWaveDay(data)),
-      cbind(Parameter = 'Upper wave orbital velocity',  Units = '[m/s]', hydro.UpperQWaveDay(data)),
+      cbind(Parameter = 'Upper wave orbital velocity',  Units = '[m/s]', hydro.UpperWaveDay(data)),
       cbind(Parameter = 'Mean wave orbital velocity',   Units = '[m/s]', hydro.MeanWaveDay(data)),
       cbind(Parameter = 'Median wave orbital velocity', Units = '[m/s]', hydro.MedWaveDay(data)))
   } else { hydro.Daily }
@@ -399,8 +397,7 @@ get.event.statistics = function(data, design) {
   if (design == 'B4+') {
     hydro.Event = rbind.data.frame(
       hydro.Event,
-      cbind(Parameter = 'Peak wave orbital velocity',   Units = '[m/s]', hydro.PeakWaveEvent(data)),
-      cbind(Parameter = 'Upper wave orbital velocity',  Units = '[m/s]', hydro.UpperQWaveEvent(data)),
+      cbind(Parameter = 'Upper wave orbital velocity',  Units = '[m/s]', hydro.UpperWaveEvent(data)),
       cbind(Parameter = 'Mean wave orbital velocity',   Units = '[m/s]', hydro.MeanWaveEvent(data)),
       cbind(Parameter = 'Median wave orbital velocity', Units = '[m/s]', hydro.MedWaveEvent(data)))
   } else { hydro.Event }
@@ -585,7 +582,7 @@ get.comparison = function(hydro.t, hydro.r, stats.t, stats.r, design.t, design.r
   comparison = left_join(summary.c, event.c, by = c('Parameter', 'Units')) %>%
     filter(Parameter %in% c('Survey days',
                             'Inundation events',
-                            'Mean inundation frequency',
+                            'Inundation frequency',
                             'Maximum Window of Opportunity',
                             'Inundation proportion',
                             'Mean current velocity', 
