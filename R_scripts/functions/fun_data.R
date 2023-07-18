@@ -81,7 +81,7 @@ get.ACCy.Pendant = function(file) {
                        type = "warning", duration = 5, closeButton = T)
    }
    # Transform datetime
-   rawData = unify.datetime(rawData)
+   rawData$datetime = as.POSIXct(rawData$datetime, format = '%m/%d/%y %I:%M:%S %p')
    return(rawData)
 }
 
