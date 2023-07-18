@@ -225,7 +225,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     mutate( 
       # calculate current velocity during full inundation:
       CurrentVelocity = 
-           if (design == 'B4'  & rate == 1)  { ifelse(Status == 'F', 2.699136272 + (-0.085824310 * Tilt) + ( 9.862232219e-04 * Tilt ^ 2) + (-4.005656168e-06 * Tilt ^ 3), NA) }
+           if (design == 'B4'  & rate <= 1)  { ifelse(Status == 'F', 2.699136272 + (-0.085824310 * Tilt) + ( 9.862232219e-04 * Tilt ^ 2) + (-4.005656168e-06 * Tilt ^ 3), NA) }
       else if (design == 'B4'  & rate == 2)  { ifelse(Status == 'F', 2.607252330 + (-0.081249794 * Tilt) + ( 9.146377720e-04 * Tilt ^ 2) + (-3.649295895E-06 * Tilt ^ 3), NA) }
       else if (design == 'B4'  & rate == 3)  { ifelse(Status == 'F', 2.358971885 + (-0.069348001 * Tilt) + ( 7.348091059e-04 * Tilt ^ 2) + (-2.778955081E-06 * Tilt ^ 3), NA) }
       else if (design == 'B4'  & rate == 4)  { ifelse(Status == 'F', 1.925638544 + (-0.054340391 * Tilt) + ( 5.610330015e-04 * Tilt ^ 2) + (-2.107620237E-06 * Tilt ^ 3), NA) }
@@ -235,7 +235,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
       else if (design == 'B4'  & rate == 8)  { ifelse(Status == 'F', 2.516344340 + (-0.084257520 * Tilt) + ( 1.037862129e-03 * Tilt ^ 2) + (-4.525852876E-06 * Tilt ^ 3), NA) }
       else if (design == 'B4'  & rate == 9)  { ifelse(Status == 'F', 3.204021725 + (-0.097213992 * Tilt) + ( 1.018015552e-03 * Tilt ^ 2) + (-3.640082156E-06 * Tilt ^ 3), NA) }
       else if (design == 'B4'  & rate == 10) { ifelse(Status == 'F', 2.083570157 + (-0.063605569 * Tilt) + ( 7.136056159e-04 * Tilt ^ 2) + (-2.871382531e-06 * Tilt ^ 3), NA) }
-      else if (design == 'B4+' & rate == 1)  { ifelse(Status == 'F', 0.947729965 + (-0.010331140 * Tilt), NA) }
+      else if (design == 'B4+' & rate <= 1)  { ifelse(Status == 'F', 0.947729965 + (-0.010331140 * Tilt), NA) }
       else if (design == 'B4+' & rate == 2)  { ifelse(Status == 'F', 0.931892290 + (-0.010109484 * Tilt), NA) }
       else if (design == 'B4+' & rate == 3)  { ifelse(Status == 'F', 0.922630764 + (-0.009972599 * Tilt), NA) }
       else if (design == 'B4+' & rate == 4)  { ifelse(Status == 'F', 0.908081623 + (-0.009762219 * Tilt), NA) }
@@ -252,7 +252,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     data.NPF %>% 
       mutate(
         WaveOrbitalVelocity = 
-          if    (rate == 1)  { ifelse(Status == 'F', (runSD * 1.801662524) - 0.005038870, NA) }
+          if    (rate <= 1)  { ifelse(Status == 'F', (runSD * 1.801662524) - 0.005038870, NA) }
         else if (rate == 2)  { ifelse(Status == 'F', (runSD * 1.665072518) - 0.003362936, NA) }
         else if (rate == 3)  { ifelse(Status == 'F', (runSD * 1.687692307) - 0.005717337, NA) }
         else if (rate == 4)  { ifelse(Status == 'F', (runSD * 1.597467709) - 0.000999000, NA) }
