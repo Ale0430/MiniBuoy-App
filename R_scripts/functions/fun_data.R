@@ -371,6 +371,9 @@ save.figure = function(path, name, plotObject, ui.input) {
 save.csv = function(path, name, csvObject, ui.input) {
    # Gets list(noti_note, noti_type, path)
    nots = get.notifications(ui.input)
+   if ("datetime" %in% colnames(csvObject)){
+     csvObject$datetime = as.character(csvObject$datetime)
+   }
    if (nots[[2]] == "message") {
       path = paste(path, "table-files", sep = "/")
    }
