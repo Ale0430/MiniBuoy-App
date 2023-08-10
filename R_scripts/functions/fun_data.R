@@ -32,6 +32,9 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
       })
       
    }
+   # Transform datetime
+   rawData = unify.datetime(rawData)
+   
    if (an.error.occured) {
       return(data.frame())
    } else {
@@ -80,8 +83,6 @@ get.ACCy.Pendant = function(file) {
                              sep = " "),
                        type = "warning", duration = 5, closeButton = T)
    }
-   # Transform datetime
-   rawData$datetime = as.POSIXct(rawData$datetime, format = '%m/%d/%y %I:%M:%S %p')
    return(rawData)
 }
 
