@@ -214,22 +214,22 @@ hyd.reference.box.figures = function(){
 hydComparisonOutput = function(){
   return(
     list(
-      fluidRow(
-        box(title = "Summary",
-                   width = 4, height = "95%",
-                   collapsible = T, status = "success",
-                   hyd.comparison.box.text()),
-        
-        box(title = "Table",
-                   width = 8, height = "95%",
-                   collapsible = T, status = "success",
-                   hyd.comparison.box.table())
-      ),
+      box(title = "Table",
+          width = "100%",
+          # height = "95%",
+          collapsible = T, status = "success",
+          hyd.comparison.box.table()),
       
       box(title = "Select a plot",
           width = "100%",
           collapsible = T, status = "success",
-          hyd.comparison.box.figures())
+          hyd.comparison.box.figures()),
+      
+      box(title = "Summary for coastal wetlands",
+          width = "100%",
+          collapsed = T,
+          collapsible = T, status = "success",
+          hyd.comparison.box.text())
     )
   )
   
