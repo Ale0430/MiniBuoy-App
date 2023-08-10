@@ -92,9 +92,13 @@ unify.datetime = function(rawData, inputType){
   
   if (inputType == "Pendant") {
     tryCatch( 
-      {rawData$datetime = as.POSIXlt(rawData$datetime,
-                                      tz = "GMT", 
-                                      format = c("%d/%m/%y %H:%M:%OS"))},
+      {
+        rawData = rawData %>% rowwise() %>% 
+          mutate(datetime = as.POSIXlt(datetime,
+                                        tz = "GMT", 
+                                        format = c("%m/%d/%y %H:%M:%OS")))
+        
+      },
       
       error = function(e) {
         an.error.occured <<- TRUE
