@@ -287,13 +287,6 @@ get.filename = function(path, name, format, ui.input) {
       name = paste(fileAppendix, name, sep = "_")
    }
    
-   # Check if file already exists, if yes append unique number
-   # based on system time
-   if (file.exists(paste(path, "/", name, format, sep = ""))) {
-      unique_number = gsub("\\.", "", as.numeric(Sys.time()))
-      name = paste(name, unique_number, sep = "_")
-   }
-   
    filename = paste(path, "/", name, format, sep = "")
    return(filename)
 }
