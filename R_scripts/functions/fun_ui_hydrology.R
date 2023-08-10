@@ -14,22 +14,23 @@ hydTargetOutput = function(){
           collapsed = T,
           status = "success",
           hyd.target.box.settings()),
-      fluidRow(
-        box(title = "Summary",
-                   width = "5", height = "95%",
-                   collapsible = T, status = "success",
-                   hyd.target.box.text()),
-        
-        box(title = "Table",
-                   width = "7", height = "95%",
-                   collapsible = T, status = "success",
-                   hyd.target.box.table())
-      ),
+      
+      box(title = "Table",
+          width = "100%",
+          collapsible = T, status = "success",
+          hyd.target.box.table()),
       
       box(title = "Plots",
           width = "100%",
           collapsible = T, status = "success",
-          hyd.target.box.figures())
+          hyd.target.box.figures()),
+      
+      box(title = "Summary for coastal wetlands",
+          width = "100%",
+          collapsed = T,
+          collapsible = T, status = "success",
+          hyd.target.box.text())
+      
     )
   )
 }
@@ -112,28 +113,41 @@ hyd.target.box.figures = function(){
 hydReferenceOutput = function(){
   return(
     list(
-      box(title = "Custom settings",
-          width = "100%",
-          collapsible = T,
-          collapsed = T,
-          status = "success",
-          hyd.reference.box.settings()),
-      fluidRow(
-        box(title = "Summary",
-                   width = 5, height = "95%",
-                   collapsible = T, status = "success",
-                   hyd.reference.box.text()),
-        
-        box(title = "Table",
-                   width = 7, height = "95%",
-                   collapsible = T, status = "success",
-                   hyd.reference.box.table())
+      
+      box(
+        title = "Custom settings",
+        width = "100%",
+        collapsible = T,
+        collapsed = T,
+        status = "success",
+        hyd.reference.box.settings()
       ),
       
-      box(title = "Plots",
-          width = "100%",
-          collapsible = T, status = "success",
-          hyd.reference.box.figures())
+      
+      box(
+        title = "Table",
+        width = "100%",
+        collapsible = T,
+        status = "success",
+        hyd.reference.box.table()
+      ),
+      
+      box(
+        title = "Plots",
+        width = "100%",
+        collapsible = T,
+        status = "success",
+        hyd.reference.box.figures()
+      ),
+      
+      box(
+        title = "Summary for coastal wetlands",
+        width = "100%",
+        collapsed = T,
+        collapsible = T,
+        status = "success",
+        hyd.reference.box.text()
+      )
     )
   )
   
