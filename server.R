@@ -905,10 +905,15 @@ shinyServer(function(input, output, session) {
                     ui.input = input)
         } else {
           for (n in names(sheets)) {
+            noMessage = F
+            if (n != names(sheets)[1]){
+              noMessage = T
+            }
             save.csv(path = projectPath(), 
                      name = paste("Hydrodynamics_Target", n, sep ="_"),
                      csvObject = data.frame(sheets[n]),
-                     ui.input = input)
+                     ui.input = input, 
+                     noMessage = noMessage)
           }
         }
       },
@@ -1216,6 +1221,10 @@ shinyServer(function(input, output, session) {
                     ui.input = input)
         } else {
           for (n in names(sheets)) {
+            noMessage = F
+            if (n != names(sheets)[1]){
+              noMessage = T
+            }
             save.csv(path = projectPath(), 
                      name = paste("Hydrodynamics_Reference", n, sep ="_"),
                      csvObject = data.frame(sheets[n]),
@@ -1448,6 +1457,10 @@ shinyServer(function(input, output, session) {
                     ui.input = input)
         } else {
           for (n in names(sheets)) {
+            noMessage = F
+            if (n != names(sheets)[1]){
+              noMessage = T
+            }
             save.csv(path = projectPath(), 
                      name = paste("Hydrodynamics_Comparison", n, sep ="_"),
                      csvObject = data.frame(sheets[n]),
