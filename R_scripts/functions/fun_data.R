@@ -32,6 +32,9 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
       })
       
    }
+   # Transform datetime
+   rawData = unify.datetime(rawData)
+   
    if (an.error.occured) {
       return(data.frame())
    } else {
@@ -80,8 +83,6 @@ get.ACCy.Pendant = function(file) {
                              sep = " "),
                        type = "warning", duration = 5, closeButton = T)
    }
-   # Transform datetime
-   rawData = unify.datetime(rawData)
    return(rawData)
 }
 
@@ -364,6 +365,9 @@ save.figure = function(path, name, plotObject, ui.input) {
 save.csv = function(path, name, csvObject, ui.input, noMessage=F) {
    # Gets list(noti_note, noti_type, path)
    nots = get.notifications(ui.input)
+   if ("datetime" %in% colnames(csvObject)){
+     csvObject$datetime = as.character(csvObject$datetime)
+   }
    if (nots[[2]] == "message") {
       path = paste(path, "table-files", sep = "/")
    }
