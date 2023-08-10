@@ -33,7 +33,7 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
       
    }
    # Transform datetime
-   rawData = unify.datetime(rawData)
+   rawData = unify.datetime(rawData, inputType)
    
    if (an.error.occured) {
       return(data.frame())
@@ -86,9 +86,23 @@ get.ACCy.Pendant = function(file) {
    return(rawData)
 }
 
-unify.datetime = function(rawData){
-   print("Transform datetime to date and time")
-   rawData$datetime = fastPOSIXct(rawData$datetime, tz="GMT")
+unify.datetime = function(rawData, inputType){
+  print("Transform datetime to date and time")
+  an.error.occured = F
+  
+  if (inputType == "Pendant") {
+    tryCatch( 
+      {rawData$datetime = as.POSIXlt(rawData$datetime,
+                                      tz = "GMT", 
+                                      format = c("%d/%m/%y %H:%M:%OS"))},
+      
+      error = function(e) {
+        an.error.occured <<- TRUE
+      })
+  }
+  if (an.error.occured | inputType != "Pendant"){
+    rawData$datetime = fastPOSIXct(rawData$datetime, tz="GMT")
+  }
    # rawData$date = lubridate::as_date(rawData$datetime)
    # rawData$time = format(rawData$datetime, format = "%H:%M:%S") #@Marie @Ale: too slow?
    return(rawData)
