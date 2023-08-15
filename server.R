@@ -882,7 +882,6 @@ shinyServer(function(input, output, session) {
                           full = input$hydro.set.full.target,
                           part = input$hydro.set.part.target,
                           tilt = input$hydro.set.tilt.target)
-    
     sheets = list('Summary' = stats.summary, 
                   'Daily'   = stats.daily,
                   'Events'  = stats.event,
@@ -1227,7 +1226,7 @@ shinyServer(function(input, output, session) {
             }
             save.csv(path = projectPath(), 
                      name = paste("Hydrodynamics_Reference", n, sep ="_"),
-                     csvObject = data.frame(sheets[n]),
+                     csvObject = data.frame(sheets[[n]]),
                      ui.input = input)
           }
         }
@@ -1463,7 +1462,7 @@ shinyServer(function(input, output, session) {
             }
             save.csv(path = projectPath(), 
                      name = paste("Hydrodynamics_Comparison", n, sep ="_"),
-                     csvObject = data.frame(sheets[n]),
+                     csvObject = data.frame(sheets[[n]]),
                      ui.input = input)
           }
         }
