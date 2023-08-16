@@ -280,6 +280,7 @@ shinyServer(function(input, output, session) {
       print("TARGET data: delete")
       values$Target = NULL 
     }
+
     return(values$Target)
   })
   
@@ -331,6 +332,9 @@ shinyServer(function(input, output, session) {
           closeButton = T
         )
       } else {
+        # Reset reactive value in case of re-upload
+        values$Target = NULL
+        values$TargetHydro = NULL
         showNotification(
           "Upload of Target data successful.",
           type = "message",
@@ -372,6 +376,9 @@ shinyServer(function(input, output, session) {
           closeButton = T
         )
       } else {
+        # Reset reactive value in case of re-upload
+        values$Reference = NULL
+        values$ReferenceHydro = NULL
         showNotification(
           "Upload of Reference data successful.",
           type = "message",
