@@ -16,8 +16,8 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     part = ui.input_settings$part
     tilt = ui.input_settings$tilt
   } else {
-    gaps = 1
-    full = 1
+    gaps = 60
+    full = 60
     part = 25
     tilt = 75
   }
@@ -45,23 +45,8 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     ungroup()
   
   # convert gaps and full arguments depending on Mini Buoy aggregation rate:
-  gaps = ifelse(gaps == 0, 
-                gaps,
-                data.NF %>%
-                  group_by(datetime = ceiling_date(datetime, unit = paste(gaps, 'hours'))) %>%
-                  summarise(Count = n()) %>%
-                  ungroup() %>%
-                  summarise(median = median(Count)) %>%
-                  as.numeric())
-  
-  full = ifelse(full == 0,
-                full,
-                data.NF %>%
-                  group_by(datetime = ceiling_date(datetime, unit = paste(full, 'hours'))) %>%
-                  summarise(Count = n()) %>%
-                  ungroup() %>%
-                  summarise(median = median(Count)) %>%
-                  as.numeric())
+  gaps = ceiling(gaps / as.numeric(difftime(data.NF$datetime[2], data.NF$datetime[1], units = 'mins')))
+  full = ceiling(full / as.numeric(difftime(data.NF$datetime[2], data.NF$datetime[1], units = 'mins')))
   
   data.NF = data.NF %>%
     mutate(
