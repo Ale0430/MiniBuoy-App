@@ -29,17 +29,15 @@ if(!require("zoo")) install.packages("zoo")
 if(!require("caret")) install.packages("caret")
 # Package to calculate abrupt shifts in characteristic of partially inundated cases:
 if(!require("devtools")) install.packages("devtools")
-devtools::install_github("caboulton/asdetect")
+devtools::install_github("caboulton/asdetect", quiet = T)
 if(!require("asdetect")) install.packages("asdetect")
 # Package to produce interactive plots
 if(!require("plotly")) install.packages("plotly")
 # Package to save file in excel format
 if(!require("writexl")) install.packages("writexl")
 
-
 # Suppress warning about group output when using dplyr::summarise
 options(dplyr.summarise.inform = FALSE)
-
 
 #### LOAD APP FUNCTIONS ####
 path = "./R_scripts/functions/"

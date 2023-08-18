@@ -2,7 +2,4 @@
     ol { list-style-type: upper-alpha; }
 </style>
 
-The Mini Buoy measures hydrodynamics at the coast. Analysis can be done for a single deployment, or for comparing target (restoration) and reference (natural) locations. There are three Mini Buoy designs to choose from.
-
-
-
+Mini Buoys are self-assembled research tools for measuring hydrodynamics along shallow coastal settings using drag-tilt technology and globally available materials. Refer to the Mini Buoy Handbook for information on Mini Buoy assembly, deployment, and data analysis.<br/>

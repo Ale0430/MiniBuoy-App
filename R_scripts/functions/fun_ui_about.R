@@ -42,9 +42,10 @@ introOutput = function() {
 box.settings_sensors = function() {
   return(
     list(
+      includeMarkdown("./man/MinibuoyIntro_3.md"),
       selectInput(
         "sensorType",
-        "Select sensor type to view attributes",
+        "Select a Mini Buoy design to view attributes",
         choices = c("B4", "B4+", "Pendant"),
         selected = "B4"
       ),

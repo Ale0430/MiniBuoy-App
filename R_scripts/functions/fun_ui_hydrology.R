@@ -8,7 +8,7 @@
 hydTargetOutput = function(){
   return(
     list(
-      box(title = "Custom settings",
+      box(title = "Default settings",
           width = "100%",
           collapsible = T,
           collapsed = T,
@@ -44,18 +44,18 @@ hyd.target.box.settings = function(){
       # Default values: gaps = 1, full = 1, part = 25, tilt = 75
       splitLayout(
         numericInput(inputId = "hydro.set.gaps.target",
-                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated'>Minimum gap (hours)</abbr>"),
-                     value = 1),
+                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated'>Minimum gap (minutes)</abbr>"),
+                     value = 60),
         numericInput(inputId = "hydro.set.part.target",
                      label = HTML("<abbr title='Proportion of the start and end of inundation events to Window to search for partially inundated cases'>Search window (%)</abbr>"),
                      value = 25)
         ),
       splitLayout(
         numericInput(inputId = "hydro.set.full.target",
-                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated'>Minimum duration (hours)</abbr>"),
-                     value = 1),
+                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated'>Minimum duration (minutes)</abbr>"),
+                     value = 60),
         numericInput(inputId = "hydro.set.tilt.target",
-                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated'>Minimun tilt (degrees)</abbr>"),
+                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated'>Minimum tilt (degrees)</abbr>"),
                      value = 75, min = 0, max = 90)          
       ),
 
@@ -115,7 +115,7 @@ hydReferenceOutput = function(){
     list(
       
       box(
-        title = "Custom settings",
+        title = "Default settings",
         width = "100%",
         collapsible = T,
         collapsed = T,
@@ -162,18 +162,18 @@ hyd.reference.box.settings = function(){
       # Default values: gaps = 1, full = 1, part = 50, tilt = 75
       splitLayout(
         numericInput(inputId = "hydro.set.gaps.reference",
-                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated'>Minimum gap (hours)</abbr>"),
-                     value = 1),
+                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated'>Minimum gap (minutes)</abbr>"),
+                     value = 60),
         numericInput(inputId = "hydro.set.part.reference",
                      label = HTML("<abbr title='Proportion of the start and end of inundation events to Window to search for partially inundated cases'>Search window (%)</abbr>"),
                      value = 25)
       ),
       splitLayout(
         numericInput(inputId = "hydro.set.full.reference",
-                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated'>Minimum duration (hours)</abbr>"),
-                     value = 1),
+                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated'>Minimum duration (minutes)</abbr>"),
+                     value = 60),
         numericInput(inputId = "hydro.set.tilt.reference",
-                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated'>Minimun tilt (degrees)</abbr>"),
+                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated'>Minimum tilt (degrees)</abbr>"),
                      value = 75, min = 0, max = 90)          
       ),
       

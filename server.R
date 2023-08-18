@@ -38,7 +38,7 @@ shinyServer(function(input, output, session) {
   })
   
   output$prjName <- renderPrint({
-    cat("No project chosen")
+    cat("No project selected")
   })
   
   #' Reactive variable holding the name of plot titles
@@ -101,7 +101,7 @@ shinyServer(function(input, output, session) {
   output$prjDir <- renderPrint({
     projectPath = projectPath()
     if (identical(projectPath, character(0))){
-      cat("WARNING: No directory has been selected.")
+      cat("No directory selected")
     } else {
       cat(projectPath())
     }
@@ -117,10 +117,10 @@ shinyServer(function(input, output, session) {
   observeEvent(input$crtPrj, {
     # If no folder have been selected show error
     if (!isTruthy(input$folder) | is.null(projectName())) {
-      showNotification("WARNING: No project has been created. Please select a folder.",
+      showNotification("No project has been created. Please first select a folder directory.",
                        type = "error")
       output$prjName <- renderPrint({
-        cat("NONE")
+        cat("No project selected")
       })
     } else {
       req(input$folder)
@@ -134,7 +134,7 @@ shinyServer(function(input, output, session) {
       if (!dir.exists(figPath)) {
         dir.create(figPath)
       }
-      showNotification("A project has been created",
+      showNotification("A project has been created.",
                        type = "message")
       output$prjName <- renderPrint({
         cat(projectName())
@@ -194,7 +194,7 @@ shinyServer(function(input, output, session) {
     # If column Acceleration is not numeric or is all NA
     # delete data frame
     if (!is.numeric(dataT$Acceleration) | all(is.na(dataT$Acceleration))){
-      print("Raw data upload TARGET failed")
+      print("Uploading raw target data failed.")
       dataT = NULL
     }
     return(dataT)
@@ -216,7 +216,7 @@ shinyServer(function(input, output, session) {
     # If column Acceleration is not numeric or is all NA
     # delete data frame
     if (!is.numeric(dataR$Acceleration) | all(is.na(dataR$Acceleration))){
-      print("Raw data upload REFERENCE failed")
+      print("Uploading raw reference data failed.")
       dataR = NULL
     }
     return(dataR)
@@ -299,9 +299,9 @@ shinyServer(function(input, output, session) {
   #' Trigger to update reactive data when 'Use data'
   #' button is pressed
   #' Updates data for the whole App
-  message.upload.fail = "Error: Could not read file. Is the file in the correct format? Please refer to the Mini Buoy Handbook how to download data in the correct format for this App."
+  message.upload.fail = "Could not read file. Is the file in the correct format? Please refer to the Mini Buoy Handbook."
   message.upload.no.data = function(type){
-    return(paste("Error: No ", type, " data were uploaded.", sep = ""))
+    return(paste(type, " data not uploaded.", sep = ""))
   }
   
   observeEvent(input$setData.T, {
@@ -311,7 +311,7 @@ shinyServer(function(input, output, session) {
         showNotification(
           message.upload.fail,
           type = "error",
-          duration = NULL,
+          duration = 5,
           closeButton = T
         )
       } else {
@@ -327,14 +327,14 @@ shinyServer(function(input, output, session) {
         showNotification(
           message.upload.fail,
           type = "error",
-          duration = NULL,
+          duration = 5,
           closeButton = T
         )
       } else {
         showNotification(
-          "Upload of Target data successful.",
+          "Uploaded target data successfully.",
           type = "message",
-          duration = 3,
+          duration = 5,
           closeButton = T
         )
       }
@@ -352,14 +352,14 @@ shinyServer(function(input, output, session) {
         showNotification(
           message.upload.fail,
           type = "error",
-          duration = NULL,
+          duration = 5,
           closeButton = T
         )
       } else {
         showNotification(
           message.upload.no.data("REFERENCE"),
           type = "error",
-          duration = NULL,
+          duration = 5,
           closeButton = T
         )
       }
@@ -368,14 +368,14 @@ shinyServer(function(input, output, session) {
         showNotification(
           message.upload.fail,
           type = "error",
-          duration = NULL,
+          duration = 5,
           closeButton = T
         )
       } else {
         showNotification(
-          "Upload of Reference data successful.",
+          "Uploaded reference data successfully.",
           type = "message",
-          duration = 3,
+          duration = 5,
           closeButton = T
         )
       }
@@ -492,7 +492,7 @@ shinyServer(function(input, output, session) {
                                       data.r = Reference)
       if (is.null(time.overlap)) {
         showNotification(
-          "Warning: Time windows of TARGET and REFERENCE do not overlap",
+          "Time windows of the target and reference data do not overlap.",
           type = "warning",
           duration = 5,
           closeButton = T
@@ -500,7 +500,7 @@ shinyServer(function(input, output, session) {
       } else {
         showNotification(
           paste(
-            "Time windows of TARGET and REFERENCE overlap",
+            "Time windows of the target and reference data overlap by",
             round(time.overlap[2] - time.overlap[1], 2),
             "days.",
             sep = " "
@@ -655,7 +655,7 @@ shinyServer(function(input, output, session) {
       showNotification(
         message.upload.no.data(input$filterPlot_DataSet),
         type = "error",
-        duration = NULL,
+        duration = 5,
         closeButton = T
       )
     }
@@ -672,7 +672,7 @@ shinyServer(function(input, output, session) {
       plot.emptyMessage("No figure available. Please upload data.")
     } else {
       if (input$filterPlot_renderPlot == 0) {
-        plot.emptyMessage("Customize your figure.")
+        plot.emptyMessage("Customise your figure.")
       } else {
         plot.filteredRawData(data = data,
                              ui.input = input)
@@ -727,7 +727,7 @@ shinyServer(function(input, output, session) {
   
   
   
-  text.upload.missing = "Please upload your data or select a default data set."
+  text.upload.missing = "No analysis available. Please upload data."
   text.too.short = "Uploaded/ filtered data set < 2 days."
   
   ## Functions for both R&T   ####
@@ -812,7 +812,7 @@ shinyServer(function(input, output, session) {
 
   observeEvent(input$hydro.set.apply.target, {
     if (input$hydro.set.tilt.target < 0 | input$hydro.set.tilt.target > 90){
-      showNotification("Error: Minimum tilt needs to be a value between 0 and 90°!",
+      showNotification("Minimum tilt needs to be a value between 0 and 90°.",
                        type = "error")
     } else {
       print("TARGET hydro: update with custom settings")
@@ -860,10 +860,10 @@ shinyServer(function(input, output, session) {
     {
       if (bool.no.target()){
         return(tab.with.file.upload.message(text.upload.missing,
-                                            color = "blue", backgroundColor = "white"))
+                                            color = "black", backgroundColor = "white"))
       } else if (is.null(TargetHydroStats())) {
         return(tab.with.file.upload.message(text.too.short,
-                                            color = "blue", backgroundColor = "white"))
+                                            color = "black", backgroundColor = "white"))
       } else {
         return(TargetHydroStats() %>%
                  mutate_if(is.numeric, round, 2))
@@ -917,7 +917,7 @@ shinyServer(function(input, output, session) {
         }
       },
       error=function(e) {
-        showNotification("Error: No results available!",
+        showNotification("No results available.",
                          type = "error")
       }
     )
@@ -1111,7 +1111,7 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$hydro.set.apply.reference, {
     if (input$hydro.set.tilt.reference < 0 | input$hydro.set.tilt.reference > 90){
-      showNotification("Error: Minimum tilt needs to be a value between 0 and 90°!",
+      showNotification("Minimum tilt needs to be a value between 0 and 90°.",
                        type = "error")
     } else {
       print("REFERENCE hydro: update with custom settings")
@@ -1232,7 +1232,7 @@ shinyServer(function(input, output, session) {
         }
       },
       error=function(e) {
-        showNotification("Error: No results available!",
+        showNotification("No results available.",
                          type = "error")
       }
     )
@@ -1468,7 +1468,7 @@ shinyServer(function(input, output, session) {
         }
       },
       error=function(e) {
-        showNotification("Error: No results available!",
+        showNotification("No results available.",
                          type = "error")
       }
     )
