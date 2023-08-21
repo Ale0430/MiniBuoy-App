@@ -183,12 +183,14 @@ get.rawData.sum = function(data, type){
                    collapse = "")
       
       tab = data.frame(Variable = c("Column names",
+                                    "Sampling rate (seconds)",
                                     "Survey length (days)",
                                     "First date and time", "Last date and time",
                                     "Mean acceleration (min, max)",
                                     "Median acceleration (1st and 3rd quantile)",
                                     "Number of recordings"),
                        Value = c(coln,
+                                 as.numeric(difftime(data$datetime[2], data$datetime[1], units = 'secs')),
                                  as.character(no.days),
                                  as.character(min(data$datetime, na.rm = T)),
                                  as.character(max(data$datetime, na.rm = T)),
