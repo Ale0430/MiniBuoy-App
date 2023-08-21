@@ -152,22 +152,23 @@ get.time.overlap = function(data.t, data.r){
 #' @return dataframe with summary
 get.rawData.sum = function(data, type){
    no.days = round(max(data$datetime, na.rm = T) - min(data$datetime, na.rm = T), 2)
+   sampling.rate = as.numeric(data$datetime[2] - data$datetime[1], units = 'secs')
    if (no.days < 2){
-      showNotification(paste("Error:", type, "data set too small to analyze (< 2 days)!", sep = " "),
-                       type = "error", duration = NULL, closeButton = T)
-      tab = tab.with.file.upload.message("Error: Data set too small to analyze (< 2 days)!")
+      showNotification(paste(type, "data is too short to analyse. A minimum duration of 2 days is needed.", sep = " "),
+                       type = "error", duration = 5, closeButton = T)
+      tab = tab.with.file.upload.message("Data is too short to analyse. A minimum duration of 2 days is needed.")
    } else {
       if (ncol(data) > 4){
-         showNotification(paste("Warning:", type, 
-                                "data set contains > 2 columns. Only columns 1 (datetime) and 2 (Acceleration) are used for further processing.",
+         showNotification(paste(type, 
+                                "data contains more than 2 columns. Only columns 1 (datetime) and 2 (acceleration) are used for further processing.",
                                 sep = " "),
-                          type = "warning", duration = 10, closeButton = T)
+                          type = "warning", duration = 5, closeButton = T)
       }
       if (no.days < 15){
-         showNotification(paste("Warning:", type, 
-                                "the reference data is less than 15 days, too short for a robust analysis.", 
+         showNotification(paste(type, 
+                                "data is less than 15 days, which is too short for a robust analysis.", 
                                 sep = " "),
-                          type = "warning", duration = NULL, closeButton = T)
+                          type = "warning", duration = 5, closeButton = T)
       }
       
       coln = paste(tolower(colnames(data)), collapse = ", ")
@@ -196,10 +197,10 @@ get.rawData.sum = function(data, type){
                                  as.character(nrow(data))))
       colnames(tab) = c("Data summary", "")
       if (meanAcc > 0){
-         showNotification(paste("Warning: Mean Acceleration in data set", type, 
-                                "is > 0. You may installed the Mini-Buoy upside down.", sep = " "),
+         showNotification(paste("Mean Acceleration in data set", type, 
+                                "is more than 0. Did you install the acceleration loger upside down inside the Mini Buoy?", sep = " "),
                           type = "warning",
-                          duration = NULL, closeButton = T)
+                          duration = 5, closeButton = T)
       }
    }
    
@@ -247,7 +248,7 @@ update.filter.ui = function(ui.output, ui.input, filetype, minMaxDatetime) {
    ui.output[[fO]] <- renderUI({
       tagList(
          # Date and time range
-         h5(strong("Select the start and end dates/times of the survey")),
+         h5(strong("Select start and end datetimes of the survey")),
          
          fluidRow(# Date
             column(2, p(strong('Date'))),
@@ -287,11 +288,11 @@ get.notifications = function(ui.input, path) {
    # Check if project directory is defined
    # If not show warning and set path to root directory
    if (!isTruthy(ui.input$folder)) {
-      noti_note = "No project selected. File saved in root directory."
+      noti_note = "No project selected. File has saved in the root directory."
       noti_type = "warning"
       
    } else {
-      noti_note = "File saved successfully!"
+      noti_note = "File saved successfully"
       noti_type = "message"
    }
    return(list(noti_note, noti_type))
@@ -368,7 +369,7 @@ save.figure = function(path, name, plotObject, ui.input) {
       showNotification(nots[[1]],
                        type = nots[[2]])
    } else {
-      showNotification("Error: File not saved!",
+      showNotification("File not saved. Did you create a project folder in settings?",
                        type = "error")
    }
 }
@@ -398,7 +399,7 @@ save.csv = function(path, name, csvObject, ui.input, noMessage=F) {
        showNotification(nots[[1]],
                         type = nots[[2]])
      } else {
-       showNotification("Error: File not saved!",
+       showNotification("File not saved.",
                         type = "error")
      }   
    }
@@ -422,7 +423,7 @@ save.xlsx = function(path, name, csvObject, ui.input){
     showNotification(nots[[1]], 
                      type = nots[[2]])
   } else {
-    showNotification("Error: File not saved!",
+    showNotification("File not saved.",
                      type = "error")
   }
 }
