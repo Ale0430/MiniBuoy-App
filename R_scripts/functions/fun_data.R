@@ -323,7 +323,7 @@ get.fileAppendix = function(ui.input) {
          # Extract file name (additionally remove file extension using sub)
          return(sub(".csv$", "", basename(ui.input$file1$name)))
       } else {
-         return("DefaultFile")
+         return("Example")
       }
    } else {
       return("")
@@ -346,7 +346,7 @@ save.figure = function(path, name, plotObject, ui.input) {
    format = ui.input$figFor
    nots = get.notifications(ui.input)
    if (nots[[2]] == "message") {
-      path = paste(path, "graphics", sep = "/")
+      path = paste(path, "figures", sep = "/")
    }
    filename = get.filename(
       path = path,
@@ -390,7 +390,7 @@ save.csv = function(path, name, csvObject, ui.input, noMessage=F) {
      csvObject$datetime = as.character(csvObject$datetime)
    }
    if (nots[[2]] == "message") {
-      path = paste(path, "table-files", sep = "/")
+      path = paste(path, "tables", sep = "/")
    }
    filename = get.filename(path, name, "csv", ui.input)
    
@@ -414,7 +414,7 @@ save.xlsx = function(path, name, csvObject, ui.input){
   # Gets list(noti_note, noti_type, path)
   nots = get.notifications(ui.input)
   if (nots[[2]] == "message"){
-    path = paste(path, "table-files", sep = "/")
+    path = paste(path, "tables", sep = "/")
   }
   
   filename = get.filename(path, name, "xlsx", ui.input)

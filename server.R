@@ -125,9 +125,9 @@ shinyServer(function(input, output, session) {
     } else {
       req(input$folder)
       csvPath = paste(projectPath(),
-                      "/table-files/", sep = "")
+                      "/tables/", sep = "")
       figPath = paste(projectPath(),
-                      "/graphics/", sep = "")
+                      "/figures/", sep = "")
       if (!dir.exists(csvPath)) {
         dir.create(csvPath)
       }
@@ -696,9 +696,9 @@ shinyServer(function(input, output, session) {
   observeEvent(input$save_dat_filter, {
     save.csv(path = projectPath(), 
               name =  paste(
-                "Acceleration_filtered_",
                 as.character(input$filterPlot_DataSet),
-                sep = ""
+                "Raw",
+                sep = "_"
               ),
               csvObject =  DataSetInput(),
               ui.input = input)
@@ -708,8 +708,8 @@ shinyServer(function(input, output, session) {
   #' (Data > Filter)
   observeEvent(input$save_dat_filter_fig, {
     name = paste(
-      "g_filtered",
-      as.character(input$DataSet),
+      as.character(input$filterPlot_DataSet),
+      'Raw',
       as.character(input$filterPlot_type),
       sep = "_"
     )
@@ -886,7 +886,7 @@ shinyServer(function(input, output, session) {
                   'Daily'   = stats.daily,
                   'Events'  = stats.event,
                   'Tides'   = stats.tidal,
-                  'Data' = TargetHydro,
+                  'All' = TargetHydro,
                   'Settings' = settings)
     return(sheets)
   })
@@ -899,7 +899,7 @@ shinyServer(function(input, output, session) {
         sheets = get.xlsx.object.target()
         if (input$fileFor == "xlsx"){
           save.xlsx(path = projectPath(), 
-                    name = "Hydrodynamics_Target",
+                    name = "Target",
                     csvObject = sheets,
                     ui.input = input)
         } else {
@@ -909,7 +909,7 @@ shinyServer(function(input, output, session) {
               noMessage = T
             }
             save.csv(path = projectPath(), 
-                     name = paste("Hydrodynamics_Target", n, sep ="_"),
+                     name = paste("Target", n, sep ="_"),
                      csvObject = data.frame(sheets[n]),
                      ui.input = input, 
                      noMessage = noMessage)
@@ -1021,31 +1021,31 @@ shinyServer(function(input, output, session) {
   observeEvent(input$save.figs.target, {
     save.figure(
       path = projectPath(),
-      name = "Control_Target",
+      name = "Target_Classified",
       plotObject = fig.control.target(),
       ui.input = input
     )
     save.figure(
       path = projectPath(),
-      name = "DailyInundation_Target",
+      name = "Target_DailyInundation",
       plotObject = fig.inundation.target(),
       ui.input = input
     )
     save.figure(
       path = projectPath(),
-      name = "CurrentVelocity_Target",
+      name = "Target_CurrentVelocity",
       plotObject = fig.velocity.target(),
       ui.input = input
     )
     save.figure(
       path = projectPath(),
-      name = "WaveOrbitalVelocity_Target",
+      name = "Target_WaveOrbitalVelocity",
       plotObject = fig.wave.velocity.target(),
       ui.input = input
     )
     save.figure(
       path = projectPath(),
-      name = "VelocityStagePlot_Target",
+      name = "Target_EbbFlood",
       plotObject = fig.stage.target(),
       ui.input = input
     )
@@ -1202,7 +1202,7 @@ shinyServer(function(input, output, session) {
                   'Daily'   = stats.daily,
                   'Events'  = stats.event,
                   'Tides'   = stats.tidal,
-                  'Data' = ReferenceHydro,
+                  'All' = ReferenceHydro,
                   'Settings' = settings)
     return(sheets)
   })
@@ -1215,7 +1215,7 @@ shinyServer(function(input, output, session) {
         sheets = get.xlsx.object.reference()
         if (input$fileFor == "xlsx"){
           save.xlsx(path = projectPath(), 
-                    name = "Hydrodynamics_Reference",
+                    name = "Reference",
                     csvObject =  sheets,
                     ui.input = input)
         } else {
@@ -1225,7 +1225,7 @@ shinyServer(function(input, output, session) {
               noMessage = T
             }
             save.csv(path = projectPath(), 
-                     name = paste("Hydrodynamics_Reference", n, sep ="_"),
+                     name = paste("Reference", n, sep ="_"),
                      csvObject = data.frame(sheets[[n]]),
                      ui.input = input)
           }
@@ -1333,31 +1333,31 @@ shinyServer(function(input, output, session) {
   observeEvent(input$save.figs.reference, {
     save.figure(
       path = projectPath(),
-      name = "DailyInundation_Reference",
+      name = "Reference_DailyInundation",
       plotObject = fig.inundation.reference(),
       ui.input = input
     )
     save.figure(
       path = projectPath(),
-      name = "Control_Reference",
+      name = "Reference_Classified",
       plotObject = fig.control.reference(),
       ui.input = input
     )
     save.figure(
       path = projectPath(),
-      name = "CurrentVelocity_Reference",
+      name = "Reference_CurrentVelocity",
       plotObject = fig.velocity.reference(),
       ui.input = input
     )
     save.figure(
       path = projectPath(),
-      name = "WaveOrbitalVelocity_Reference",
+      name = "Reference_WaveOrbitalVelocity",
       plotObject = fig.wave.velocity.reference(),
       ui.input = input
     )
     save.figure(
       path = projectPath(),
-      name = "StageVelocityPlot_Reference",
+      name = "Reference_EbbFlood",
       plotObject = fig.stage.reference(),
       ui.input = input
     )
@@ -1451,7 +1451,7 @@ shinyServer(function(input, output, session) {
         sheets = get.xlsx.object.reference()
         if (input$fileFor == "xlsx"){
           save.xlsx(path = projectPath(), 
-                    name = "Hydrodynamics_Comparison",
+                    name = "Comparison",
                     csvObject = sheets,
                     ui.input = input)
         } else {
@@ -1461,7 +1461,7 @@ shinyServer(function(input, output, session) {
               noMessage = T
             }
             save.csv(path = projectPath(), 
-                     name = paste("Hydrodynamics_Comparison", n, sep ="_"),
+                     name = paste("Comparison", n, sep ="_"),
                      csvObject = data.frame(sheets[[n]]),
                      ui.input = input)
           }
@@ -1536,40 +1536,28 @@ shinyServer(function(input, output, session) {
   #' Eventlistener to save comparison plots
   #' (Hydrodynamics > Comparison)
   observeEvent(input$save.fig.comparison, {
-    save.figure(
-      path = projectPath(),
-      name = "RawData_Comparison",
-      plotObject = fig.control.comparison(),
-      ui.input = input
-    )
     
     save.figure(
       path = projectPath(),
-      name = "DailyInundation_Comparison",
+      name = "Comparison_DailyInundation",
       plotObject = fig.inundation.comparison(),
       ui.input = input
     )
 
     save.figure(
       path = projectPath(),
-      name = "CurrentVelocity_Comparison",
+      name = "Comparison_CurrentVelocity",
       plotObject = fig.currents.comparison(),
       ui.input = input
     )
 
     save.figure(
       path = projectPath(),
-      name = "WaveOrbitalVelocity_Comparison",
+      name = "Comparison_WaveOrbitalVelocity",
       plotObject = fig.waves.comparison(),
       ui.input = input
     )
     
-    save.figure(
-      path = projectPath(),
-      name = "Parameter_Comparison",
-      plotObject = fig.parameter.comparison(),
-      ui.input = input
-    )
   })
   
 })

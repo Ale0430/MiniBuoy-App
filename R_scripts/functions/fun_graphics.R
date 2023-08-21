@@ -83,7 +83,7 @@ plot.filteredRawData <- function(data, ui.input) {
    type = ui.input$filterPlot_type
    aggwindow = ui.input$filterPlot_window
 
-   if (type == "hist") {
+   if (type == "Histogram") {
       p = data %>%
          ggplot(aes(x = Acceleration)) +
          geom_histogram(bins = bins, col = "black") +
@@ -95,7 +95,7 @@ plot.filteredRawData <- function(data, ui.input) {
          group_by(date) %>% 
          summarise(meanAcceleration = mean(Acceleration))
 
-      if (type == "line") {
+      if (type == "LineGraph") {
          p = data.aggr %>%
             ggplot(aes(x = date, y = meanAcceleration)) +
             geom_line()  +
@@ -103,7 +103,7 @@ plot.filteredRawData <- function(data, ui.input) {
                  y = "Acceleration (g)") +
             theme(axis.title.x=element_blank())
       }
-      if (type == "scatter") {
+      if (type == "ScatterPlot") {
          p = data.aggr %>%
             ggplot(aes(x = date, y = meanAcceleration)) +
             geom_point()  + # fast option to create scatter plots but very small dots: pch = '.', 
@@ -146,8 +146,8 @@ plot.inundation = function(data) {
       data %>%
          mutate(date = ceiling_date(datetime, unit = 'days')) %>%
          group_by(date) %>%
-         summarise(InundationMin = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) %>%
-         ggplot(aes(x = date, y = InundationMin)) +
+         summarise(InundationHrs = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1]) / 60) %>%
+         ggplot(aes(x = date, y = InundationHrs)) +
          geom_bar(
             stat = 'identity',
             fill = 'lightblue',
@@ -156,7 +156,7 @@ plot.inundation = function(data) {
          scale_y_continuous(expand = expansion(mult = c(0, .1)), 
                             sec.axis = sec_axis(trans=~./60,
                                                 name = 'Daily inundation (hours/day)')) +
-         labs(y = 'Daily inundation (min/day)') +
+         labs(y = 'Daily inundation (hours/day)') +
          theme(axis.title.x = element_blank())
    )
 }
@@ -273,16 +273,16 @@ plot.inundationComparison = function(data.t, data.r){
                            levels = c("Reference", "Target"))) %>% 
       mutate(date = ceiling_date(datetime, unit = 'days')) %>%
       group_by(Type, date) %>%
-      summarise(InundationMin = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1])) 
+      summarise(InundationHrs = sum(!is.na(Event)) * (.$datetime[2] - .$datetime[1]) / 60) 
    
    return(hydro %>% 
-             ggplot(aes(x = date, y = InundationMin, fill = Type)) +
+             ggplot(aes(x = date, y = InundationHrs, fill = Type)) +
              geom_bar(stat = 'identity', position = 'dodge') +
              scale_fill_manual(values = defaultColors) +
              scale_y_continuous(expand = expansion(mult = c(0, .1)),
                                 sec.axis = sec_axis(trans=~./60,
                                                     name = 'Daily inundation (hours/day)')) +
-             labs(y = 'Daily inundation (min/day)',
+             labs(y = 'Daily inundation (hours/day)',
                   fill = "Site") + 
              theme(axis.title.x = element_blank())
           )
