@@ -25,7 +25,7 @@ hydTargetOutput = function(){
           collapsible = T, status = "success",
           hyd.target.box.figures()),
       
-      box(title = "Summary for coastal wetlands",
+      box(title = "Summary (for coastal wetlands only)",
           width = "100%",
           collapsed = T,
           collapsible = T, status = "success",
@@ -141,7 +141,7 @@ hydReferenceOutput = function(){
       ),
       
       box(
-        title = "Summary for coastal wetlands",
+        title = "Summary (for coastal wetlands only)",
         width = "100%",
         collapsed = T,
         collapsible = T,
@@ -239,7 +239,7 @@ hydComparisonOutput = function(){
           collapsible = T, status = "success",
           hyd.comparison.box.figures()),
       
-      box(title = "Summary for coastal wetlands",
+      box(title = "Summary (for coastal wetlands only)",
           width = "100%",
           collapsed = T,
           collapsible = T, status = "success",
