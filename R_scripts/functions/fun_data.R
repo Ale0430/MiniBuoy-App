@@ -47,19 +47,23 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
 #' @param file: uploaded file
 #' @return data.frame
 get.ACCy.B4 = function(file) {
-  # find column names:
-  names = as.character(
-    fread(file, 
-          skip   = grep('*CHANNEL', readLines(file, n = 100)),
-          nrows  = 1,
-          header = F))
-  # read the raw data:
-  rawData = fread(file, skip = "*DATA", header = F)
-  # assign column names:
-  colnames(rawData) <- names
-  # ensure only datetime and y-axis acceleration columns are used:
-  rawData = rawData[, c('TIME', 'ACC y')]
-  colnames(rawData) <- c('datetime', 'Acceleration')
+  # read filtered data:
+  if(readLines(file, n = 1) == c('datetime,Acceleration')) { rawData = fread(file)
+  # read raw data:
+  } else {
+    # find column names:
+    names = as.character(
+      fread(file, 
+            skip   = grep('*CHANNEL', readLines(file, n = 100)),
+            nrows  = 1,
+            header = F))
+    # read the raw data:
+    rawData = fread(file, skip = "*DATA", header = F)
+    # assign column names:
+    colnames(rawData) <- names
+    # ensure only datetime and y-axis acceleration columns are used:
+    rawData = rawData[, c('TIME', 'ACC y')]
+    colnames(rawData) <- c('datetime', 'Acceleration') }
   return(rawData)
 }
 
@@ -68,12 +72,17 @@ get.ACCy.B4 = function(file) {
 #' @param file: uploaded file
 #' @return data.frame
 get.ACCy.Pendant = function(file) {
-  # select data from the row containing headers;
-  rawData = fread(file, skip = "#")
-  # select only date/time and x-axis acceleration columns:
-  rawData = select(rawData, contains(c('Date', 'X Accel')))
-  # assign column names to the first 2 columns:
-  colnames(rawData)[c(1,2)] <- c("datetime", "Acceleration")
+  # read filtered data:
+  if(readLines(file, n = 1) == c('datetime,Acceleration')) { rawData = fread(file) 
+  # read raw data:
+  # read raw data:
+  } else {
+    # select data from the row containing headers;
+    rawData = fread(file, skip = "#")
+    # select only date/time and x-axis acceleration columns:
+    rawData = select(rawData, contains(c('Date', 'X Accel')))
+    # assign column names to the first 2 columns:
+    colnames(rawData)[c(1,2)] <- c("datetime", "Acceleration") }
   return(rawData)
 }
 
