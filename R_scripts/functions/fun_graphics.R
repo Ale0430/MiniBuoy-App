@@ -261,6 +261,19 @@ plot.stage = function(data, design) {
   )
 }
 
+#' Windows of Opportunity
+plot.woo = function(data) {
+  return(
+    data %>%
+      get.woo.statistics() %>%
+      ggplot(aes(x = EmersionEvent, y = Value)) +
+      geom_line() +
+      geom_point() +
+      labs(x = 'Emersion event',
+           y = 'Window of Opportunity duration (hours)')
+  )
+}
+
 ######## HYDRO: COMPARISON ########
 
 #' Inundation
@@ -315,7 +328,7 @@ plot.currentsComparison = function(data.t, data.r){
    )
 }
 
-#' Current velocity
+#' Wave orbital velocity
 plot.wavesComparison = function(data.t, data.r){
   return(
     data.t %>% 
@@ -341,33 +354,22 @@ plot.wavesComparison = function(data.t, data.r){
   )
 }
 
-
-#' Parameter bar plot
-plot.parameterComparison = function(stats.table){
-   return(
-      stats.table %>% 
-         gather(., Type, Value, Reference, Target) %>% 
-         mutate(Type = factor(Type,
-                              levels = c("Target", "Reference")),
-                Parameter = factor(Parameter,
-                                   levels = c("Monitoring period (d)", 
-                                              "Average flooding duration (min/d)",
-                                              "Time flooded during survey (%)",
-                                              "Flooding frequency (f/d)",
-                                              "Max. Window of opportunity duration (d)",
-                                              "Median current velocity (m/s)",
-                                              "75 percentile current velocity (m/s)",
-                                              "Flood ebb median velocity (m/s)",
-                                              "Median wave orbital velocity (m/s)",
-                                              "75 percentile wave orbital velocity (m/s)"))) %>% 
-         ggplot(., aes(x = Parameter, y = Value, fill = Type)) +
-         geom_bar(stat = "identity", position = "dodge", col = "black") +
-         scale_fill_manual(values = defaultColors) +
-         facet_wrap(~Parameter, scales = "free", 
-                    ncol = round(nrow(stats.table)/2),
-                    labeller = label_wrap_gen(width=25)) +
-         theme(axis.title.x = element_blank(),
-               axis.text.x = element_blank())
-   )
+#' Parameter boxplot
+plot.parameterComparison = function(data.t, data.r, design){
+  
+  event.r = data.r %>% get.event.statistics(design)
+  event.t = data.t %>% get.event.statistics(design)
+  
+  return(
+    event.t %>%
+      mutate(Site = 'Target') %>%
+      bind_rows(event.r %>%
+                  mutate(Site = 'Reference')) %>%
+      ggplot(aes(Parameter, Value, colour = Site)) +
+      stat_boxplot(geom = 'errorbar') + 
+      geom_boxplot() + 
+      coord_flip() +
+      theme(axis.title.y = element_blank())
+  )
 }
 

@@ -98,7 +98,9 @@ hyd.target.box.figures = function(){
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.target")),
       tabPanel("Ebb-flood comparison", br(),
-               plotOutput("fig.stage.target"))
+               plotOutput("fig.stage.target")),
+      tabPanel("Windows of Opportunity", br(),
+               plotOutput("fig.woo.target"))
     ),
     actButton("save.figs.target",
               "Download plots", 
@@ -197,7 +199,7 @@ hyd.reference.box.table = function(){
   return(
     list(
       output.table("hydro.table.reference"),
-      actButton("hydro.table.reference.save", "Save table", "saveCsv")
+      actButton("hydro.table.reference.save", "Download results", "saveCsv")
     )  )
 }
 
@@ -214,7 +216,9 @@ hyd.reference.box.figures = function(){
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.reference")),
       tabPanel("Ebb-flood comparison", br(),
-               plotOutput("fig.stage.reference"))
+               plotOutput("fig.stage.reference")),
+      tabPanel("Windows of Opportunity", br(),
+               plotOutput("fig.woo.reference"))
     ),
     actButton("save.figs.reference",
               "Download plots", 
@@ -262,8 +266,8 @@ hyd.comparison.box.table = function(){
   return(
     list(
       htmlOutput('hydro.text.table'),  # original shiny function to avoid 2nd spinner
-      output.table("comparison.table.target"),
-      actButton("comparison.table.save", "Download results", "saveCsv")
+      output.table("hydro.table.comparison"),
+      actButton("hydro.table.comparison.save", "Download results", "saveCsv")
     )
   )
 }
@@ -277,7 +281,9 @@ hyd.comparison.box.figures = function(){
       tabPanel("Current velocity", br(),
                plotlyOutput("fig.currents.comparison")),
       tabPanel("Wave orbital velocity", br(),
-               plotlyOutput("fig.waves.comparison"))
+               plotlyOutput("fig.waves.comparison")),
+      tabPanel("Comparison of events", br(),
+               plotlyOutput("fig.parameters.comparison"))
     ),
     actButton("save.fig.comparison",
               "Download plots", 

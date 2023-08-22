@@ -873,20 +873,22 @@ shinyServer(function(input, output, session) {
   )
   
   get.xlsx.object.target = reactive({
-    TargetHydro = TargetHydro()
-    stats.daily = get.daily.statistics(TargetHydro, design = get.design.T())
+    TargetHydro = TargetHydro() %>% dplyr::select(-'FullDay')
+    stats.daily = get.daily.statistics(TargetHydro, design = get.design.T()) %>% left_join(TargetHydro() %>% group_by(floor_date(datetime, 'days')) %>% summarise(FullDay = unique(FullDay)) %>% rename(datetime = 1), by = 'datetime')
     stats.event = get.event.statistics(TargetHydro, design = get.design.T())
     stats.summary = TargetHydroStats()
     stats.tidal = get.tidal.statistics(TargetHydro)
+    stats.woo = get.woo.statistics(TargetHydro)
     settings = data.frame(gaps = input$hydro.set.gaps.target,
                           full = input$hydro.set.full.target,
                           part = input$hydro.set.part.target,
                           tilt = input$hydro.set.tilt.target)
     sheets = list('Summary' = stats.summary, 
-                  'Daily'   = stats.daily,
+                  'Daily'   = stats.daily, # %>% rename('Date' = 'datetime')
                   'Events'  = stats.event,
                   'Tides'   = stats.tidal,
-                  'All' = TargetHydro,
+                  'Windows' = stats.woo,
+                  'All' = TargetHydro, # %>% rename('Date' = 'datetime')
                   'Settings' = settings)
     return(sheets)
   })
@@ -910,9 +912,8 @@ shinyServer(function(input, output, session) {
             }
             save.csv(path = projectPath(), 
                      name = paste("Target", n, sep ="_"),
-                     csvObject = data.frame(sheets[n]),
-                     ui.input = input, 
-                     noMessage = noMessage)
+                     csvObject = data.frame(sheets[[n]]),
+                     ui.input = input)
           }
         }
       },
@@ -1013,6 +1014,18 @@ shinyServer(function(input, output, session) {
     fig.stage.target()
   })
   
+  #### Windows of Opportunity plot #####
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.woo.target <- reactive({
+    fig.helper.target(plot.woo(data = TargetHydro()))
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.woo.target <- renderPlot({
+    fig.woo.target()
+  })
   
   #### Save all plots #####
   
@@ -1049,7 +1062,12 @@ shinyServer(function(input, output, session) {
       plotObject = fig.stage.target(),
       ui.input = input
     )
-    
+    save.figure(
+      path = projectPath(),
+      name = "Target_Window",
+      plotObject = fig.woo.target(),
+      ui.input = input
+    )
   })
   
   
@@ -1188,21 +1206,23 @@ shinyServer(function(input, output, session) {
   )
   
   get.xlsx.object.reference = reactive({
-    ReferenceHydro = ReferenceHydro()
-    stats.daily = get.daily.statistics(ReferenceHydro, design = get.design.R())
+    ReferenceHydro = ReferenceHydro() %>% dplyr::select(-'FullDay')
+    stats.daily = get.daily.statistics(ReferenceHydro, design = get.design.R()) %>% left_join(ReferenceHydro() %>% group_by(floor_date(datetime, 'days')) %>% summarise(FullDay = unique(FullDay)) %>% rename(datetime = 1), by = 'datetime')
     stats.event = get.event.statistics(ReferenceHydro, design = get.design.R())
     stats.summary = ReferenceHydroStats()
     stats.tidal = get.tidal.statistics(ReferenceHydro)
+    stats.woo = get.woo.statistics(ReferenceHydro)
     settings = data.frame(gaps = input$hydro.set.gaps.reference,
                           full = input$hydro.set.full.reference,
                           part = input$hydro.set.part.reference,
                           tilt = input$hydro.set.tilt.reference)
     
     sheets = list('Summary' = stats.summary, 
-                  'Daily'   = stats.daily,
+                  'Daily'   = stats.daily, # %>% rename('Date' = 'datetime')
                   'Events'  = stats.event,
                   'Tides'   = stats.tidal,
-                  'All' = ReferenceHydro,
+                  'Windows' = stats.woo,
+                  'All' = ReferenceHydro, # %>% rename('Date' = 'datetime')
                   'Settings' = settings)
     return(sheets)
   })
@@ -1326,6 +1346,19 @@ shinyServer(function(input, output, session) {
     fig.stage.reference()
   })
   
+  #### Windows of Opportunity plot #####
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Reference
+  fig.woo.reference <- reactive({
+    fig.helper.reference(plot.woo(data = ReferenceHydro()))
+  })
+  
+  #' Render plot shown in Hydrodynamics > Reference
+  output$fig.woo.reference <- renderPlot({
+    fig.woo.reference()
+  })
+  
   #### Save all plots #####
   
   #' Eventlistener to save hydro plots
@@ -1359,6 +1392,12 @@ shinyServer(function(input, output, session) {
       path = projectPath(),
       name = "Reference_EbbFlood",
       plotObject = fig.stage.reference(),
+      ui.input = input
+    )
+    save.figure(
+      path = projectPath(),
+      name = "Reference_Window",
+      plotObject = fig.woo.reference(),
       ui.input = input
     )
   })
@@ -1417,7 +1456,7 @@ shinyServer(function(input, output, session) {
   
   
   #' Render table showing hydrodynamics of comparison data
-  output$comparison.table.target <- DT::renderDataTable(
+  output$hydro.table.comparison <- DT::renderDataTable(
     rownames = F,
     {
       if (bool.overlap()) {
@@ -1442,13 +1481,22 @@ shinyServer(function(input, output, session) {
                    columnDefs = list(list(className = 'dt-center', targets = 1:5))),
   )
 
+  get.xlsx.object.comparison = reactive({
+    ComparisonHydro = ComparisonStats()[["Comparison"]] %>% 
+      slice(2:n()) %>% 
+      mutate_if(is.numeric,round, 2) %>% 
+      rename("Meaningfully different" = "SignificantlyDifferent",
+             "Target is" = "TargetIs")
+    sheets = list('Summary' = ComparisonHydro)
+    return(sheets)
+  })
   
   #' Eventlistener to save hydrodynamics summary comparison
   #' (Hydrodynamics > Summary table)
-  observeEvent(input$comparison.table.save, {
+  observeEvent(input$hydro.table.comparison.save, {
     tryCatch(
       {
-        sheets = get.xlsx.object.reference()
+        sheets = get.xlsx.object.comparison()
         if (input$fileFor == "xlsx"){
           save.xlsx(path = projectPath(), 
                     name = "Comparison",
@@ -1530,6 +1578,24 @@ shinyServer(function(input, output, session) {
     fig.waves.comparison()
   })
   
+  #### Parameter comparison (by event) #####
+  
+  #' Reactive variable holding the
+  #' plot shown in Hydrodynamics > Target
+  fig.parameters.comparison <- reactive({
+    if (bool.no.target() | bool.no.reference()){
+      plot.emptyMessage("No figure available. Please upload data.")
+    } else {
+      plot.parameterComparison(data.t = ComparisonStats()[["Target"]],
+                               data.r = ComparisonStats()[["Reference"]],
+                               design = get.design.T())
+    }
+  })
+  
+  #' Render plot shown in Hydrodynamics > Target
+  output$fig.parameters.comparison <- renderPlotly({
+    fig.parameters.comparison()
+  })
   
   #### Save all plots #####
 
@@ -1558,6 +1624,12 @@ shinyServer(function(input, output, session) {
       ui.input = input
     )
     
+    save.figure(
+      path = projectPath(),
+      name = "Comparison_Parameters",
+      plotObject = fig.parameters.comparison(),
+      ui.input = input
+    )
   })
   
 })
