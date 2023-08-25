@@ -1,0 +1,16 @@
+Parameter,Units,Value
+Survey days,[day],5.56666666666667
+Inundation events,[n],10
+Inundation duration,[hrs/day],4.23353293413174
+Emersion duration,[hrs/day],19.7664670658683
+Inundation proportion,[%],17.6397205588822
+Emersion proportion,[%],82.3602794411178
+Inundation frequency,[n/day],1.79640718562874
+Maximum Window of Opportunity,[day],0.955555555555556
+Upper 95th percentile ebb-flood ratio,[-],1.15346409212028
+Upper 95th percentile current velocity,[m/s],0.257977728456175
+Mean current velocity,[m/s],0.0994586468010743
+Median current velocity,[m/s],0.0834013221576924
+Upper 95th percentile wave orbital velocity,[m/s],0.145949788989719
+Mean wave orbital velocity,[m/s],0.0595888692099138
+Median wave orbital velocity,[m/s],0.0482499626597075

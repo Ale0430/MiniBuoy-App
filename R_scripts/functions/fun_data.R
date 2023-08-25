@@ -337,7 +337,7 @@ get.fileAppendix = function(ui.input) {
 #' @param fileAppendix: character to be appended to file name
 #' @param format: file format
 #' @param prjName: project name, added as title to plot
-save.figure = function(path, name, plotObject, ui.input) {
+save.figure = function(path, name, plotObject, ui.input, noMessage=F) {
    plotObject = plotObject +
       ggtitle(ui.input$figTitle) +
       theme(text = element_text(size = 14))
@@ -366,12 +366,14 @@ save.figure = function(path, name, plotObject, ui.input) {
       ))
    }
    
-   if (is.null(res) || (res == filename)) {
-      showNotification(nots[[1]],
-                       type = nots[[2]])
-   } else {
-      showNotification("File not saved. Did you create a project folder in settings?",
-                       type = "error")
+   if (!noMessage){
+     if (is.null(res) || (res == filename)) {
+       showNotification(nots[[1]],
+                        type = nots[[2]])
+     } else {
+       showNotification("Error: File not saved!",
+                        type = "error")
+     }
    }
 }
 

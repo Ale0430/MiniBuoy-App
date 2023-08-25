@@ -920,7 +920,8 @@ shinyServer(function(input, output, session) {
             save.csv(path = projectPath(), 
                      name = paste("Target", n, sep ="_"),
                      csvObject = data.frame(sheets[[n]]),
-                     ui.input = input)
+                     ui.input = input,
+                     noMessage = noMessage)
           }
         }
       },
@@ -1043,37 +1044,43 @@ shinyServer(function(input, output, session) {
       path = projectPath(),
       name = "Target_Classified",
       plotObject = fig.control.target(),
-      ui.input = input
+      ui.input = input,
+      noMessage = T
     )
     save.figure(
       path = projectPath(),
       name = "Target_DailyInundation",
       plotObject = fig.inundation.target(),
-      ui.input = input
+      ui.input = input,
+      noMessage = T
     )
     save.figure(
       path = projectPath(),
       name = "Target_CurrentVelocity",
       plotObject = fig.velocity.target(),
-      ui.input = input
+      ui.input = input,
+      noMessage = T
     )
     save.figure(
       path = projectPath(),
       name = "Target_WaveOrbitalVelocity",
       plotObject = fig.wave.velocity.target(),
-      ui.input = input
+      ui.input = input,
+      noMessage = T
     )
     save.figure(
       path = projectPath(),
       name = "Target_EbbFlood",
       plotObject = fig.stage.target(),
-      ui.input = input
+      ui.input = input,
+      noMessage = T
     )
     save.figure(
       path = projectPath(),
       name = "Target_Window",
       plotObject = fig.woo.target(),
-      ui.input = input
+      ui.input = input,
+      noMessage = F
     )
   })
   
@@ -1375,37 +1382,43 @@ shinyServer(function(input, output, session) {
       path = projectPath(),
       name = "Reference_DailyInundation",
       plotObject = fig.inundation.reference(),
-      ui.input = input
+      ui.input = input,
+      noMessage = T
     )
     save.figure(
       path = projectPath(),
       name = "Reference_Classified",
       plotObject = fig.control.reference(),
-      ui.input = input
+      ui.input = input,
+      noMessage = T
     )
     save.figure(
       path = projectPath(),
       name = "Reference_CurrentVelocity",
       plotObject = fig.velocity.reference(),
-      ui.input = input
+      ui.input = input,
+      noMessage = T
     )
     save.figure(
       path = projectPath(),
       name = "Reference_WaveOrbitalVelocity",
       plotObject = fig.wave.velocity.reference(),
-      ui.input = input
+      ui.input = input,
+      noMessage = T
     )
     save.figure(
       path = projectPath(),
       name = "Reference_EbbFlood",
       plotObject = fig.stage.reference(),
-      ui.input = input
+      ui.input = input,
+      noMessage = T
     )
     save.figure(
       path = projectPath(),
       name = "Reference_Window",
       plotObject = fig.woo.reference(),
-      ui.input = input
+      ui.input = input,
+      noMessage = F
     )
   })
   
@@ -1518,7 +1531,8 @@ shinyServer(function(input, output, session) {
             save.csv(path = projectPath(), 
                      name = paste("Comparison", n, sep ="_"),
                      csvObject = data.frame(sheets[[n]]),
-                     ui.input = input)
+                     ui.input = input,
+                     noMessage = noMessage)
           }
         }
       },
@@ -1621,34 +1635,28 @@ shinyServer(function(input, output, session) {
   #' Eventlistener to save comparison plots
   #' (Hydrodynamics > Comparison)
   observeEvent(input$save.fig.comparison, {
-    
     save.figure(
       path = projectPath(),
       name = "Comparison_DailyInundation",
       plotObject = fig.inundation.comparison(),
-      ui.input = input
+      ui.input = input,
+      noMessage = T
     )
 
     save.figure(
       path = projectPath(),
       name = "Comparison_CurrentVelocity",
       plotObject = fig.currents.comparison(),
-      ui.input = input
+      ui.input = input,
+      noMessage = T
     )
 
     save.figure(
       path = projectPath(),
       name = "Comparison_WaveOrbitalVelocity",
       plotObject = fig.waves.comparison(),
-      ui.input = input
-    )
-    
-    save.figure(
-      path = projectPath(),
-      name = "Comparison_Parameters",
-      plotObject = fig.parameters.comparison(),
-      ui.input = input
+      ui.input = input,
+      noMessage = F
     )
   })
-  
 })
