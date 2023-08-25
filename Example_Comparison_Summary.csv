@@ -1,9 +1,0 @@
-Parameter,Units,Reference,Target,Meaningfully.different,Target.is
-Inundation duration,[hrs/day],3.97,4.23,,6.1% higher
-Inundation frequency,[n/day],1.8,1.8,,0% lower
-Maximum Window of Opportunity,[day],0.96,0.96,,0% lower
-Upper 95th percentile ebb-flood ratio,[-],0.98,1.15,No,14.8% higher
-Upper 95th percentile current velocity,[m/s],0.39,0.26,Yes,50% lower
-Mean current velocity,[m/s],0.16,0.1,No,60% lower
-Upper 95th percentile wave orbital velocity,[m/s],0.18,0.15,No,20% lower
-Mean wave orbital velocity,[m/s],0.09,0.06,No,50% lower
