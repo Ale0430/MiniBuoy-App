@@ -267,7 +267,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
   # check for full days:
   FullCheck = data.NPF %>%
     group_by(floor_date(datetime, unit = 'days')) %>%
-    summarise(Duration = n() * (.$datetime[2] - .$datetime[1])) %>%
+    summarise(Duration = n() * (as.numeric(difftime(.$datetime[2], .$datetime[1], units = 'mins')))) %>%
     rename(datetime = 1) %>%
     mutate(FullDay = ifelse(Duration == '1440', T, F),
            Day     = as.Date(datetime)) %>%
@@ -306,7 +306,7 @@ hydro.IndFreqDay         = function(data) { data %>% summarise(n_distinct(Event,
 hydro.MaxWoO = function(data) { 
   df = data %>% mutate(Value = ifelse(is.na(Event), 0, 1))
   df = filter(data.frame(unclass(rle(df$Value))), values == 0)
-  df = as.numeric(max(df$lengths) * (data$datetime[2] - data$datetime[1]) / 60 / 24)
+  df = as.numeric(max(df$lengths) * (as.numeric(difftime(data$datetime[2], data$datetime[1], units = 'mins'))) / 60 / 24)
   df = data.frame(df) %>% rename(Value = 1)
   return(df) }
 
@@ -337,6 +337,12 @@ hydro.UpperAssymEvent   = function(data) { data %>% hydro.UpperCurEventTide() %>
 hydro.UpperAssym        = function(data) { data %>% hydro.UpperAssymEvent()   %>% summarise(Value = median(Value)) }
 
 hydro.FullDays          = function(data) { data %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = unique(FullDay)) %>% rename(datetime = 1) }
+hydro.IndividualWoO     = function(data) { 
+  df = data %>% mutate(Value = ifelse(is.na(Event), 0, 1))
+  df = filter(data.frame(unclass(rle(df$Value))), values == 0)
+  df = as.numeric(df$lengths * (as.numeric(difftime(data$datetime[2], data$datetime[1], units = 'mins'))) / 60)
+  df = data.frame(EmersionEvent = 1:length(df), Value = df)
+  return(df) }
 
 get.summary.statistics = function(data, design) {
   
@@ -349,15 +355,15 @@ get.summary.statistics = function(data, design) {
     cbind(Parameter = 'Emersion proportion',           Units = '[%]',       hydro.NonIndDurPerc(data)),
     cbind(Parameter = 'Inundation frequency',          Units = '[n/day]',   hydro.IndFreqDay(data)),
     cbind(Parameter = 'Maximum Window of Opportunity', Units = '[day]',     hydro.MaxWoO(data)),
-    cbind(Parameter = 'Upper ebb-flood ratio',         Units = '[-]',       hydro.UpperAssym(data)),
-    cbind(Parameter = 'Upper current velocity',        Units = '[m/s]',     hydro.CurUpper(data)),
+    cbind(Parameter = 'Upper 95th percentile ebb-flood ratio',         Units = '[-]',       hydro.UpperAssym(data)),
+    cbind(Parameter = 'Upper 95th percentile current velocity',        Units = '[m/s]',     hydro.CurUpper(data)),
     cbind(Parameter = 'Mean current velocity',         Units = '[m/s]',     hydro.CurMean(data)),
     cbind(Parameter = 'Median current velocity',       Units = '[m/s]',     hydro.CurMed(data)))
   
   if (design == 'B4+') {
     hydro.Summary = rbind.data.frame(
       hydro.Summary,
-      cbind(Parameter = 'Upper wave orbital velocity',   Units = '[m/s]',     hydro.WaveUpper(data)),
+      cbind(Parameter = 'Upper 95th percentile wave orbital velocity',   Units = '[m/s]',     hydro.WaveUpper(data)),
       cbind(Parameter = 'Mean wave orbital velocity',    Units = '[m/s]',     hydro.WaveMean(data)),
       cbind(Parameter = 'Median wave orbital velocity',  Units = '[m/s]',     hydro.WaveMed(data)))
   } else { hydro.Summary }
@@ -371,14 +377,14 @@ get.daily.statistics = function(data, design) {
     cbind(Parameter = 'Emersion duration',            Units = '[hrs]', hydro.NonIndDurDayHrs(data)),
     cbind(Parameter = 'Inundation proportion',        Units = '[%]',   hydro.IndDurPercDay(data)),
     cbind(Parameter = 'Emersion proportion',          Units = '[%]',   hydro.NonIndDurPercDay(data)),
-    cbind(Parameter = 'Upper current velocity',       Units = '[m/s]', hydro.UpperCurDay(data)),
+    cbind(Parameter = 'Upper 95th percentile current velocity',       Units = '[m/s]', hydro.UpperCurDay(data)),
     cbind(Parameter = 'Mean current velocity',        Units = '[m/s]', hydro.MeanCurDay(data)),
     cbind(Parameter = 'Median current velocity',      Units = '[m/s]', hydro.MedCurDay(data)))
 
   if (design == 'B4+') {
     hydro.Daily = rbind.data.frame(
       hydro.Daily,
-      cbind(Parameter = 'Upper wave orbital velocity',  Units = '[m/s]', hydro.UpperWaveDay(data)),
+      cbind(Parameter = 'Upper 95th percentile wave orbital velocity',  Units = '[m/s]', hydro.UpperWaveDay(data)),
       cbind(Parameter = 'Mean wave orbital velocity',   Units = '[m/s]', hydro.MeanWaveDay(data)),
       cbind(Parameter = 'Median wave orbital velocity', Units = '[m/s]', hydro.MedWaveDay(data)))
   } else { hydro.Daily }
@@ -389,15 +395,15 @@ get.event.statistics = function(data, design) {
 
   hydro.Event = rbind.data.frame(
     cbind(Parameter = 'Inundation duration',          Units = '[hrs]', hydro.DurEventsHrs(data)),
-    cbind(Parameter = 'Upper current velocity',       Units = '[m/s]', hydro.UpperCurEvent(data)),
+    cbind(Parameter = 'Upper 95th percentile current velocity',       Units = '[m/s]', hydro.UpperCurEvent(data)),
     cbind(Parameter = 'Mean current velocity',        Units = '[m/s]', hydro.MeanCurEvent(data)),
     cbind(Parameter = 'Median current velocity',      Units = '[m/s]', hydro.MedCurEvent(data)),
-    cbind(Parameter = 'Upper ebb-flood ratio',        Units = '[-]',   hydro.UpperAssymEvent(data)))
+    cbind(Parameter = 'Upper 95th percentile ebb-flood ratio',        Units = '[-]',   hydro.UpperAssymEvent(data)))
   
   if (design == 'B4+') {
     hydro.Event = rbind.data.frame(
       hydro.Event,
-      cbind(Parameter = 'Upper wave orbital velocity',  Units = '[m/s]', hydro.UpperWaveEvent(data)),
+      cbind(Parameter = 'Upper 95th percentile wave orbital velocity',  Units = '[m/s]', hydro.UpperWaveEvent(data)),
       cbind(Parameter = 'Mean wave orbital velocity',   Units = '[m/s]', hydro.MeanWaveEvent(data)),
       cbind(Parameter = 'Median wave orbital velocity', Units = '[m/s]', hydro.MedWaveEvent(data)))
   } else { hydro.Event }
@@ -407,12 +413,18 @@ get.event.statistics = function(data, design) {
 get.tidal.statistics = function(data) {
   
   rbind.data.frame(
-    cbind(Parameter = 'Upper current velocity',  Units = '[m/s]', hydro.UpperCurEventTide(data)),
+    cbind(Parameter = 'Upper 95th percentile current velocity',  Units = '[m/s]', hydro.UpperCurEventTide(data)),
     cbind(Parameter = 'Mean current velocity',   Units = '[m/s]', hydro.MeanCurEventTide(data)),
     cbind(Parameter = 'Median current velocity', Units = '[m/s]', hydro.MedCurEventTide(data)))
   
 }
 
+get.woo.statistics = function(data) {
+  
+  rbind.data.frame(
+    cbind(Parameter = 'Window of Opportunity durations',  Units = '[hrs]', hydro.IndividualWoO(data)))
+  
+}
 
 #' Function to generate results text
 get.stats.text = function(data, design){
@@ -422,20 +434,20 @@ get.stats.text = function(data, design){
       Parameter %in% c(
         'Survey days',
         'Inundation frequency',
-        'Upper ebb-flood ratio',
+        'Upper 95th percentile ebb-flood ratio',
         'Maximum Window of Opportunity',
-        'Upper current velocity',
-        'Upper wave orbital velocity'))
+        'Upper 95th percentile current velocity',
+        'Upper 95th percentile wave orbital velocity'))
 
   shortnames = data.frame(
     ParameterShort = c('SurveyDays', 'Tide', 'EbbFlood', 'MaxWoO', 'UpperCurrent', 'UpperWave'),
     Parameter = c(
       'Survey days',
       'Inundation frequency',
-      'Upper ebb-flood ratio',
+      'Upper 95th percentile ebb-flood ratio',
       'Maximum Window of Opportunity',
-      'Upper current velocity',
-      'Upper wave orbital velocity'))
+      'Upper 95th percentile current velocity',
+      'Upper 95th percentile wave orbital velocity'))
   Statistics = Statistics %>% left_join(., shortnames, by = 'Parameter') 
   
   m = paste(
@@ -492,7 +504,7 @@ get.stats.text = function(data, design){
       {
         '<b>flood dominant</b>, implying a landward net movement of coarse sediment.<br/><br/>'
       } else {
-        '<b>symmetrical</b>, implying no net transport of coarse sediment.<br/><br/><br/>'
+        '<b>symmetrical</b>, implying no net transport of coarse sediment.<br/><br/>'
       },
     'The longest window of opportunity was <b>',
     Statistics %>%
@@ -581,15 +593,14 @@ get.comparison = function(hydro.t, hydro.r, stats.t, stats.r, design.t, design.r
   
   comparison = left_join(summary.c, event.c, by = c('Parameter', 'Units')) %>%
     filter(Parameter %in% c('Survey days',
-                            'Inundation events',
                             'Inundation frequency',
                             'Maximum Window of Opportunity',
-                            'Inundation proportion',
+                            'Inundation duration',
                             'Mean current velocity', 
-                            'Upper current velocity',
+                            'Upper 95th percentile current velocity',
                             'Mean wave orbital velocity',
-                            'Upper wave orbital velocity',
-                            'Upper ebb-flood ratio')) %>%
+                            'Upper 95th percentile wave orbital velocity',
+                            'Upper 95th percentile ebb-flood ratio')) %>%
     select(Parameter, Units, Reference, Target, SignificantlyDifferent, TargetIs)
   
   return(comparison)
@@ -601,24 +612,24 @@ get.comparison.text = function(data){
   Statistics = data %>%
     filter(
       Parameter %in% c(
-        'Inundation proportion',
+        'Inundation duration',
         'Inundation frequency',
         'Maximum Window of Opportunity',
         'Mean current velocity',
-        'Upper current velocity',
+        'Upper 95th percentile current velocity',
         'Mean wave orbital velocity',
-        'Upper wave orbital velocity'))
+        'Upper 95th percentile wave orbital velocity'))
   
   shortnames = data.frame(
     ParameterShort = c('Duration', 'Frequency', 'MaxWoO', 'MeanCurrent', 'UpperCurrent', 'MeanWave', 'UpperWave'),
     Parameter = c(
-      'Inundation proportion',
+      'Inundation duration',
       'Inundation frequency',
       'Maximum Window of Opportunity',
       'Mean current velocity',
-      'Upper current velocity',
+      'Upper 95th percentile current velocity',
       'Mean wave orbital velocity',
-      'Upper wave orbital velocity'))
+      'Upper 95th percentile wave orbital velocity'))
   Statistics = Statistics %>% left_join(., shortnames, by = 'Parameter') 
   
   Statistics$Positive  = c('lower', 'lower', 'higher', 'lower', 'lower', 'lower', 'lower')

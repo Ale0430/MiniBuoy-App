@@ -33,7 +33,7 @@ dataUplOutput = function(){
 ## Target ####
 box.dat_upl.upload.tar = function() {
   return(list(
-    h5(strong("Select a Mini Buoy design or use the default data set")),
+    h5(strong("Select a Mini Buoy design or use the example data")),
     tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
                                 overflow: visible;
@@ -52,7 +52,7 @@ box.dat_upl.upload.tar = function() {
                     "Pendant" = "Pendant"
                   )
                 ),
-                checkboxInput("raw_default_T", "Use default B4+ data", F)),
+                checkboxInput("raw_default_T", "Use example B4+ data", F)),
 
 
     conditionalPanel(
@@ -60,7 +60,7 @@ box.dat_upl.upload.tar = function() {
       
       fileInput(
         "fileTarget",
-        "Choose the target site data (.csv file)",
+        "Choose target data",
         buttonLabel = HTML(
           "<span
       class='btn btn-primary'
@@ -90,7 +90,7 @@ box.dat_upl.upload.tar = function() {
 ## Reference ####
 box.dat_upl.upload.ref = function() {
   return(list(
-    h5(strong("Select a Mini Buoy design or use the default data set")),
+    h5(strong("Select a Mini Buoy design or use the example data")),
     tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
                                 overflow: visible;
@@ -109,7 +109,7 @@ box.dat_upl.upload.ref = function() {
                     "Pendant" = "Pendant"
                   )
                 ),
-                checkboxInput("raw_default_R", "Use default B4+ data", F)),
+                checkboxInput("raw_default_R", "Use example B4+ data", F)),
     
     
     conditionalPanel(
@@ -117,7 +117,7 @@ box.dat_upl.upload.ref = function() {
 
       fileInput(
         "fileReference",
-        "Choose the target site data (.csv file)",
+        "Choose reference data",
         buttonLabel = HTML(
           "<span
       class='btn btn-primary'
@@ -205,12 +205,12 @@ box.filter.figures = function(){
         cellArgs = list(style = "padding: 6px"),
         radioButtons(
           "filterPlot_type",
-          "Diagram type",
+          "Plot type",
           inline = T,
           choices = c(
-            "Line plot" = "line",
-            "Scatter plot" = "scatter", 
-            "Histogram" = "hist"
+            "Line plot" = "LineGraph",
+            "Scatter plot" = "ScatterPlot", 
+            "Histogram" = "Histogram"
           )), 
         tagList(
           conditionalPanel(

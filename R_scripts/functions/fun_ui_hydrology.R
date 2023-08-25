@@ -8,7 +8,7 @@
 hydTargetOutput = function(){
   return(
     list(
-      box(title = "Custom settings",
+      box(title = "Default settings",
           width = "100%",
           collapsible = T,
           collapsed = T,
@@ -25,7 +25,7 @@ hydTargetOutput = function(){
           collapsible = T, status = "success",
           hyd.target.box.figures()),
       
-      box(title = "Summary for coastal wetlands",
+      box(title = "Summary (for coastal wetlands only)",
           width = "100%",
           collapsed = T,
           collapsible = T, status = "success",
@@ -44,18 +44,18 @@ hyd.target.box.settings = function(){
       # Default values: gaps = 1, full = 1, part = 25, tilt = 75
       splitLayout(
         numericInput(inputId = "hydro.set.gaps.target",
-                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated'>Minimum gap (hours)</abbr>"),
-                     value = 1),
+                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated'>Minimum gap (minutes)</abbr>"),
+                     value = 60),
         numericInput(inputId = "hydro.set.part.target",
                      label = HTML("<abbr title='Proportion of the start and end of inundation events to Window to search for partially inundated cases'>Search window (%)</abbr>"),
                      value = 25)
         ),
       splitLayout(
         numericInput(inputId = "hydro.set.full.target",
-                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated'>Minimum duration (hours)</abbr>"),
-                     value = 1),
+                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated'>Minimum duration (minutes)</abbr>"),
+                     value = 60),
         numericInput(inputId = "hydro.set.tilt.target",
-                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated'>Minimun tilt (degrees)</abbr>"),
+                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated'>Minimum tilt (degrees)</abbr>"),
                      value = 75, min = 0, max = 90)          
       ),
 
@@ -98,7 +98,9 @@ hyd.target.box.figures = function(){
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.target")),
       tabPanel("Ebb-flood comparison", br(),
-               plotOutput("fig.stage.target"))
+               plotOutput("fig.stage.target")),
+      tabPanel("Windows of Opportunity", br(),
+               plotOutput("fig.woo.target"))
     ),
     actButton("save.figs.target",
               "Download plots", 
@@ -115,7 +117,7 @@ hydReferenceOutput = function(){
     list(
       
       box(
-        title = "Custom settings",
+        title = "Default settings",
         width = "100%",
         collapsible = T,
         collapsed = T,
@@ -141,7 +143,7 @@ hydReferenceOutput = function(){
       ),
       
       box(
-        title = "Summary for coastal wetlands",
+        title = "Summary (for coastal wetlands only)",
         width = "100%",
         collapsed = T,
         collapsible = T,
@@ -162,18 +164,18 @@ hyd.reference.box.settings = function(){
       # Default values: gaps = 1, full = 1, part = 50, tilt = 75
       splitLayout(
         numericInput(inputId = "hydro.set.gaps.reference",
-                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated'>Minimum gap (hours)</abbr>"),
-                     value = 1),
+                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated'>Minimum gap (minutes)</abbr>"),
+                     value = 60),
         numericInput(inputId = "hydro.set.part.reference",
                      label = HTML("<abbr title='Proportion of the start and end of inundation events to Window to search for partially inundated cases'>Search window (%)</abbr>"),
                      value = 25)
       ),
       splitLayout(
         numericInput(inputId = "hydro.set.full.reference",
-                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated'>Minimum duration (hours)</abbr>"),
-                     value = 1),
+                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated'>Minimum duration (minutes)</abbr>"),
+                     value = 60),
         numericInput(inputId = "hydro.set.tilt.reference",
-                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated'>Minimun tilt (degrees)</abbr>"),
+                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated'>Minimum tilt (degrees)</abbr>"),
                      value = 75, min = 0, max = 90)          
       ),
       
@@ -197,7 +199,7 @@ hyd.reference.box.table = function(){
   return(
     list(
       output.table("hydro.table.reference"),
-      actButton("hydro.table.reference.save", "Save table", "saveCsv")
+      actButton("hydro.table.reference.save", "Download results", "saveCsv")
     )  )
 }
 
@@ -214,7 +216,9 @@ hyd.reference.box.figures = function(){
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.wave.velocity.reference")),
       tabPanel("Ebb-flood comparison", br(),
-               plotOutput("fig.stage.reference"))
+               plotOutput("fig.stage.reference")),
+      tabPanel("Windows of Opportunity", br(),
+               plotOutput("fig.woo.reference"))
     ),
     actButton("save.figs.reference",
               "Download plots", 
@@ -239,7 +243,7 @@ hydComparisonOutput = function(){
           collapsible = T, status = "success",
           hyd.comparison.box.figures()),
       
-      box(title = "Summary for coastal wetlands",
+      box(title = "Summary (for coastal wetlands only)",
           width = "100%",
           collapsed = T,
           collapsible = T, status = "success",
@@ -262,8 +266,8 @@ hyd.comparison.box.table = function(){
   return(
     list(
       htmlOutput('hydro.text.table'),  # original shiny function to avoid 2nd spinner
-      output.table("comparison.table.target"),
-      actButton("comparison.table.save", "Download results", "saveCsv")
+      output.table("hydro.table.comparison"),
+      actButton("hydro.table.comparison.save", "Download results", "saveCsv")
     )
   )
 }
@@ -277,7 +281,9 @@ hyd.comparison.box.figures = function(){
       tabPanel("Current velocity", br(),
                plotlyOutput("fig.currents.comparison")),
       tabPanel("Wave orbital velocity", br(),
-               plotlyOutput("fig.waves.comparison"))
+               plotlyOutput("fig.waves.comparison")),
+      tabPanel("Comparison of events", br(),
+               plotlyOutput("fig.parameters.comparison"))
     ),
     actButton("save.fig.comparison",
               "Download plots", 
