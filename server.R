@@ -222,11 +222,11 @@ shinyServer(function(input, output, session) {
     return(dataR)
   })
   
-  #' Reactive variable holding the target file name
+  #' Reactive variable holding the file name
   get.fileName = function(type, input){
     if (type == "Target"){
       if (bool.file.upload.target()){
-        if (!is.null(values$Target)){
+        if (!is.null(rawData_T())){
           return(strsplit(input$fileTarget$name, "[.]")[[1]][1])
         } else {
           return("None")
@@ -239,7 +239,7 @@ shinyServer(function(input, output, session) {
     }
     if (type == "Reference"){
       if (bool.file.upload.reference()){
-        if (!is.null(values$Reference)){
+        if (!is.null(rawData_R())){
           return(strsplit(input$fileReference$name, "[.]")[[1]][1])
         } else {
           return("None")
