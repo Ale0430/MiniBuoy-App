@@ -854,8 +854,19 @@ shinyServer(function(input, output, session) {
     if (timewindow < 2){
       TargetHydroStats = data.frame()
     } else {
-      TargetHydroStats = get.summary.statistics(TargetHydro, design = get.design.T())
+      an.error.occured = F
+      tryCatch({
+        TargetHydroStats = get.summary.statistics(TargetHydro, design = get.design.T())
+      },
+      error = function(e) {
+        an.error.occured <<- TRUE
+      })
+      if (an.error.occured){
+        showNotification("An error occured. Refine settings.",
+                         type = "error", closeButton = T, duration = NULL)
+        TargetHydroStats = data.frame()
       }
+    }
     return(TargetHydroStats)
   })
   
@@ -1180,9 +1191,19 @@ shinyServer(function(input, output, session) {
     if (timewindow < 2){
       ReferenceHydroStats = NULL
     } else {
-      ReferenceHydroStats = get.summary.statistics(ReferenceHydro, design = get.design.R())
+      an.error.occured = F
+      tryCatch({
+        ReferenceHydroStats = get.summary.statistics(ReferenceHydro, design = get.design.R())
+      },
+      error = function(e) {
+        an.error.occured <<- TRUE
+      })
+      if (an.error.occured){
+        showNotification("An error occured. Refine settings.",
+                         type = "error", closeButton = T, duration = NULL)
+        ReferenceHydroStats = data.frame()
+      }
     }
-    ReferenceHydroStats = get.summary.statistics(values$ReferenceHydro, design = get.design.R())
     return(ReferenceHydroStats)
   })
   
