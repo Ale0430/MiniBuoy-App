@@ -612,7 +612,7 @@ get.comparison.text = function(data){
   Statistics = data %>%
     filter(
       Parameter %in% c(
-        'Inundation proportion',
+        'Inundation duration',
         'Inundation frequency',
         'Maximum Window of Opportunity',
         'Mean current velocity',
@@ -623,7 +623,7 @@ get.comparison.text = function(data){
   shortnames = data.frame(
     ParameterShort = c('Duration', 'Frequency', 'MaxWoO', 'MeanCurrent', 'UpperCurrent', 'MeanWave', 'UpperWave'),
     Parameter = c(
-      'Inundation proportion',
+      'Inundation duration',
       'Inundation frequency',
       'Maximum Window of Opportunity',
       'Mean current velocity',
