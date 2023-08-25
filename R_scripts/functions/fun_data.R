@@ -30,14 +30,13 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
       error = function(e) {
          an.error.occured <<- TRUE
       })
-      
    }
-   # Transform datetime
-   rawData = unify.datetime(rawData, inputType)
-   
+
    if (an.error.occured) {
       return(data.frame())
    } else {
+     # Transform datetime
+     rawData = unify.datetime(rawData, inputType)
      # Remove NA rows
      rawData = rawData[complete.cases(rawData),]
      return(rawData)
