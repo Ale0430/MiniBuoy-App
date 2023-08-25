@@ -35,7 +35,7 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
       return(data.frame())
    } else {
      # Transform datetime
-     rawData = unify.datetime(rawData, inputType)
+     rawData = unify.datetime(rawData)
      # Remove NA rows
      rawData = rawData[complete.cases(rawData),]
      return(rawData)
