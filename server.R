@@ -862,7 +862,7 @@ shinyServer(function(input, output, session) {
         an.error.occured <<- TRUE
       })
       if (an.error.occured){
-        showNotification("An error occured. Refine settings.",
+        showNotification("An error occured. Try refining the default settings.",
                          type = "error", closeButton = T, duration = NULL)
         TargetHydroStats = data.frame()
       }
@@ -1199,7 +1199,7 @@ shinyServer(function(input, output, session) {
         an.error.occured <<- TRUE
       })
       if (an.error.occured){
-        showNotification("An error occured. Refine settings.",
+        showNotification("An error occured. Try refining the default settings.",
                          type = "error", closeButton = T, duration = NULL)
         ReferenceHydroStats = data.frame()
       }
