@@ -338,7 +338,7 @@ get.fileAppendix = function(ui.input) {
 #' @param format: file format
 #' @param prjName: project name, added as title to plot
 save.figure = function(path, name, plotObject, ui.input, noMessage=F) {
-  showNotification("Please wait... figures are saved...",
+  showNotification("Saving...",
                    type = "default")
    plotObject = plotObject +
       ggtitle(ui.input$figTitle) +
@@ -387,7 +387,7 @@ save.figure = function(path, name, plotObject, ui.input, noMessage=F) {
 #' #' @param csvObject: object to be saved, i.e. data.frame
 #' #' @param fileAppendix: character to be appended to file name
 save.csv = function(path, name, csvObject, ui.input, noMessage=F) {
-  showNotification("Please wait... files are saved...",
+  showNotification("Saving...",
                    type = "default")
    # Gets list(noti_note, noti_type, path)
    nots = get.notifications(ui.input)
