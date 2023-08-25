@@ -41,7 +41,7 @@ hyd.target.box.settings = function(){
     list(
       uiOutput("hydro.window.target.show"),
 
-      # Default values: gaps = 1, full = 1, part = 25, tilt = 75
+      # Default values: gaps = 60, full = 60, part = 25, tilt = 75
       splitLayout(
         numericInput(inputId = "hydro.set.gaps.target",
                      label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated'>Minimum gap (minutes)</abbr>"),
@@ -161,7 +161,7 @@ hyd.reference.box.settings = function(){
     list(
       uiOutput("hydro.window.reference.show"),
       
-      # Default values: gaps = 1, full = 1, part = 50, tilt = 75
+      # Default values: gaps = 60, full = 60, part = 50, tilt = 75
       splitLayout(
         numericInput(inputId = "hydro.set.gaps.reference",
                      label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated'>Minimum gap (minutes)</abbr>"),
