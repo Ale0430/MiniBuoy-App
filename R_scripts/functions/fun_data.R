@@ -31,99 +31,72 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
          an.error.occured <<- TRUE
       })
    }
-
    if (an.error.occured) {
       return(data.frame())
    } else {
      # Transform datetime
-     rawData = unify.datetime(rawData, inputType)
+     rawData = unify.datetime(rawData)
      # Remove NA rows
      rawData = rawData[complete.cases(rawData),]
      return(rawData)
    }
 }
 
+
 #' Reads raw data (datetime & Acceleration (ACCy)) .
 #' @param file: uploaded file
 #' @return data.frame
 get.ACCy.B4 = function(file) {
-   rawData <- suppressWarnings(fread(file, 
-                                     skip = "*DATA"))
-   # Assign column names to the first 2 columns
-   # If more columns exist a error is thrown (managed in Server.R)
-   colnames(rawData)[c(1,2)] <- c("datetime", "Acceleration")
-   rawData$Acceleration = as.numeric(rawData$Acceleration)
-   return(rawData)
+  # read filtered data:
+  if(readLines(file, n = 1) == c('datetime,Acceleration')) { rawData = fread(file)
+  # read raw data:
+  } else {
+    # find column names:
+    names = as.character(
+      fread(file, 
+            skip   = grep('*CHANNEL', readLines(file, n = 100)),
+            nrows  = 1,
+            header = F))
+    # read the raw data:
+    rawData = fread(file, skip = "*DATA", header = F)
+    # assign column names:
+    colnames(rawData) <- names
+    # ensure only datetime and y-axis acceleration columns are used:
+    rawData = rawData[, c('TIME', 'ACC y')]
+    colnames(rawData) <- c('datetime', 'Acceleration') }
+  return(rawData)
 }
 
 
-#' Reads raw data (datetime & Acceleration (ACCy)) .
+#' Reads raw data (datetime & Acceleration (ACCx)) .
 #' @param file: uploaded file
 #' @return data.frame
 get.ACCy.Pendant = function(file) {
-   rawData <- suppressWarnings(fread(file, 
-                                     skip = "#"))[, -1]
-   # Assign column names to the first 2 columns
-   # If more columns exist a error is thrown (managed in Server.R)
-   colnames(rawData)[c(1,2)] <- c("datetime", "Acceleration")
-   # Assign column names to the first 2 columns
-   # If more columns exist a error is thrown (managed in Server.R)
-   rawData$Acceleration = as.numeric(rawData$Acceleration)
-   # Remove rows blank Acc. rows
-   rawData = rawData[!is.na(rawData$Acceleration),]
-   # Find columns that are empty
-   columns <- sapply(rawData, function(x) all(is.na(x) | x == ""))
-   empty_columns = names(columns[columns])
-   # Remove empty columns
-   rawData = rawData %>% select(-all_of(empty_columns)) 
-   if (length(empty_columns) > 0){
-      showNotification(paste("Warning:", length(empty_columns),
-                             "empty columns were removed.",
-                             sep = " "),
-                       type = "warning", duration = 5, closeButton = T)
-   }
-   return(rawData)
-}
-
-unify.datetime = function(rawData, inputType){
-  print("Transform datetime to date and time")
-  an.error.occured = F
-  
-  if (inputType == "Pendant") {
-    tryCatch( 
-      {
-        rawData = rawData %>% rowwise() %>% 
-          mutate(datetime = as.POSIXlt(datetime,
-                                        tz = "GMT", 
-                                        format = c("%m/%d/%y %H:%M:%OS")))
-        
-      },
-      
-      error = function(e) {
-        an.error.occured <<- TRUE
-      })
-  }
-  if (an.error.occured | inputType != "Pendant"){
-    rawData$datetime = fastPOSIXct(rawData$datetime, tz="GMT")
-  }
-   # rawData$date = lubridate::as_date(rawData$datetime)
-   # rawData$time = format(rawData$datetime, format = "%H:%M:%S") #@Marie @Ale: too slow?
-   return(rawData)
+  # read filtered data:
+  if(readLines(file, n = 1) == c('datetime,Acceleration')) { rawData = fread(file) 
+  # read raw data:
+  # read raw data:
+  } else {
+    # select data from the row containing headers;
+    rawData = fread(file, skip = "#")
+    # select only date/time and x-axis acceleration columns:
+    rawData = select(rawData, contains(c('Date', 'X Accel')))
+    # assign column names to the first 2 columns:
+    colnames(rawData)[c(1,2)] <- c("datetime", "Acceleration") }
+  return(rawData)
 }
 
 
-#' Convert character time HH:MM:SS to decimal time
-#' @param time: time object or character
-#' @return numeric
-convertTimeToDeci <- function(time) { #@Marie: delete?
-   dt = sapply(strsplit(time, ":"),
-               function(x) {
-                  x <- as.numeric(x)
-                  x[1] + x[2] / 60 + x[3] / 3600
-               })
-   dt = round(dt, 2)
-   return(dt)
+# Possibility to add more datetime formats if they occur:
+unify.datetime = function(rawData){
+  rawData$datetime =
+    # standardise datetime if format is month-day-year 12 hour clock:
+             if(is(tryCatch(mdy_hms(rawData$datetime), warning = function(w) w), 'warning') == F) { mdy_hms(rawData$datetime)
+    # standardise datetime if format is day-month-year 24 hour clock:
+      } else if(is(tryCatch(ymd_hms(rawData$datetime), warning = function(w) w), 'warning') == F) { ymd_hms(rawData$datetime) }
+  return(rawData)
 }
+
 
 #' Function to calculate the time window overlap of 
 #' target and reference data in days
@@ -171,14 +144,14 @@ get.rawData.sum = function(data, type){
       }
       
       coln = paste(tolower(colnames(data)), collapse = ", ")
-      meanAcc = mean(data$Acceleration)
+      meanAcc = mean(data$Acceleration, na.rm = T)
       mAmm = paste(as.character(round(meanAcc, 2)), " (",
                    as.character(round(min(data$Acceleration, na.rm = T), 2)), ", ",
                    as.character(round(max(data$Acceleration, na.rm = T), 2)), ")", 
                    collapse = "")
-      mAqq = paste(as.character(round(median(data$Acceleration), 2)), " (",
-                   as.character(round(quantile(data$Acceleration, 0.25), 2)), ", ",
-                   as.character(round(quantile(data$Acceleration, 0.55), 2)), ")", 
+      mAqq = paste(as.character(round(median(data$Acceleration, na.rm = T), 2)), " (",
+                   as.character(round(quantile(data$Acceleration, 0.25, na.rm = T), 2)), ", ",
+                   as.character(round(quantile(data$Acceleration, 0.55, na.rm = T), 2)), ")", 
                    collapse = "")
       
       tab = data.frame(Variable = c("Column names",

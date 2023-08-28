@@ -733,9 +733,12 @@ shinyServer(function(input, output, session) {
   ## Info Texts        ####
   
   
-  
+  # if bool.no.target
   text.upload.missing = "No analysis available. Please upload data."
-  text.too.short = "Uploaded/ filtered data set < 2 days."
+  # is.null
+  text.too.short = "Uploaded/ filtered dataset < 2 days."
+  # nrow == 0
+  text.refine.settings = "An error occured. Try refining the default settings."
   
   ## Functions for both R&T   ####
   
@@ -766,6 +769,8 @@ shinyServer(function(input, output, session) {
     if (bool.no.target()){
       print(text.upload.missing)
     } else if (is.null(TargetHydroStats())){
+      print(text.refine.settings)
+    } else if (nrow(TargetHydroStats()) == 0){
       print(text.too.short)
     } else {
       HTML(get.stats.text(TargetHydroStats(), design = get.design.T()))
@@ -854,8 +859,19 @@ shinyServer(function(input, output, session) {
     if (timewindow < 2){
       TargetHydroStats = data.frame()
     } else {
-      TargetHydroStats = get.summary.statistics(TargetHydro, design = get.design.T())
+      an.error.occured = F
+      tryCatch({
+        TargetHydroStats = get.summary.statistics(TargetHydro, design = get.design.T())
+      },
+      error = function(e) {
+        an.error.occured <<- TRUE
+      })
+      if (an.error.occured){
+        showNotification(text.refine.settings,
+                         type = "error", closeButton = T, duration = NULL)
+        TargetHydroStats = NULL
       }
+    }
     return(TargetHydroStats)
   })
   
@@ -869,6 +885,9 @@ shinyServer(function(input, output, session) {
         return(tab.with.file.upload.message(text.upload.missing,
                                             color = "black", backgroundColor = "white"))
       } else if (is.null(TargetHydroStats())) {
+        return(tab.with.file.upload.message(text.refine.settings,
+                                            color = "black", backgroundColor = "white"))
+      } else if (nrow(TargetHydroStats()) == 0) {
         return(tab.with.file.upload.message(text.too.short,
                                             color = "black", backgroundColor = "white"))
       } else {
@@ -939,6 +958,8 @@ shinyServer(function(input, output, session) {
     if (bool.no.target()){
       plot.emptyMessage("No figure available. Please upload data.")
     } else if (is.null(TargetHydroStats())) {
+      plot.emptyMessage(text.refine.settings)
+    } else if (nrow(TargetHydroStats()) == 0) {
       plot.emptyMessage(text.too.short)
     } else {
       actual.plot.function
@@ -1178,11 +1199,21 @@ shinyServer(function(input, output, session) {
     ReferenceHydro = ReferenceHydro()
     timewindow = difftime(max(ReferenceHydro$datetime), min(ReferenceHydro$datetime), units = "days")
     if (timewindow < 2){
-      ReferenceHydroStats = NULL
+      ReferenceHydroStats = data.frame()
     } else {
-      ReferenceHydroStats = get.summary.statistics(ReferenceHydro, design = get.design.R())
+      an.error.occured = F
+      tryCatch({
+        ReferenceHydroStats = get.summary.statistics(ReferenceHydro, design = get.design.R())
+      },
+      error = function(e) {
+        an.error.occured <<- TRUE
+      })
+      if (an.error.occured){
+        showNotification(text.refine.settings,
+                         type = "error", closeButton = T, duration = NULL)
+        ReferenceHydroStats = NULL
+      }
     }
-    ReferenceHydroStats = get.summary.statistics(values$ReferenceHydro, design = get.design.R())
     return(ReferenceHydroStats)
   })
   
@@ -1193,6 +1224,8 @@ shinyServer(function(input, output, session) {
     if (bool.no.reference()){
       print(text.upload.missing)
     } else if (is.null(ReferenceHydroStats())){
+      print(text.refine.settings)
+    } else if (nrow(ReferenceHydroStats()) == 0){
       print(text.too.short)
     } else {
       HTML(get.stats.text(ReferenceHydroStats(), design = get.design.R()))
@@ -1210,7 +1243,11 @@ shinyServer(function(input, output, session) {
         return(tab.with.file.upload.message(text.upload.missing,
                                             color = "blue", backgroundColor = "white"))
       } else if (is.null(ReferenceHydroStats())){
-        print(text.too.short)
+        return(tab.with.file.upload.message(text.refine.settings,
+                                            color = "black", backgroundColor = "white"))
+      } else if (nrow(ReferenceHydroStats()) == 0){
+        return(tab.with.file.upload.message(text.too.short,
+                                            color = "black", backgroundColor = "white"))
       } else {
         return(ReferenceHydroStats() %>%
                  mutate_if(is.numeric, round, 2))
@@ -1278,6 +1315,8 @@ shinyServer(function(input, output, session) {
     if (bool.no.reference()){
       plot.emptyMessage("No figure available. Please upload data.")
     } else if (is.null(ReferenceHydroStats())) {
+      plot.emptyMessage(text.refine.settings)
+    } else if (nrow(ReferenceHydroStats()) == 0) {
       plot.emptyMessage(text.too.short)
     } else {
       actual.plot.function
