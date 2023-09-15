@@ -3,4 +3,4 @@ The Mini Buoy measures hydrodynamics at the coast. Analysis of Mini Buoy data ca
 
 Mini Buoys will calculate inundation duration, current velocity, and wave orbital velocity (B4+ only) along shallow intertidal areas. Hydrodynamics are calculated from acceleration (tilt) data, gathered by acceleration loggers housed inside bottom mounted floats.
 
-Guidance on how to assemble, deploy, and analyse Mini Buoy data is available in the handbook here.
+Guidance on how to assemble, deploy, and analyse Mini Buoy data is available in the handbook [here](https://cailadd90.github.io/MiniBuoyHandbook/).
