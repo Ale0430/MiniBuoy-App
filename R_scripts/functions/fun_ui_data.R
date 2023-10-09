@@ -182,8 +182,8 @@ box.filter.figures = function(){
       selectInput(
           "filterPlot_DataSet",
           "View data",
-          choices = c("Target" = "TARGET",
-                      "Reference" = "REFERENCE")),
+          choices = c("Target" = "Target",
+                      "Reference" = "Reference")),
       tagList(
         actButton("filterPlot_renderPlot", "Render figure", "update",
                   addStyling = "margin: 0rem; margin-top: 2.5rem; margin-right: 0.5rem"),

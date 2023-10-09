@@ -652,10 +652,10 @@ shinyServer(function(input, output, session) {
   #' data set with (filtered) data
   #' Show notification if no data were uploaded
   DataSetInput <- reactive({
-    if (input$filterPlot_DataSet == "TARGET") {
+    if (input$filterPlot_DataSet == "Target") {
       dataset <- data.frame(Target())
     }
-    if (input$filterPlot_DataSet == "REFERENCE") {
+    if (input$filterPlot_DataSet == "Reference") {
       dataset <- data.frame(Reference())
     }
     if (identical(dataset, data.frame())) {
@@ -701,6 +701,12 @@ shinyServer(function(input, output, session) {
   #' (Data > Filter)
   #' Not saved as excel format as max. number of rows in limited to ~1 Mil.
   observeEvent(input$save_dat_filter, {
+    if (input$filterPlot_DataSet == "Target"){
+      file = input$fileTarget
+    }
+    if (input$filterPlot_DataSet == "Reference"){
+      file = input$fileReference
+    }
     save.csv(path = projectPath(), 
               name =  paste(
                 as.character(input$filterPlot_DataSet),
@@ -708,7 +714,8 @@ shinyServer(function(input, output, session) {
                 sep = "_"
               ),
               csvObject =  DataSetInput(),
-              ui.input = input)
+              ui.input = input,
+             file = file)
   })
   
   #' Eventlistener to save plot with filtered data
@@ -720,11 +727,18 @@ shinyServer(function(input, output, session) {
       as.character(input$filterPlot_type),
       sep = "_"
     )
+    if (input$filterPlot_DataSet == "Target"){
+      file = input$fileTarget
+    }
+    if (input$filterPlot_DataSet == "Reference"){
+      file = input$fileReference
+    }
     save.figure(
       path = projectPath(),
       name = name,
       plotObject = filterPlot(),
-      ui.input = input
+      ui.input = input,
+      file = file
     )
   })
   
@@ -940,7 +954,8 @@ shinyServer(function(input, output, session) {
                      name = paste("Target", n, sep ="_"),
                      csvObject = data.frame(sheets[[n]]),
                      ui.input = input,
-                     noMessage = noMessage)
+                     noMessage = noMessage,
+                     file = input$fileTarget)
           }
         }
       },
@@ -1066,6 +1081,7 @@ shinyServer(function(input, output, session) {
       name = "Target_Classified",
       plotObject = fig.control.target(),
       ui.input = input,
+      file = input$fileTarget,
       noMessage = T
     )
     save.figure(
@@ -1073,6 +1089,7 @@ shinyServer(function(input, output, session) {
       name = "Target_DailyInundation",
       plotObject = fig.inundation.target(),
       ui.input = input,
+      file = input$fileTarget,
       noMessage = T
     )
     save.figure(
@@ -1080,6 +1097,7 @@ shinyServer(function(input, output, session) {
       name = "Target_CurrentVelocity",
       plotObject = fig.velocity.target(),
       ui.input = input,
+      file = input$fileTarget,
       noMessage = T
     )
     save.figure(
@@ -1087,6 +1105,7 @@ shinyServer(function(input, output, session) {
       name = "Target_WaveOrbitalVelocity",
       plotObject = fig.wave.velocity.target(),
       ui.input = input,
+      file = input$fileTarget,
       noMessage = T
     )
     save.figure(
@@ -1094,6 +1113,7 @@ shinyServer(function(input, output, session) {
       name = "Target_EbbFlood",
       plotObject = fig.stage.target(),
       ui.input = input,
+      file = input$fileTarget,
       noMessage = T
     )
     save.figure(
@@ -1101,6 +1121,7 @@ shinyServer(function(input, output, session) {
       name = "Target_Window",
       plotObject = fig.woo.target(),
       ui.input = input,
+      file = input$fileTarget,
       noMessage = F
     )
   })
@@ -1298,7 +1319,8 @@ shinyServer(function(input, output, session) {
             save.csv(path = projectPath(), 
                      name = paste("Reference", n, sep ="_"),
                      csvObject = data.frame(sheets[[n]]),
-                     ui.input = input)
+                     ui.input = input,
+                     file = input$fileReference)
           }
         }
       },
@@ -1422,6 +1444,7 @@ shinyServer(function(input, output, session) {
       name = "Reference_DailyInundation",
       plotObject = fig.inundation.reference(),
       ui.input = input,
+      file = input$fileReference,
       noMessage = T
     )
     save.figure(
@@ -1429,6 +1452,7 @@ shinyServer(function(input, output, session) {
       name = "Reference_Classified",
       plotObject = fig.control.reference(),
       ui.input = input,
+      file = input$fileReference,
       noMessage = T
     )
     save.figure(
@@ -1436,6 +1460,7 @@ shinyServer(function(input, output, session) {
       name = "Reference_CurrentVelocity",
       plotObject = fig.velocity.reference(),
       ui.input = input,
+      file = input$fileReference,
       noMessage = T
     )
     save.figure(
@@ -1443,6 +1468,7 @@ shinyServer(function(input, output, session) {
       name = "Reference_WaveOrbitalVelocity",
       plotObject = fig.wave.velocity.reference(),
       ui.input = input,
+      file = input$fileReference,
       noMessage = T
     )
     save.figure(
@@ -1450,6 +1476,7 @@ shinyServer(function(input, output, session) {
       name = "Reference_EbbFlood",
       plotObject = fig.stage.reference(),
       ui.input = input,
+      file = input$fileReference,
       noMessage = T
     )
     save.figure(
@@ -1457,6 +1484,7 @@ shinyServer(function(input, output, session) {
       name = "Reference_Window",
       plotObject = fig.woo.reference(),
       ui.input = input,
+      file = input$fileReference,
       noMessage = F
     )
   })

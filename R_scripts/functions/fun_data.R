@@ -272,9 +272,9 @@ get.notifications = function(ui.input, path) {
    return(list(noti_note, noti_type))
 }
 
-get.filename = function(path, name, format, ui.input) {
+get.filename = function(path, name, format, ui.input, file="") {
    format = paste(".", format, sep = "")
-   fileAppendix = get.fileAppendix(ui.input)
+   fileAppendix = get.fileAppendix(ui.input, file)
    # Add appendix to file name and replace whitespace
    if (fileAppendix != "") {
       fileAppendix = gsub(" ", "_", fileAppendix, fixed = TRUE)
@@ -287,15 +287,15 @@ get.filename = function(path, name, format, ui.input) {
 
 
 #' Get string/name added to file
-get.fileAppendix = function(ui.input) {
+get.fileAppendix = function(ui.input, file="") {
    if (ui.input$fileAppend == "manual") {
       return(ui.input$fileAppendName)
    } else if (ui.input$fileAppend == "inputName") {
-      if (!is.null(ui.input$file1$datapath)) {
+      if (!is.null(file$datapath)) {
          # Extract file name (additionally remove file extension using sub)
-         return(sub(".csv$", "", basename(ui.input$file1$name)))
+         return(sub(".csv$", "", basename(file$name)))
       } else {
-         return("Example")
+         return("")
       }
    } else {
       return("")
@@ -310,7 +310,7 @@ get.fileAppendix = function(ui.input) {
 #' @param fileAppendix: character to be appended to file name
 #' @param format: file format
 #' @param prjName: project name, added as title to plot
-save.figure = function(path, name, plotObject, ui.input, noMessage=F) {
+save.figure = function(path, name, plotObject, ui.input, file="", noMessage=F) {
   showNotification("Saving...",
                    type = "default")
    plotObject = plotObject +
@@ -326,7 +326,8 @@ save.figure = function(path, name, plotObject, ui.input, noMessage=F) {
       path = path,
       name = name,
       format = format,
-      ui.input = ui.input
+      ui.input = ui.input,
+      file = file
    )
    
    if (format == "rdata") {
@@ -359,7 +360,7 @@ save.figure = function(path, name, plotObject, ui.input, noMessage=F) {
 #' #' @param name: file name
 #' #' @param csvObject: object to be saved, i.e. data.frame
 #' #' @param fileAppendix: character to be appended to file name
-save.csv = function(path, name, csvObject, ui.input, noMessage=F) {
+save.csv = function(path, name, csvObject, ui.input, file = "", noMessage=F) {
   showNotification("Saving...",
                    type = "default")
    # Gets list(noti_note, noti_type, path)
@@ -370,7 +371,7 @@ save.csv = function(path, name, csvObject, ui.input, noMessage=F) {
    if (nots[[2]] == "message") {
       path = paste(path, "tables", sep = "/")
    }
-   filename = get.filename(path, name, "csv", ui.input)
+   filename = get.filename(path, name, "csv", ui.input, file)
    
    res = try(fwrite(csvObject,
                     file = filename))
@@ -386,7 +387,7 @@ save.csv = function(path, name, csvObject, ui.input, noMessage=F) {
   
 }
 
-save.xlsx = function(path, name, csvObject, ui.input){
+save.xlsx = function(path, name, csvObject, ui.input, file = ""){
   format = ui.input$fileFor
   
   # Gets list(noti_note, noti_type, path)
@@ -395,7 +396,7 @@ save.xlsx = function(path, name, csvObject, ui.input){
     path = paste(path, "tables", sep = "/")
   }
   
-  filename = get.filename(path, name, "xlsx", ui.input)
+  filename = get.filename(path, name, "xlsx", ui.input, file)
   res = try(write_xlsx(csvObject,
                        path = filename))
   
