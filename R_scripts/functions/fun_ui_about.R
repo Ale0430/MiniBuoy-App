@@ -20,7 +20,7 @@ introOutput = function() {
           "handbook",
           "Open handbook",
           style = buttonStyles("green"),
-          onclick = "window.open('https://cailadd90.github.io/MiniBuoyHandbook/', '_blank')"
+          onclick = "location.href='https://cailadd90.github.io/MiniBuoyHandbook/'"
         )
       ),
       includeMarkdown("./man/MinibuoyIntro_2.md"),
