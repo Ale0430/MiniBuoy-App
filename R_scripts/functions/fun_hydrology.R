@@ -42,7 +42,9 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
       Mean  = mean(Acceleration, na.rm = T),
       IQR   = quantile(Acceleration, 0.75, names = F, na.rm = T) - quantile(Acceleration, 0.25, names = F, na.rm = T),
       runSD = if(design == 'B4+') { mean(runSD, na.rm = T) }) %>%
-    ungroup()
+    ungroup() %>%
+    # remove cases where aggregating  after truncation leads to NA / NaN values for certain timewindows:
+    na.omit()
   
   # convert gaps and full arguments depending on Mini Buoy aggregation rate:
   gaps = ceiling(gaps / as.numeric(difftime(data.NF$datetime[2], data.NF$datetime[1], units = 'mins')))
