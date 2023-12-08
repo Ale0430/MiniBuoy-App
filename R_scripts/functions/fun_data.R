@@ -61,6 +61,11 @@ get.ACCy.B4 = function(file) {
     rawData = fread(file, skip = "*DATA", header = F)
     # assign column names:
     colnames(rawData) <- names
+    # merge date and time if columns are separate:
+    if(is.POSIXct(rawData$TIME) == F) {
+      rawData = rawData %>%
+        unite('TIME',  c(1, 2), sep = ' ', remove = T) %>%
+        mutate(TIME = ymd_hms(TIME)) }
     # ensure only datetime and y-axis acceleration columns are used:
     rawData = rawData[, c('TIME', 'ACC y')]
     colnames(rawData) <- c('datetime', 'Acceleration') }
