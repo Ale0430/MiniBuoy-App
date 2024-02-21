@@ -71,7 +71,7 @@ get.ACCy.B4 = function(file) {
         unite('TIME',  c(1, 2), sep = ' ', remove = T) %>%
         mutate(TIME = ymd_hms(TIME)) }
     # ensure only datetime and y-axis acceleration columns are used:
-    rawData = rawData[, c('TIME', 'ACC y')]
+    rawData = rawData %>% select(any_of(c('TIME', 'ACC y', 'Ay')))
     colnames(rawData) <- c('datetime', 'Acceleration') }
   return(rawData)
 }
