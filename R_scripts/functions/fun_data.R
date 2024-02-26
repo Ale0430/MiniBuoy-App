@@ -35,7 +35,11 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
       return(data.frame())
    } else {
      # Transform datetime
-     rawData = unify.datetime(rawData)
+     rawData = suppressWarnings({
+       rawData%>%
+       mutate(across(starts_with("datetime"), 
+                     ~lubridate::parse_date_time(.,orders = c("mdy_HMS", "ymd_HMS"))))
+     })
      # Remove NA rows
      rawData = rawData[complete.cases(rawData),]
      return(rawData)
@@ -67,7 +71,7 @@ get.ACCy.B4 = function(file) {
         unite('TIME',  c(1, 2), sep = ' ', remove = T) %>%
         mutate(TIME = ymd_hms(TIME)) }
     # ensure only datetime and y-axis acceleration columns are used:
-    rawData = rawData[, c('TIME', 'ACC y')]
+    rawData = rawData %>% select(any_of(c('TIME', 'ACC y', 'Ay')))
     colnames(rawData) <- c('datetime', 'Acceleration') }
   return(rawData)
 }
@@ -91,16 +95,6 @@ get.ACCy.Pendant = function(file) {
   return(rawData)
 }
 
-
-# Possibility to add more datetime formats if they occur:
-unify.datetime = function(rawData){
-  rawData$datetime =
-    # standardise datetime if format is month-day-year 12 hour clock:
-             if(is(tryCatch(mdy_hms(rawData$datetime), warning = function(w) w), 'warning') == F) { mdy_hms(rawData$datetime)
-    # standardise datetime if format is day-month-year 24 hour clock:
-      } else if(is(tryCatch(ymd_hms(rawData$datetime), warning = function(w) w), 'warning') == F) { ymd_hms(rawData$datetime) }
-  return(rawData)
-}
 
 
 #' Function to calculate the time window overlap of 
