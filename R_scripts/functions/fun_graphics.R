@@ -365,10 +365,12 @@ plot.parameterComparison = function(data.t, data.r, design){
       mutate(Site = 'Target') %>%
       bind_rows(event.r %>%
                   mutate(Site = 'Reference')) %>%
-      ggplot(aes(Parameter, Value, colour = Site)) +
-      stat_boxplot(geom = 'errorbar') + 
-      geom_boxplot() + 
+      ggplot(., aes(x = Parameter, y = Value, fill = Site, 
+                    group = interaction(Parameter, Site))) +
+      # stat_boxplot(geom = 'errorbar') + 
+      geom_boxplot(position = "dodge2") + 
       coord_flip() +
+      scale_fill_manual(values = defaultColors) +
       theme(axis.title.y = element_blank())
   )
 }
