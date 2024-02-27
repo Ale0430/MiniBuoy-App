@@ -283,7 +283,7 @@ hyd.comparison.box.figures = function(){
       tabPanel("Wave orbital velocity", br(),
                plotlyOutput("fig.waves.comparison")),
       tabPanel("Comparison of events", br(),
-               plotlyOutput("fig.parameters.comparison"))
+               plotOutput("fig.parameters.comparison"))
     ),
     actButton("save.fig.comparison",
               "Download plots", 

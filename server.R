@@ -1693,7 +1693,7 @@ shinyServer(function(input, output, session) {
   })
   
   #' Render plot shown in Hydrodynamics > Target
-  output$fig.parameters.comparison <- renderPlotly({
+  output$fig.parameters.comparison <- renderPlot({
     fig.parameters.comparison()
   })
   
@@ -1725,6 +1725,12 @@ shinyServer(function(input, output, session) {
       ui.input = input,
       noMessage = T
     )
+    
+    save.figure(
+      path = projectPath(),
+      name = "Comparison_Parameters",
+      plotObject = fig.parameters.comparison(),
+      ui.input = input,
       noMessage = F
     )
   })
