@@ -1723,6 +1723,8 @@ shinyServer(function(input, output, session) {
       name = "Comparison_WaveOrbitalVelocity",
       plotObject = fig.waves.comparison(),
       ui.input = input,
+      noMessage = T
+    )
       noMessage = F
     )
   })

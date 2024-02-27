@@ -271,7 +271,7 @@ get.notifications = function(ui.input, path) {
    return(list(noti_note, noti_type))
 }
 
-get.filename = function(path, name, format, ui.input, file="") {
+get.filename = function(path, name, format, ui.input, file=NULL) {
    format = paste(".", format, sep = "")
    fileAppendix = get.fileAppendix(ui.input, file)
    # Add appendix to file name and replace whitespace
@@ -279,26 +279,25 @@ get.filename = function(path, name, format, ui.input, file="") {
       fileAppendix = gsub(" ", "_", fileAppendix, fixed = TRUE)
       name = paste(fileAppendix, name, sep = "_")
    }
-   
    filename = paste(path, "/", name, format, sep = "")
    return(filename)
 }
 
 
 #' Get string/name added to file
-get.fileAppendix = function(ui.input, file="") {
-   if (ui.input$fileAppend == "manual") {
-      return(ui.input$fileAppendName)
-   } else if (ui.input$fileAppend == "inputName") {
-      if (!is.null(file$datapath)) {
-         # Extract file name (additionally remove file extension using sub)
-         return(sub(".csv$", "", basename(file$name)))
-      } else {
-         return("")
-      }
-   } else {
+get.fileAppendix = function(ui.input, file = NULL) {
+  if (ui.input$fileAppend == "manual") {
+    return(ui.input$fileAppendName)
+  } else if (ui.input$fileAppend == "inputName") {
+    if (is.null(file)) {
       return("")
-   }
+    } else {
+      # Extract file name (additionally remove file extension using sub)
+      return(sub(".csv$", "", basename(file$name)))
+    }
+  } else {
+    return("")
+  }
 }
 
 #' Save figure
@@ -309,13 +308,12 @@ get.fileAppendix = function(ui.input, file="") {
 #' @param fileAppendix: character to be appended to file name
 #' @param format: file format
 #' @param prjName: project name, added as title to plot
-save.figure = function(path, name, plotObject, ui.input, file="", noMessage=F) {
-  showNotification("Saving...",
-                   type = "default")
+save.figure = function(path, name, plotObject, ui.input, file=NULL, noMessage=F) {
+   showNotification("Saving...", type = "default")
    plotObject = plotObject +
       ggtitle(ui.input$figTitle) +
       theme(text = element_text(size = 14))
-   
+
    format = ui.input$figFor
    nots = get.notifications(ui.input)
    if (nots[[2]] == "message") {
@@ -328,7 +326,7 @@ save.figure = function(path, name, plotObject, ui.input, file="", noMessage=F) {
       ui.input = ui.input,
       file = file
    )
-   
+
    if (format == "rdata") {
       res = try(save(plotObject, file = filename))
    } else {
@@ -340,7 +338,6 @@ save.figure = function(path, name, plotObject, ui.input, file="", noMessage=F) {
          dpi = 900
       ))
    }
-   
    if (!noMessage){
      if (is.null(res) || (res == filename)) {
        showNotification(nots[[1]],
