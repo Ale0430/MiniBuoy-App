@@ -448,7 +448,7 @@ shinyServer(function(input, output, session) {
         return(tab.with.file.upload.message(message.upload.fail))
       }
     },
-    options = list(dom = 't', ordering=F),
+    options = list(dom = 't', ordering=F), server = FALSE
   )
   
   output$raw.reference.sum <- DT::renderDataTable(
@@ -462,7 +462,7 @@ shinyServer(function(input, output, session) {
         return(tab.with.file.upload.message(message.upload.fail))
       }
     },
-    options = list(dom = 't'),
+    options = list(dom = 't'), server = FALSE
   )
   
   
