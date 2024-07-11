@@ -233,8 +233,16 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
       else if (design == 'Pendant')          { ifelse(Status == 'F', 0.957899523 + (-0.034008187 * Tilt) + (0.000473524 * Tilt ^ 2) + (-2.309457425e-06 * Tilt ^ 3), NA) } )
   
   # calculate wave orbital velocity during full inundation for B4+ only:
-  data.NPF = if (design == 'B4+') { 
-    data.NPF %>% 
+  data.NPF = if (design == 'B4+') {
+    data.NPF %>%
+      # find mean of 1-min moving SD every 10 minutes:
+      mutate(
+        time_floor = floor_date(datetime, unit = '10 minutes')) %>%
+      group_by(time_floor) %>%
+      mutate(runSD = ifelse(datetime == min(datetime), mean(runSD, na.rm = T), NA)) %>%
+      ungroup() %>%
+      select(-time_floor) %>%
+      # convert moving SD to wave orbital velocity:
       mutate(
         WaveOrbitalVelocity = 
           if    (rate <= 1)  { ifelse(Status == 'F', (runSD * 1.801662524) - 0.005038870, NA) }
