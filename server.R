@@ -448,7 +448,7 @@ shinyServer(function(input, output, session) {
         return(tab.with.file.upload.message(message.upload.fail))
       }
     },
-    options = list(dom = 't', ordering=F),
+    options = list(dom = 't', ordering=F), server = FALSE
   )
   
   output$raw.reference.sum <- DT::renderDataTable(
@@ -462,7 +462,7 @@ shinyServer(function(input, output, session) {
         return(tab.with.file.upload.message(message.upload.fail))
       }
     },
-    options = list(dom = 't'),
+    options = list(dom = 't'), server = FALSE
   )
   
   
@@ -1537,7 +1537,7 @@ shinyServer(function(input, output, session) {
   ### Table         ####
   
 
-  #' Helper funtion to render background color in table according to comparison
+  #' Helper function to render background color in table according to comparison
   #' color with opacity = 50%
   table.background.js <- "(/higher/).test(value) ? '#56B4E950' : (/lower/).test(value) ? '#0072B250' : ''"
   
@@ -1615,7 +1615,7 @@ shinyServer(function(input, output, session) {
   #### Inundation       ####
   
   #' Reactive variable holding the
-  #' plot shown in Hydrodynamics > Target
+  #' plot shown in Hydrodynamics > Comparison
   fig.inundation.comparison <- reactive({
     if (bool.overlap()) {
       plot.inundationComparison(data.t = ComparisonStats()[["Target"]],
@@ -1629,7 +1629,7 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  #' Render plot shown in Hydrodynamics > Target
+  #' Render plot shown in Hydrodynamics > Comparison
   output$fig.inundation.comparison <- renderPlotly({
     fig.inundation.comparison()
   })
@@ -1637,7 +1637,7 @@ shinyServer(function(input, output, session) {
   #### Current velocity #####
   
   #' Reactive variable holding the
-  #' plot shown in Hydrodynamics > Target
+  #' plot shown in Hydrodynamics > Comparison
   fig.currents.comparison <- reactive({
     if (bool.overlap()) {
       plot.currentsComparison(data.t = ComparisonStats()[["Target"]],
@@ -1651,7 +1651,7 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  #' Render plot shown in Hydrodynamics > Target
+  #' Render plot shown in Hydrodynamics > Comparison
   output$fig.currents.comparison <- renderPlotly({
     fig.currents.comparison()
   })
@@ -1659,7 +1659,7 @@ shinyServer(function(input, output, session) {
   #### Wave orbital velocity #####
   
   #' Reactive variable holding the
-  #' plot shown in Hydrodynamics > Target
+  #' plot shown in Hydrodynamics > Comparison
   fig.waves.comparison <- reactive({
     if (bool.overlap()) {
       plot.wavesComparison(data.t = ComparisonStats()[["Target"]],
@@ -1673,7 +1673,7 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  #' Render plot shown in Hydrodynamics > Target
+  #' Render plot shown in Hydrodynamics > Comparison
   output$fig.waves.comparison <- renderPlotly({
     fig.waves.comparison()
   })
@@ -1681,7 +1681,7 @@ shinyServer(function(input, output, session) {
   #### Parameter comparison (by event) #####
   
   #' Reactive variable holding the
-  #' plot shown in Hydrodynamics > Target
+  #' plot shown in Hydrodynamics > Comparison
   fig.parameters.comparison <- reactive({
     if (bool.no.target() | bool.no.reference()){
       plot.emptyMessage("No figure available. Please upload data.")
@@ -1692,8 +1692,8 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  #' Render plot shown in Hydrodynamics > Target
-  output$fig.parameters.comparison <- renderPlotly({
+  #' Render plot shown in Hydrodynamics > Comparison
+  output$fig.parameters.comparison <- renderPlot({
     fig.parameters.comparison()
   })
   
@@ -1722,6 +1722,14 @@ shinyServer(function(input, output, session) {
       path = projectPath(),
       name = "Comparison_WaveOrbitalVelocity",
       plotObject = fig.waves.comparison(),
+      ui.input = input,
+      noMessage = T
+    )
+    
+    save.figure(
+      path = projectPath(),
+      name = "Comparison_Parameters",
+      plotObject = fig.parameters.comparison(),
       ui.input = input,
       noMessage = F
     )
