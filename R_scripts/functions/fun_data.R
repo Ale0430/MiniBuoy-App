@@ -356,7 +356,7 @@ save.figure = function(path, name, plotObject, ui.input, file=NULL, noMessage=F)
 #' #' @param name: file name
 #' #' @param csvObject: object to be saved, i.e. data.frame
 #' #' @param fileAppendix: character to be appended to file name
-save.csv = function(path, name, csvObject, ui.input, file = "", noMessage=F) {
+save.csv = function(path, name, csvObject, ui.input, file = NULL, noMessage=F) {
   showNotification("Saving...",
                    type = "default")
    # Gets list(noti_note, noti_type, path)
