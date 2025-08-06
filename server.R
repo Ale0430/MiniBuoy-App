@@ -1284,10 +1284,10 @@ shinyServer(function(input, output, session) {
     stats.summary = ReferenceHydroStats()
     stats.tidal = get.tidal.statistics(ReferenceHydro)
     stats.woo = get.woo.statistics(ReferenceHydro)
-    settings = data.frame(gaps = input$hydro.set.gaps.reference,
-                          full = input$hydro.set.full.reference,
-                          part = input$hydro.set.part.reference,
-                          tilt = input$hydro.set.tilt.reference)
+    settings = data.frame(tilt = input$hydro.set.tilt.reference,
+                          limit = input$hydro.set.limit.reference,
+                          slope = input$hydro.set.slope.reference,
+                          adj_tilt = input$hydro.set.adj_tilt.reference)
     
     sheets = list('Summary' = stats.summary, 
                   'Daily'   = stats.daily, # %>% rename('Date' = 'datetime')
