@@ -261,7 +261,7 @@ get.notifications = function(ui.input, path) {
    # Check if project directory is defined
    # If not show warning and set path to root directory
    if (!isTruthy(ui.input$folder)) {
-      noti_note = "No project selected. File has saved in the root directory."
+      noti_note = "No project selected. File has saved been in the root directory."
       noti_type = "warning"
       
    } else {
