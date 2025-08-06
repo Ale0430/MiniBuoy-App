@@ -1184,8 +1184,8 @@ shinyServer(function(input, output, session) {
 
   
   observeEvent(input$hydro.set.apply.reference, {
-    if (input$hydro.set.tilt.reference < 0 | input$hydro.set.tilt.reference > 90){
-      showNotification("Minimum tilt needs to be a value between 0 and 90°.",
+    if (input$hydro.set.adj_tilt.reference > 0){
+      showNotification("Adj_tilt is typically a value between -1 and -5, no positive values but can be < -5.",
                        type = "error")
     } else {
       print("REFERENCE hydro: update with custom settings")

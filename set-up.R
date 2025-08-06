@@ -35,6 +35,12 @@ if(!require("asdetect")) install.packages("asdetect")
 if(!require("plotly")) install.packages("plotly")
 # Package to save file in excel format
 if(!require("writexl")) install.packages("writexl")
+# Package for fast summary stats-
+if(!require("DescTools")) install.packages("DescTools")
+# Package for graphical scales
+if(!require("scales")) install.packages("scales")
+# Package for TIME SERIES
+if(!require("timetk")) install.packages("timketk")
 
 # Suppress warning about group output when using dplyr::summarise
 options(dplyr.summarise.inform = FALSE)
