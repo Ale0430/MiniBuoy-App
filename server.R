@@ -794,10 +794,10 @@ shinyServer(function(input, output, session) {
   ### Variables        ####
   
   TargetCustomInput = reactive({
-    return(data.frame(gaps = input$hydro.set.gaps.target,
-                      full = input$hydro.set.full.target,
-                      part = input$hydro.set.part.target,
-                      tilt = input$hydro.set.tilt.target)
+    return(data.frame(tilt = input$hydro.set.tilt.target,
+                      limit = input$hydro.set.limit.target,
+                      slope = input$hydro.set.slope.target,
+                      adj_tilt = input$hydro.set.adj_tilt.target)
     )
   })
   
@@ -919,10 +919,10 @@ shinyServer(function(input, output, session) {
     stats.summary = TargetHydroStats()
     stats.tidal = get.tidal.statistics(TargetHydro)
     stats.woo = get.woo.statistics(TargetHydro)
-    settings = data.frame(gaps = input$hydro.set.gaps.target,
-                          full = input$hydro.set.full.target,
-                          part = input$hydro.set.part.target,
-                          tilt = input$hydro.set.tilt.target)
+    settings = data.frame(tilt = input$hydro.set.tilt.target,
+                          limit = input$hydro.set.limit.target,
+                          slope = input$hydro.set.slope.target,
+                          adj_tilt = input$hydro.set.adj_tilt.target)
     sheets = list('Summary' = stats.summary, 
                   'Daily'   = stats.daily, # %>% rename('Date' = 'datetime')
                   'Events'  = stats.event,
@@ -1144,10 +1144,10 @@ shinyServer(function(input, output, session) {
   ### Variables     ####
   
   ReferenceCustomInput = reactive({
-    return(data.frame(gaps = input$hydro.set.gaps.reference,
-                      full = input$hydro.set.full.reference,
-                      part = input$hydro.set.part.reference,
-                      tilt = input$hydro.set.tilt.reference)
+    return(data.frame(tilt = input$hydro.set.tilt.target,
+                      limit = input$hydro.set.limit.target,
+                      slope = input$hydro.set.slope.target,
+                      adj_tilt = input$hydro.set.adj_tilt.target)
     )
   })
   
