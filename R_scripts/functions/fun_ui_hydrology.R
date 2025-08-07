@@ -41,22 +41,22 @@ hyd.target.box.settings = function(){
     list(
       uiOutput("hydro.window.target.show"),
 
-      # Default values: gaps = 60, full = 60, part = 25, tilt = 75
+      # Default values: tilt = 75, limit = 9, slope = 0.01, adj_tilt = -1
       splitLayout(
-        numericInput(inputId = "hydro.set.gaps.target",
-                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated'>Minimum gap (minutes)</abbr>"),
-                     value = 60),
-        numericInput(inputId = "hydro.set.part.target",
-                     label = HTML("<abbr title='Proportion of the start and end of inundation events to Window to search for partially inundated cases'>Search window (%)</abbr>"),
-                     value = 25)
+        numericInput(inputId = "hydro.set.tilt.target",
+                     label = HTML("<abbr title='Tilt value above which non-inundation is not likley'>Max. Tilt to search for emerssion (degrees)</abbr>"),
+                     value = 75, min = 0, max = 90),
+        numericInput(inputId = "hydro.set.slope.target",
+                     label = HTML("<abbr title='Max. slope between points to consider non-inundation events (all > slope='F')'>Slope (lower is stricter)</abbr>"),
+                     value = 0.01, min = 0.000000, max = 0.7)
         ),
       splitLayout(
-        numericInput(inputId = "hydro.set.full.target",
-                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated'>Minimum duration (minutes)</abbr>"),
-                     value = 60),
-        numericInput(inputId = "hydro.set.tilt.target",
-                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated'>Minimum tilt (degrees)</abbr>"),
-                     value = 75, min = 0, max = 90)          
+        numericInput(inputId = "hydro.set.limit.target",
+                     label = HTML("<abbr title='Tilt threshold to identify non-inundation Events'>Tilt limit for emerssion events (degrees)</abbr>"),
+                     value = 9),
+        numericInput(inputId = "hydro.set.adj_tilt.target",
+                     label = HTML("<abbr title='Negative value that fine-tunes non-inundation events, typically between -1 and -5'>Adjusted tilt (negative value)</abbr>"),
+                     value = -1, min = -55, max = 0)          
       ),
 
       actButton("hydro.set.apply.target", "Apply custom settings", "update"),
@@ -161,22 +161,22 @@ hyd.reference.box.settings = function(){
     list(
       uiOutput("hydro.window.reference.show"),
       
-      # Default values: gaps = 60, full = 60, part = 50, tilt = 75
+      # Default values: tilt = 75, limit = 9, slope = 0.01, adj_tilt = -1
       splitLayout(
-        numericInput(inputId = "hydro.set.gaps.reference",
-                     label = HTML("<abbr title='Minimum gap in an inundation event to be closed, where points were misclassified as non-inundated'>Minimum gap (minutes)</abbr>"),
-                     value = 60),
-        numericInput(inputId = "hydro.set.part.reference",
-                     label = HTML("<abbr title='Proportion of the start and end of inundation events to Window to search for partially inundated cases'>Search window (%)</abbr>"),
-                     value = 25)
+        numericInput(inputId = "hydro.set.tilt.reference",
+                     label = HTML("<abbr title='Tilt value above which non-inundation is not likley'>Max. Tilt to search for emerssion (degrees)</abbr>"),
+                     value = 75, min = 0, max = 90),
+        numericInput(inputId = "hydro.set.slope.reference",
+                     label = HTML("<abbr title='Max. slope between points to consider non-inundation events (all > slope='F')'>Slope (lower is stricter)</abbr>"),
+                     value = 0.01, min=0.000000, max =0.7)
       ),
       splitLayout(
-        numericInput(inputId = "hydro.set.full.reference",
-                     label = HTML("<abbr title='Minimum duration of a fully inundated event, otherwise event is reclassified as partially inundated'>Minimum duration (minutes)</abbr>"),
-                     value = 60),
-        numericInput(inputId = "hydro.set.tilt.reference",
-                     label = HTML("<abbr title='Minimum tilt to classify an event as fully inundated, otherwise event is reclassified as partially inundated'>Minimum tilt (degrees)</abbr>"),
-                     value = 75, min = 0, max = 90)          
+        numericInput(inputId = "hydro.set.limit.reference",
+                     label = HTML("<abbr title='Tilt threshold to identify non-inundation Events'>Tilt limit for emerssion events (degrees)</abbr>"),
+                     value = 9, min = 1, max = 87),
+        numericInput(inputId = "hydro.set.adj_tilt.reference",
+                     label = HTML("<abbr title='Negative value that fine-tunes non-inundation events, typically between -1 and -5'>Adjusted tilt (negative value)</abbr>"),
+                     value = -1, min =-55, max=0)          
       ),
       
       actButton("hydro.set.apply.reference", "Apply custom settings", "update"),
