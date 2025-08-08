@@ -44,7 +44,7 @@ hyd.target.box.settings = function(){
       # Default values: tilt = 75, limit = 9, slope = 0.01, adj_tilt = -1
       splitLayout(
         numericInput(inputId = "hydro.set.tilt.target",
-                     label = HTML("<abbr title='Tilt value above which non-inundation is not likley'>Max. Tilt to search for emerssion (degrees)</abbr>"),
+                     label = HTML("<abbr title='Tilt value to consider full inundation'>Min. Tilt for full inundation</abbr>"),
                      value = 75, min = 0, max = 90),
         numericInput(inputId = "hydro.set.slope.target",
                      label = HTML("<abbr title='Max. slope between points to consider non-inundation events (all > slope='F')'>Slope (lower is stricter)</abbr>"),
@@ -164,7 +164,7 @@ hyd.reference.box.settings = function(){
       # Default values: tilt = 75, limit = 9, slope = 0.01, adj_tilt = -1
       splitLayout(
         numericInput(inputId = "hydro.set.tilt.reference",
-                     label = HTML("<abbr title='Tilt value above which non-inundation is not likley'>Max. Tilt to search for emerssion (degrees)</abbr>"),
+                     label = HTML("<abbr title='Tilt value to consider full inundation'>Min. Tilt for full inundation</abbr>"),
                      value = 75, min = 0, max = 90),
         numericInput(inputId = "hydro.set.slope.reference",
                      label = HTML("<abbr title='Max. slope between points to consider non-inundation events (all > slope='F')'>Slope (lower is stricter)</abbr>"),
