@@ -306,6 +306,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
 #### List of functions for extracting hydrodynamic parameters:####
 hydro.SurvMins           = function(data) { data %>% summarise(Value = difftime(max(datetime), min(datetime), units = 'mins')[[1]]) }
 hydro.SurvDays           = function(data) { data %>% summarise(Value = difftime(max(datetime), min(datetime), units = 'days')[[1]]) }
+
 hydro.NumEvents          = function(data) { data %>% summarise(Value = n_distinct(Event, na.rm = T)) }
 hydro.DurEvents          = function(data) { data %>% group_by(Event) %>% summarise(Value = as.numeric(sum(!is.na(Event)) / (as.numeric(difftime(.$datetime[2], .$datetime[1], units = 'mins'))))) %>% na.omit() }
 hydro.DurNEvents          = function(data) { data %>% group_by(N.Event) %>% summarise(Value = as.numeric(sum(!is.na(N.Event)) / (as.numeric(difftime(.$datetime[2], .$datetime[1], units = 'mins'))))) %>% na.omit() }
@@ -373,12 +374,15 @@ hydro.WaveMed           = function(data) { data                                 
 hydro.UpperAssymEvent   = function(data) { data %>% hydro.UpperCurEventTide() %>% group_by(Event) %>% spread(Tide, Value) %>% summarise(Value = Ebb / Flood) }
 hydro.UpperAssym        = function(data) { data %>% hydro.UpperAssymEvent()   %>% summarise(Value = median(Value, na.rm = T)) }
 
-#### count Events that reached full flood ####
+#### count Events that reached full flood, non-flood events and inundation frequency ####
 # full days monitored.... this function is reducing days with FULL TRUE when no full flood event is observed (double check)
 hydro.FullDays          = function(data) { data %>% group_by(floor_date(datetime, 'days')) %>% summarise(Value = unique(FullDay)) %>% rename(datetime = 1) }
 
-hydro.FullFloodEvent = function(data) { data %>% group_by(Event)                            %>% select(-N.Event) %>% filter(!is.na(Event)) %>% summarise(has_curr = any(!is.na(CurrentVelocity))) %>% summarise(Value  = sum(has_curr)) }
-hydro.NonFullFloodEvent = function(data) { data                                             %>% summarise(hydro.NumEvents(.) - hydro.FullFloodEvent(.))  }
+hydro.FullFloodEvent = function(data)    { data %>% group_by(Event)                        %>% select(-N.Event) %>% filter(!is.na(Event)) %>% summarise(has_curr = any(!is.na(CurrentVelocity))) %>% summarise(Value  = sum(has_curr)) }
+hydro.NonFullFloodEvent = function(data) { data                                            %>% summarise(hydro.NumEvents(.) - hydro.FullFloodEvent(.))  }
+
+hydro.SurvDaysNoInund   = function(data) { data                                            %>% mutate(day = floor_date(datetime, "day")) %>% group_by(day) %>% summarise(no_inundation = all(is.na(Event)))%>% filter(no_inundation =="TRUE")%>% summarise(Value=n()) }  
+
 
 
 get.summary.statistics = function(data, design) {
@@ -391,7 +395,7 @@ get.summary.statistics = function(data, design) {
     cbind(Parameter = 'Emersion duration',             Units = '[hrs/day]', hydro.NonIndDurHrsDay(data)),
     cbind(Parameter = 'Inundation proportion',         Units = '[%]',       hydro.IndDurPerc(data)),
     cbind(Parameter = 'Emersion proportion',           Units = '[%]',       hydro.NonIndDurPerc(data)),
-    cbind(Parameter = 'Inundation frequency',          Units = '[n/day]',   hydro.IndFreqDay(data)),
+    cbind(Parameter = 'Inundation frequency',          Units = '[n/day]',   hydro.NumEvents(data)/( hydro.FullDays(data)%>%filter(Value)%>%nrow()-(hydro.SurvDaysNoInund(data)%>%pull(Value)))),
     cbind(Parameter = 'Windows of Opportunity of at least 3 days', Units = '[n]',     hydro.WoO3(data)),
     cbind(Parameter = 'Maximum Window of Opportunity', Units = '[day]',     hydro.MaxWoO(data)),
     cbind(Parameter = 'Upper 95th percentile ebb-flood ratio',         Units = '[-]',       hydro.UpperAssym(data)),
