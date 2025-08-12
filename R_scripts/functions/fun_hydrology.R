@@ -470,8 +470,7 @@ get.woo.statistics = function(data) {
   
   rbind.data.frame(
     cbind(Parameter = 'Window of Opportunity maximum length',  Units = '[days]', hydro.MaxWoO(data)),
-   # cbind(Parameter = 'Frequency of WoOs >= 3 days', Units = '[n]', hydro.WoO3(data, 3,  hydro.WoO3(data, 3, hydro.MaxWoO(data)%>%pull(Value)))),
-   cbind(Parameter = 'Frequency of WoOs >= 3 days WoO', Units = '[n]', hydro.WoO3(data, 3, hydro.MaxWoO(data)%>%pull(Value))),
+    cbind(Parameter = 'Frequency of WoOs >= 3 days WoO', Units = '[n]', hydro.WoO3(data, 3, hydro.MaxWoO(data)%>%pull(Value))),
     cbind(Parameter = 'Frequency of 1-day WoO', Units = '[n]', hydro.WoO3(data, 1, 1.9)),
     cbind(Parameter = ' Frequency of 2-day WoO', Units = '[n]', hydro.WoO3(data, 2, 2.9)),
     cbind(Parameter = ' Frequency of 3-day WoO', Units = '[n]', hydro.WoO3(data, 3, 3.9)),
