@@ -919,15 +919,17 @@ shinyServer(function(input, output, session) {
     stats.summary = TargetHydroStats()
     stats.tidal = get.tidal.statistics(TargetHydro)
     stats.woo = get.woo.statistics(TargetHydro)
+    stats.nonflood = get.emersion.statistics(TargetHydro)
     settings = data.frame(tilt = input$hydro.set.tilt.target,
                           limit = input$hydro.set.limit.target,
                           slope = input$hydro.set.slope.target,
                           adj_tilt = input$hydro.set.adj_tilt.target)
-    sheets = list('Summary' = stats.summary, 
-                  'Daily'   = stats.daily, # %>% rename('Date' = 'datetime')
-                  'Events'  = stats.event,
-                  'Tides'   = stats.tidal,
-                  'Windows' = stats.woo,
+    sheets = list('Summary'       = stats.summary, 
+                  'Daily'         = stats.daily, # %>% rename('Date' = 'datetime')
+                  'Events'        = stats.event,
+                  'Tides'         = stats.tidal,
+                  'Windows'       = stats.woo,
+                  'no_inundation' = stats.nonflood,
                   'All' = TargetHydro, # %>% rename('Date' = 'datetime')
                   'Settings' = settings)
     return(sheets)
@@ -1284,6 +1286,7 @@ shinyServer(function(input, output, session) {
     stats.summary = ReferenceHydroStats()
     stats.tidal = get.tidal.statistics(ReferenceHydro)
     stats.woo = get.woo.statistics(ReferenceHydro)
+    stats.nonflood = get.emersion.statistics(ReferenceHydro)
     settings = data.frame(tilt = input$hydro.set.tilt.reference,
                           limit = input$hydro.set.limit.reference,
                           slope = input$hydro.set.slope.reference,
@@ -1294,6 +1297,7 @@ shinyServer(function(input, output, session) {
                   'Events'  = stats.event,
                   'Tides'   = stats.tidal,
                   'Windows' = stats.woo,
+                  'no_inundation' = stats.nonflood,
                   'All' = ReferenceHydro, # %>% rename('Date' = 'datetime')
                   'Settings' = settings)
     return(sheets)

@@ -265,8 +265,8 @@ plot.stage = function(data, design) {
 plot.woo = function(data) {
   return(
     data %>%
-      get.woo.statistics() %>%
-      ggplot(aes(x = EmersionEvent, y = Value)) +
+      get.emersion.statistics() %>%
+      ggplot(aes(x = N.Event, y = Value)) +
       geom_line() +
       geom_point() +
       labs(x = 'Emersion event',

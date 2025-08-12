@@ -327,15 +327,11 @@ hydro.NonIndDurDayHrs    = function(data) { data %>% hydro.NonIndDurDay() %>% gr
 hydro.IndDurPercDay      = function(data) { data %>% hydro.IndDurDay()                      %>% mutate(Value = (Value / 1440) * 100) }
 hydro.NonIndDurPercDay   = function(data) { data %>% hydro.NonIndDurDay()                   %>% mutate(Value = (Value / 1440) * 100) }
 hydro.IndFreqDay         = function(data) { data %>% summarise(n_distinct(Event, na.rm = T) / hydro.SurvDays(.)) }
+#hydro.IndFreqDay         = function(data) { data %>% group_by(floor_date(datetime, "day"))  %>%  select(-N.Event)  %>%  summarise(Value = n_distinct(Event, na.rm=T)) %>% filter(Value >=1) %>% summarise(Value = median(Value)) }   
 
 ##### assess WoO duration and frequency #####
-hydro.WoO3 <- function(data) {
-  data %>%
-    hydro.NonIndDurDays() %>%
-    filter(Value >= 3) %>%
-    summarise(Value = n()) %>%
-    return(.)
-}
+hydro.WoO3 <- function(data, length, max) { data %>% hydro.NonIndDurDays() %>% filter(Value >= length & Value <= max) %>% summarise(Value = n()) %>% return(.)}
+
 
 hydro.MaxWoO = function (data){
   df = hydro.NonIndDurDays(data) %>% summarise(Value=max(Value))
@@ -396,7 +392,7 @@ get.summary.statistics = function(data, design) {
     cbind(Parameter = 'Inundation proportion',         Units = '[%]',       hydro.IndDurPerc(data)),
     cbind(Parameter = 'Emersion proportion',           Units = '[%]',       hydro.NonIndDurPerc(data)),
     cbind(Parameter = 'Inundation frequency',          Units = '[n/day]',   hydro.NumEvents(data)/( hydro.FullDays(data)%>%filter(Value)%>%nrow()-(hydro.SurvDaysNoInund(data)%>%pull(Value)))),
-    cbind(Parameter = 'Windows of Opportunity of at least 3 days', Units = '[n]',     hydro.WoO3(data)),
+    cbind(Parameter = 'Windows of Opportunity of at least 3 days', Units = '[n]',     hydro.WoO3(data, 3, hydro.MaxWoO(data)%>%pull(Value))),
     cbind(Parameter = 'Maximum Window of Opportunity', Units = '[day]',     hydro.MaxWoO(data)),
     cbind(Parameter = 'Upper 95th percentile ebb-flood ratio',         Units = '[-]',       hydro.UpperAssym(data)),
     cbind(Parameter = 'Upper 95th percentile current velocity',        Units = '[m/s]',     hydro.CurUpper(data)),
@@ -473,10 +469,24 @@ get.tidal.statistics = function(data) {
 get.woo.statistics = function(data) {
   
   rbind.data.frame(
-    cbind(Parameter = 'Window of Opportunity maximum length',  Units = '[hrs]', hydro.MaxWoO(data)),
-    cbind(Parameter = ' Frequency of Windows of opoertunity of at least three days', Units = '[n]', hydro.WoO3(data)))
+    cbind(Parameter = 'Window of Opportunity maximum length',  Units = '[days]', hydro.MaxWoO(data)),
+   # cbind(Parameter = 'Frequency of WoOs >= 3 days', Units = '[n]', hydro.WoO3(data, 3,  hydro.WoO3(data, 3, hydro.MaxWoO(data)%>%pull(Value)))),
+   cbind(Parameter = 'Frequency of WoOs >= 3 days WoO', Units = '[n]', hydro.WoO3(data, 3, hydro.MaxWoO(data)%>%pull(Value))),
+    cbind(Parameter = 'Frequency of 1-day WoO', Units = '[n]', hydro.WoO3(data, 1, 1.9)),
+    cbind(Parameter = ' Frequency of 2-day WoO', Units = '[n]', hydro.WoO3(data, 2, 2.9)),
+    cbind(Parameter = ' Frequency of 3-day WoO', Units = '[n]', hydro.WoO3(data, 3, 3.9)),
+    cbind(Parameter = ' Frequency of 5-day WoO', Units = '[n]', hydro.WoO3(data, 5, 5.9)),
+    cbind(Parameter = ' Frequency of 6-day WoO', Units = '[n]', hydro.WoO3(data, 6, 6.9)),
+    cbind(Parameter = ' Frequency of 7-day WoO', Units = '[n]', hydro.WoO3(data, 7, 7.9)),
+    cbind(Parameter = ' Frequency of 8-day WoO', Units = '[n]', hydro.WoO3(data, 8, 8.5)),
+    cbind(Parameter = ' Frequency of 10-day WoO', Units = '[n]', hydro.WoO3(data, 10, 10.2)))
 }
 
+get.emersion.statistics = function (data){
+  rbind.data.frame(
+    cbind(Parameter="emersion duration", Units = '[hrs]', hydro.DurNEventsHrs(data))
+  )
+}
 #' Function to generate results text
 get.stats.text = function(data, design){
   
