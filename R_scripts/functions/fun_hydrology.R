@@ -469,16 +469,16 @@ get.tidal.statistics = function(data) {
 get.woo.statistics = function(data) {
   
   rbind.data.frame(
-    cbind(Parameter = 'Window of Opportunity maximum length',  Units = '[days]', hydro.MaxWoO(data)),
-    cbind(Parameter = 'Frequency of WoOs >= 3 days WoO', Units = '[n]', hydro.WoO3(data, 3, hydro.MaxWoO(data)%>%pull(Value))),
-    cbind(Parameter = 'Frequency of 1-day WoO', Units = '[n]', hydro.WoO3(data, 1, 1.9)),
-    cbind(Parameter = ' Frequency of 2-day WoO', Units = '[n]', hydro.WoO3(data, 2, 2.9)),
-    cbind(Parameter = ' Frequency of 3-day WoO', Units = '[n]', hydro.WoO3(data, 3, 3.9)),
-    cbind(Parameter = ' Frequency of 5-day WoO', Units = '[n]', hydro.WoO3(data, 5, 5.9)),
-    cbind(Parameter = ' Frequency of 6-day WoO', Units = '[n]', hydro.WoO3(data, 6, 6.9)),
-    cbind(Parameter = ' Frequency of 7-day WoO', Units = '[n]', hydro.WoO3(data, 7, 7.9)),
-    cbind(Parameter = ' Frequency of 8-day WoO', Units = '[n]', hydro.WoO3(data, 8, 8.5)),
-    cbind(Parameter = ' Frequency of 10-day WoO', Units = '[n]', hydro.WoO3(data, 10, 10.2)))
+    cbind(Parameter = 'Window of Opportunity maximum length',  Units = '[days]',     hydro.MaxWoO(data)),
+    cbind(Parameter = 'Frequency of WoOs >= 3 days WoO',       Units = '[n]',        hydro.WoO3(data, 3, hydro.MaxWoO(data)%>%pull(Value))),
+    cbind(Parameter = 'Frequency of 1-day WoO',                Units = '[n]',        hydro.WoO3(data, 1, 1.9)),
+    cbind(Parameter = 'Frequency of 2-day WoO',                Units = '[n]',        hydro.WoO3(data, 2, 2.9)),
+    cbind(Parameter = 'Frequency of 3-day WoO',                Units = '[n]',        hydro.WoO3(data, 3, 3.9)),
+    cbind(Parameter = 'Frequency of 5-day WoO',                Units = '[n]',        hydro.WoO3(data, 5, 5.9)),
+    cbind(Parameter = 'Frequency of 6-day WoO',                Units = '[n]',        hydro.WoO3(data, 6, 6.9)),
+    cbind(Parameter = 'Frequency of 7-day WoO',                Units = '[n]',        hydro.WoO3(data, 7, 7.9)),
+    cbind(Parameter = 'Frequency of 8-day WoO',                Units = '[n]',        hydro.WoO3(data, 8, 8.5)),
+    cbind(Parameter = 'Frequency of 10-day WoO',               Units = '[n]',        hydro.WoO3(data, 10, 10.2)))
 }
 
 get.emersion.statistics = function (data){
