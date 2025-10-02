@@ -38,7 +38,7 @@ get.rawData = function(inputType, file) { # @Marie: needs to be checked when we 
      rawData = suppressWarnings({
        rawData%>%
        mutate(across(starts_with("datetime"), 
-                     ~lubridate::parse_date_time(.,orders = c("mdy_HMS", "ymd_HMS"))))
+                     ~lubridate::parse_date_time(.,orders = c("dmy_HMS","mdy_HMS", "ymd_HMS"))))
      })
      # Remove NA rows
      rawData = rawData[complete.cases(rawData),]
