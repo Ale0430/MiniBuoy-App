@@ -44,7 +44,7 @@ clean.1 = function(data, design) {
       Acceleration = if      (design == 'B4' | design == 'B4+') { ifelse(Acceleration < -1.15, NA, Acceleration) } 
       else if (design == 'Pendant') { ifelse(Acceleration < -1.075, NA, Acceleration) },
       mediany = runmed(Acceleration, rate, endrule = "median"),,
-      runSD = runsd(Acceleration, rate),  #align = "center" is default
+      runSD = if (design == 'B4+') {runsd(Acceleration, rate)},  #align = "center" is default
       medTilt =  ((-180*(asin(ifelse(mediany < -1, -1, mediany))))/pi)
     )%>%
     # remove NAs:
@@ -64,14 +64,16 @@ clean.1 = function(data, design) {
 clean.2 = function(data, design, baseline.window = 3*60, variance.window = 3, slope.window = 1*60) { # in minutes
   
   Baseline = baseline.window / (as.numeric(difftime(data$datetime[2], data$datetime[1], units = 'mins'))) 
-  baseline <- ifelse(Baseline %% 2 == 0, Baseline + 1, Baseline)
+  baseline = ifelse(Baseline[1] %% 2 == 0, Baseline[1] + 1, Baseline[1])
   variance = variance.window / (as.numeric(difftime(data$datetime[2], data$datetime[1], units = 'mins'))) 
   slope    = slope.window    / (as.numeric(difftime(data$datetime[2], data$datetime[1], units = 'mins'))) 
   
   ### where basline is an even number, add 1 else leave baseline as odd  
   data %>%
     mutate(
-      Tilt_adj = medTilt - runmed(medTilt, k = baseline),
+      #Tilt_adj = medTilt - runmed(medTilt, k = baseline, endrule = "median"),
+      Tilt_adj =  medTilt - rollapply(medTilt, width=Baseline, 
+                                      FUN=function(x) median(x, na.rm=T), align="center", fill=0),
       SD_adj   = runsd(Tilt_adj, variance), 
       Slope    = abs(stats::filter(medTilt, c(-1, rep(0, slope - 2), 1) / (slope - 1), sides = 2)), # modify sides?
       # Fill NA at edges by carrying nearest non-NA forward and backward:
@@ -232,7 +234,9 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     ) %>%
     ungroup()%>%
     #mutate(Tilt = medTilt )%>%
-    select( datetime, Acceleration, mediany, runSD, IQR, medTilt, Tilt, Status, Event, N.Event, Tide)%>%
+    #select( datetime, Acceleration, mediany, runSD, IQR, medTilt, Tilt, Status, Event, N.Event, Tide)%>%
+    select(any_of(c("datetime", "Acceleration", "mediany", "runSD", "IQR", 
+                    "medTilt", "Tilt", "Status", "Event", "N.Event", "Tide")))%>%
     mutate(#CurrentVelocity = ifelse(Status == "F", curvel15(mediany), NA ))
       CurrentVelocity = 
         if (design == 'B4'  & freq <= 1)  { ifelse(Status == 'F', 2.699136272 + (-0.085824310 * Tilt) + ( 9.862232219e-04 * Tilt ^ 2) + (-4.005656168e-06 * Tilt ^ 3), NA) }
