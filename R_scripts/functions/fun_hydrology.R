@@ -7,16 +7,33 @@
 #####  Function to reclassify short events (generic, reusable) #####
 # event_col: ether Event (col. with inundation events) or N.Event (col. with non-flood events)
 # status_value: loop through "F" and convert to "N" if the consecutive values are lower than the defined threshold
-reclassify_short_events <- function(data, event_col, status_value, new_status, threshold) {
+reclassify_short_events <- function(data, event_col, datetime_col,
+                                    new_status, threshold) {
+  
   data %>%
     group_by(.data[[event_col]]) %>%
-    mutate(event_length = if (is.na(first(.data[[event_col]]))) NA_integer_ else n()) %>%
+    mutate(
+      event_length = if (is.na(first(.data[[event_col]]))) {
+        NA_real_
+      } else {
+        as.numeric(
+          difftime(
+            max(.data[[datetime_col]]),
+            min(.data[[datetime_col]]),
+            units = "mins"
+          )
+        )
+      }
+    ) %>%
     ungroup() %>%
     mutate(
       Status = case_when(
         !is.na(.data[[event_col]]) & event_length <= threshold ~ new_status,
-        TRUE ~ Status)
-    )}
+        TRUE ~ Status
+      )
+    )
+}
+
 
 ##### Count inundation events consecutively: a unique id from 1 to n will be generated for each flood event (Event) and for each non-flood event (N.Event) #####
 assign_seq_id <- function(vec, type) {
@@ -121,24 +138,35 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
       Status = ifelse(Status == 'N' & Slope > slope,                             'F', Status)) # typical slope used 0.01
   
   # classify flood and non-flood events and adjsut classification of short events
-  data.NF = data.NF%>%
+  data.NF <- data.NF %>%
     mutate(
       Event   = assign_seq_id(Status, "F"),
       N.Event = assign_seq_id(Status, "N")
-    )%>%
-    reclassify_short_events("Event", "F", "N", 600)%>%
+    ) %>%
+    reclassify_short_events(
+      event_col    = "Event",
+      datetime_col = "datetime",
+      new_status   = "N",
+      threshold    = 15
+    ) %>%
     mutate(
       Event   = assign_seq_id(Status, "F"),
       N.Event = assign_seq_id(Status, "N")
-    )%>%
-    reclassify_short_events("N.Event", "N", "F", 20)%>%
+    ) %>%
+    reclassify_short_events(
+      event_col    = "N.Event",
+      datetime_col = "datetime",
+      new_status   = "F",
+      threshold    = 5
+    ) %>%
     mutate(
       Event   = assign_seq_id(Status, "F"),
       N.Event = assign_seq_id(Status, "N")
-    )%>%
-    group_by(datetime =  ceiling_date(datetime, unit = 'minute'))%>%
-    slice(1)%>%
+    ) %>%
+    group_by(datetime = ceiling_date(datetime, unit = "minute")) %>%
+    slice(1) %>%
     ungroup()
+  
 
   #### use time windows on start and en of each Event to classify partial inundations  ####
   
