@@ -60,8 +60,9 @@ clean.1 = function(data, design) {
       # truncate acceleration values (beyond detection limit caused by shock):
       Acceleration = if      (design == 'B4' | design == 'B4+') { ifelse(Acceleration < -1.15, NA, Acceleration) } 
       else if (design == 'Pendant') { ifelse(Acceleration < -1.075, NA, Acceleration) },
-      mediany = runmed(Acceleration, rate, endrule = "median"),,
-      runSD = if (design == 'B4+') {runsd(Acceleration, rate)},  #align = "center" is default
+      mediany = runmed(Acceleration, rate, endrule = "median"),
+      runSD = if (design == 'B4' |design == 'B4+') {runsd(Acceleration, rate)}
+      else if (design == 'Pendant') {runsd(Acceleration, rate*2)},#align = "center" is default
       medTilt =  ((-180*(asin(ifelse(mediany < -1, -1, mediany))))/pi)
     )%>%
     # remove NAs:
@@ -130,25 +131,26 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
       # tilt valuable for variance capturing variance around moving window, excluding threshold tilts (i.e. non-inundated and fully inundated look the same)
       # slope valuable for capturing tilt gradients 
       # sd valuable for capturing low inundation cases (edge cases)
-      
       Status = 'N',
-      Status = ifelse(Status == 'N' & medTilt > limit,                               'F', Status), # "N" class for points bellow the limit value
-      Status = ifelse(Status == 'N' & medTilt > tilt | Tilt_adj < adj_tilt | Tilt_adj > 5, 'F', Status), # -1 to 1 typical values TILT_ADJ CAN BE STRICTER IF VARIANCE AROUND NON-INUNDATION IS LOWER
+      Status = ifelse(Status == 'N' & Tilt > tilt,                                'F', Status),
+      Status = ifelse(Status == 'N' & Tilt > limit,                               'F', Status), # "N" class for points bellow the limit value
+      Status = ifelse(Status == 'N' & runSD > 0.01,                               'F', Status),
       Status = ifelse(Status == 'N' & SD_adj > 1,                               'F', Status),
-      Status = ifelse(Status == 'N' & Slope > slope,                             'F', Status)) # typical slope used 0.01
+      Status = ifelse(Status == 'N' & Slope > slope,                          'F', Status),
+      Status = ifelse(Status == 'N' & Tilt_adj < adj_tilt | Tilt_adj > 1, 'F', Status) # -1 to 1 typical values TILT_ADJ CAN BE STRICTER IF VARIANCE AROUND NON-INUNDATION IS LOWER
+      
+      
+      # typical slope used 0.01
+    ) # typical slope used 0.01
+      
+      # Status = 'N',
+      # Status = ifelse(Status == 'N' & medTilt > limit,                               'F', Status), # "N" class for points bellow the limit value
+      # Status = ifelse(Status == 'N' & medTilt > tilt | Tilt_adj < adj_tilt | Tilt_adj > 5, 'F', Status), # -1 to 1 typical values TILT_ADJ CAN BE STRICTER IF VARIANCE AROUND NON-INUNDATION IS LOWER
+      # Status = ifelse(Status == 'N' & SD_adj > 1,                               'F', Status),
+      # Status = ifelse(Status == 'N' & Slope > slope,                             'F', Status)) # typical slope used 0.01
   
   # classify flood and non-flood events and adjsut classification of short events
   data.NF <- data.NF %>%
-    mutate(
-      Event   = assign_seq_id(Status, "F"),
-      N.Event = assign_seq_id(Status, "N")
-    ) %>%
-    reclassify_short_events(
-      event_col    = "Event",
-      datetime_col = "datetime",
-      new_status   = "N",
-      threshold    = 15
-    ) %>%
     mutate(
       Event   = assign_seq_id(Status, "F"),
       N.Event = assign_seq_id(Status, "N")
@@ -158,6 +160,16 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
       datetime_col = "datetime",
       new_status   = "F",
       threshold    = 5
+    ) %>%
+    mutate(
+      Event   = assign_seq_id(Status, "F"),
+      N.Event = assign_seq_id(Status, "N")
+    ) %>%
+    reclassify_short_events(
+      event_col    = "Event",
+      datetime_col = "datetime",
+      new_status   = "N",
+      threshold    = 90
     ) %>%
     mutate(
       Event   = assign_seq_id(Status, "F"),
