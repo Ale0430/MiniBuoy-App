@@ -60,10 +60,11 @@ clean.1 = function(data, design) {
       # truncate acceleration values (beyond detection limit caused by shock):
       Acceleration = if      (design == 'B4' | design == 'B4+') { ifelse(Acceleration < -1.15, NA, Acceleration) } 
       else if (design == 'Pendant') { ifelse(Acceleration < -1.075, NA, Acceleration) },
-      mediany = runmed(Acceleration, rate, endrule = "median"),
-      runSD = if (design == 'B4' |design == 'B4+') {runsd(Acceleration, rate)}
-      else if (design == 'Pendant') {runsd(Acceleration, rate*2)},#align = "center" is default
-      medTilt =  ((-180*(asin(ifelse(mediany < -1, -1, mediany))))/pi)
+      mediany = if (design =='B4' | design == 'B4+') {runmed(Acceleration, rate, endrule = "median")}
+      else if(design =='Pendant') {runmed(Acceleration, 6, endrule = "median")},
+      runSD = runsd(Acceleration, rate),  #align = "center" is default,#align = "center" is default
+      medTilt =  ((-180*(asin(ifelse(mediany < -1, -1, mediany))))/pi),
+      freq_min = freq/60
     )%>%
     # remove NAs:
     filter(complete.cases(.))%>%
@@ -80,20 +81,18 @@ clean.1 = function(data, design) {
 
 # remove resting tilt angle over entire survey to detect deviations around zero, with NA as an option:
 clean.2 = function(data, design, baseline.window = 3*60, variance.window = 3, slope.window = 1*60) { # in minutes
-  
-  Baseline = baseline.window / (as.numeric(difftime(data$datetime[2], data$datetime[1], units = 'mins'))) 
-  baseline = ifelse(Baseline[1] %% 2 == 0, Baseline[1] + 1, Baseline[1])
-  variance = variance.window / (as.numeric(difftime(data$datetime[2], data$datetime[1], units = 'mins'))) 
-  slope    = slope.window    / (as.numeric(difftime(data$datetime[2], data$datetime[1], units = 'mins'))) 
-  
-  ### where basline is an even number, add 1 else leave baseline as odd  
+ 
+  #     Slope    = as.numeric(na.locf(Slope, fromLast = T, na.rm = F)))
+  baseline = baseline.window / data$freq_min[1]
+  variance = variance.window / data$freq_min[1]
+  slope    = slope.window    / data$freq_min[1]
   data %>%
     mutate(
-      #Tilt_adj = medTilt - runmed(medTilt, k = baseline, endrule = "median"),
-      Tilt_adj =  medTilt - rollapply(medTilt, width=Baseline, 
-                                      FUN=function(x) median(x, na.rm=T), align="center", fill=0),
+      Tilt_adj = (Tilt - runmed(Tilt, ifelse(baseline %% 2 == 0, baseline + 1, baseline))), # changing medTilt fpr Tilt
+      #Tilt_adj = (Tilt - runmed(Tilt, ifelse(baseline %% 2 == 0, baseline + 1, baseline))), # changing medTilt fpr Tilt
+      
       SD_adj   = runsd(Tilt_adj, variance), 
-      Slope    = abs(stats::filter(medTilt, c(-1, rep(0, slope - 2), 1) / (slope - 1), sides = 2)), # modify sides?
+      Slope    = abs(stats::filter(Tilt, c(-1, rep(0, slope - 2), 1) / (slope - 1), sides = 2)), # modify sides?
       # Fill NA at edges by carrying nearest non-NA forward and backward:
       Slope    = na.locf(Slope, na.rm = F),
       Slope    = as.numeric(na.locf(Slope, fromLast = T, na.rm = F)))
@@ -137,30 +136,12 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
       Status = ifelse(Status == 'N' & runSD > 0.01,                               'F', Status),
       Status = ifelse(Status == 'N' & SD_adj > 1,                               'F', Status),
       Status = ifelse(Status == 'N' & Slope > slope,                          'F', Status),
-      Status = ifelse(Status == 'N' & Tilt_adj < adj_tilt | Tilt_adj > 1, 'F', Status) # -1 to 1 typical values TILT_ADJ CAN BE STRICTER IF VARIANCE AROUND NON-INUNDATION IS LOWER
+      Status = ifelse(Status == 'N' & Tilt_adj < adj_tilt | Tilt_adj > 14, 'F', Status) # -1 to 1 typical values TILT_ADJ CAN BE STRICTER IF VARIANCE AROUND NON-INUNDATION IS LOWER
       
-      
-      # typical slope used 0.01
     ) # typical slope used 0.01
-      
-      # Status = 'N',
-      # Status = ifelse(Status == 'N' & medTilt > limit,                               'F', Status), # "N" class for points bellow the limit value
-      # Status = ifelse(Status == 'N' & medTilt > tilt | Tilt_adj < adj_tilt | Tilt_adj > 5, 'F', Status), # -1 to 1 typical values TILT_ADJ CAN BE STRICTER IF VARIANCE AROUND NON-INUNDATION IS LOWER
-      # Status = ifelse(Status == 'N' & SD_adj > 1,                               'F', Status),
-      # Status = ifelse(Status == 'N' & Slope > slope,                             'F', Status)) # typical slope used 0.01
   
   # classify flood and non-flood events and adjsut classification of short events
   data.NF <- data.NF %>%
-    mutate(
-      Event   = assign_seq_id(Status, "F"),
-      N.Event = assign_seq_id(Status, "N")
-    ) %>%
-    reclassify_short_events(
-      event_col    = "N.Event",
-      datetime_col = "datetime",
-      new_status   = "F",
-      threshold    = 5
-    ) %>%
     mutate(
       Event   = assign_seq_id(Status, "F"),
       N.Event = assign_seq_id(Status, "N")
@@ -175,7 +156,10 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
       Event   = assign_seq_id(Status, "F"),
       N.Event = assign_seq_id(Status, "N")
     ) %>%
-    group_by(datetime = ceiling_date(datetime, unit = "minute")) %>%
+    # group_by(datetime = ceiling_date(datetime, unit = "minute")) %>%
+    group_by(
+      datetime = ceiling_date(datetime, unit = if (design %in% c("B4", "B4+")) "minute" else "2 minutes")
+    )%>%
     slice(1) %>%
     ungroup()
   
@@ -235,8 +219,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     group_by(Event)%>%
     mutate(
       Status = case_when(!is.na(Event) & all(medTilt < tilt, na.rm=T) ~ "P", # tipically 85
-                         # !is.na(Event) & sum(medTilt == 90, na.rm = TRUE) <= 1 ~ "P", # 30 minutes of total F events not enough to rely on velocity estimates
-                         
+
                          TRUE~ Status)
     )%>%
     ungroup()
