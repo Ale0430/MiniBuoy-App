@@ -48,15 +48,15 @@ hyd.target.box.settings = function(){
                      value = 75, min = 0, max = 90),
         numericInput(inputId = "hydro.set.slope.target",
                      label = HTML("<abbr title='Max. slope between points to consider non-inundation events (all > slope='F')'>Slope (lower is stricter)</abbr>"),
-                     value = 0.01, min = 0.000000, max = 0.7)
+                     value = 0.01)
         ),
       splitLayout(
         numericInput(inputId = "hydro.set.limit.target",
                      label = HTML("<abbr title='Tilt threshold to identify non-inundation Events'>Tilt limit for emerssion events (degrees)</abbr>"),
-                     value = 9),
+                     value = 15),
         numericInput(inputId = "hydro.set.adj_tilt.target",
                      label = HTML("<abbr title='Negative value that fine-tunes non-inundation events, typically between -1 and -5'>Adjusted tilt (negative value)</abbr>"),
-                     value = -1, min = -55, max = 0)          
+                     value = -1, min = -550, max = 0 )          
       ),
 
       actButton("hydro.set.apply.target", "Apply custom settings", "update"),
@@ -168,15 +168,15 @@ hyd.reference.box.settings = function(){
                      value = 75, min = 0, max = 90),
         numericInput(inputId = "hydro.set.slope.reference",
                      label = HTML("<abbr title='Max. slope between points to consider non-inundation events (all > slope='F')'>Slope (lower is stricter)</abbr>"),
-                     value = 0.01, min=0.000000, max =0.7)
+                     value = 0.01, max =20)
       ),
       splitLayout(
         numericInput(inputId = "hydro.set.limit.reference",
                      label = HTML("<abbr title='Tilt threshold to identify non-inundation Events'>Tilt limit for emerssion events (degrees)</abbr>"),
-                     value = 9, min = 1, max = 87),
+                     value = 15, min = 1, max = 89),
         numericInput(inputId = "hydro.set.adj_tilt.reference",
                      label = HTML("<abbr title='Negative value that fine-tunes non-inundation events, typically between -1 and -5'>Adjusted tilt (negative value)</abbr>"),
-                     value = -1, min =-55, max=0)          
+                     value = -1, min =-550, max=0)          
       ),
       
       actButton("hydro.set.apply.reference", "Apply custom settings", "update"),

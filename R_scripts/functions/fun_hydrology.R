@@ -112,7 +112,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     adj_tilt = ui.input_settings$adj_tilt
   } else {
     tilt = 75
-    limit = 9
+    limit = 15
     slope = 0.01
     adj_tilt = -5
   }
@@ -218,7 +218,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
   data.NPF = data.NPF %>%
     group_by(Event)%>%
     mutate(
-      Status = case_when(!is.na(Event) & all(medTilt < tilt, na.rm=T) ~ "P", # tipically 85
+      Status = case_when(!is.na(Event) & all(Tilt < tilt, na.rm=T) ~ "P", # tipically 85
 
                          TRUE~ Status)
     )%>%
@@ -677,7 +677,22 @@ get.comparison = function(hydro.t, hydro.r, stats.t, stats.r, design.t, design.r
     group_by(Parameter, Units) %>%
     summarise(p.value   = wilcox.test(Target, Reference, exact = F)$p.value) %>%
     mutate(SignificantlyDifferent = ifelse(p.value < 0.05, 'Yes', 'No'))
+  #### checking ####
+  cat("\n===== stats.r =====\n")
+  print(stats.r$Parameter)
   
+  cat("\n===== stats.t =====\n")
+  print(stats.t$Parameter)
+  
+  cat("\n===== summary.r =====\n")
+  print(summary.r$Parameter)
+  
+  cat("\n===== summary.t =====\n")
+  print(summary.t$Parameter)
+  
+  cat("\n===== summary.c =====\n")
+  print(summary.c$Parameter)
+  #### for problems ####
   comparison = left_join(summary.c, event.c, by = c('Parameter', 'Units')) %>%
     filter(Parameter %in% c('Survey days',
                             'Inundation frequency',
