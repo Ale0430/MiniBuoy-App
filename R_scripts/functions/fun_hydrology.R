@@ -62,7 +62,8 @@ clean.1 = function(data, design) {
       else if (design == 'Pendant') { ifelse(Acceleration < -1.075, NA, Acceleration) },
       mediany = if (design =='B4' | design == 'B4+') {runmed(Acceleration, rate, endrule = "median")}
       else if(design =='Pendant') {runmed(Acceleration, 6, endrule = "median")},
-      runSD = runsd(Acceleration, rate),  #align = "center" is default,#align = "center" is default
+      runSD = if (design =='B4' | design == 'B4+'){runsd(Acceleration, rate)} 
+      else if  (design == "Pendant") { runsd(Acceleration, ifelse(rate <= 2, 7, rate))},   #align = "center" is default,#align = "center" is default
       medTilt =  ((-180*(asin(ifelse(mediany < -1, -1, mediany))))/pi),
       freq_min = freq/60
     )%>%
@@ -734,28 +735,59 @@ get.comparison.text = function(data){
       'Upper 95th percentile wave orbital velocity'))
   Statistics = Statistics %>% left_join(., shortnames, by = 'Parameter') 
   
-  Statistics$Positive  = c('lower', 'lower', 'higher', 'lower', 'lower', 'lower', 'lower')
-  Statistics$Outcome = ifelse(gsub('[^a-zA-Z]', '', Statistics$TargetIs) == Statistics$Positive, 'good' , 'bad')
-  
-  good = paste(if(Statistics$Outcome[1] == 'good') { '<li>Shorter inundation duration</li>' },
-               if(Statistics$Outcome[2] == 'good') { '<li>Less frequent inundation</li>' },
-               if(Statistics$Outcome[3] == 'good') { '<li>Longer Windows of Opportunity (inundation-free days)</li>' },
-               if(Statistics$Outcome[4] == 'good' & Statistics$Outcome[5] == 'good' & Statistics$SignificantlyDifferent[4] == 'Yes' & Statistics$SignificantlyDifferent[5] == 'Yes') { '<li>Meaningfully lower average and peak current velocities</li>' 
-               } else if(Statistics$Outcome[5] == 'good' & Statistics$SignificantlyDifferent[5] == 'Yes') { '<li>Meaningfully lower average current velocities inundation</li>' 
-               } else if(Statistics$Outcome[4] == 'good' & Statistics$SignificantlyDifferent[4] == 'Yes') { '<li>Meaningfully lower peak current velocities</li>' },
-               if(Statistics$Outcome[6] == 'good' & Statistics$Outcome[7] == 'good' & Statistics$SignificantlyDifferent[6] == 'Yes' & Statistics$SignificantlyDifferent[7] == 'Yes') { '<li>Meaningfully lower average and peak wave orbital velocities</li>' 
-               } else if(Statistics$Outcome[7] == 'good' & Statistics$SignificantlyDifferent[7] == 'Yes') { '<li>Meaningfully lower average wave orbital velocities</li>' 
-               } else if(Statistics$Outcome[6] == 'good' & Statistics$SignificantlyDifferent[6] == 'Yes') { '<li>Meaningfully lower peak current velocities</li>' }
+ # Statistics$Positive  = c('lower', 'lower', 'higher', 'lower', 'lower', 'lower', 'lower')
+ # Statistics$Outcome = ifelse(gsub('[^a-zA-Z]', '', Statistics$TargetIs) == Statistics$Positive, 'good' , 'bad')
+  positive_lookup <- c(
+    Duration     = "lower",
+    Frequency    = "lower",
+    MaxWoO       = "higher",
+    MeanCurrent  = "lower",
+    UpperCurrent = "lower",
+    MeanWave     = "lower",
+    UpperWave    = "lower"
   )
-  bad  = paste(if(Statistics$Outcome[1] == 'bad') { '<li>Longer inundation duration</li>' },
-               if(Statistics$Outcome[2] == 'bad') { '<li>More frequent inundation</li>' },
-               if(Statistics$Outcome[3] == 'bad') { '<li>Shorter Windows of Opportunity (inundation-free days)</li>' },
-               if(Statistics$Outcome[4] == 'bad' & Statistics$Outcome[5] == 'bad' & Statistics$SignificantlyDifferent[4] == 'Yes' & Statistics$SignificantlyDifferent[5] == 'Yes') { '<li>Meaningfully higher average and peak current velocities</li>' 
-               } else if(Statistics$Outcome[5] == 'bad' & Statistics$SignificantlyDifferent[5] == 'Yes') { '<li>Meaningfully higher average current velocities inundation</li>' 
-               } else if(Statistics$Outcome[4] == 'bad' & Statistics$SignificantlyDifferent[4] == 'Yes') { '<li>Meaningfully higher peak current velocities</li>' },
-               if(Statistics$Outcome[6] == 'bad' & Statistics$Outcome[7] == 'bad' & Statistics$SignificantlyDifferent[6] == 'Yes' & Statistics$SignificantlyDifferent[7] == 'Yes') { '*Meaningfully higher average and peak wave orbital velocities</li>' 
-               } else if(Statistics$Outcome[7] == 'bad' & Statistics$SignificantlyDifferent[7] == 'Yes') { '<li>Meaningfully higher average wave orbital velocities</li>' 
-               } else if(Statistics$Outcome[6] == 'bad' & Statistics$SignificantlyDifferent[6] == 'Yes') { '<li>Meaningfully higher peak current velocities</li>' }
+  
+  Statistics$Positive = positive_lookup[Statistics$ParameterShort]
+  
+  Statistics$Outcome = ifelse( gsub("[^a-zA-Z]", "", Statistics$TargetIs) == Statistics$Positive, "good", "bad")
+  
+  stats = split(Statistics, Statistics$ParameterShort)
+  
+  outcome = function(name){
+    x <- stats[[name]]
+    if(is.null(x))
+      return(NA_character_)
+    x$Outcome
+    
+  }
+  
+  sig = function(name){
+    x <- stats[[name]]
+    if(is.null(x))
+      return("No")
+    x$SignificantlyDifferent
+    
+  }
+  
+  good = paste(if(outcome("Duration") == 'good') { '<li>Shorter inundation duration</li>' },
+               if(outcome("Frequency") == 'good') { '<li>Less frequent inundation</li>' },
+               if(outcome("MaxWoO") == 'good') { '<li>Longer Windows of Opportunity (inundation-free days)</li>' },
+               if(outcome("MeanCurrent") == 'good' & outcome("UpperCurrent") == 'good' & sig("MeanCurrent") == 'Yes' & sig("UpperCurrent") == 'Yes') { '<li>Meaningfully lower average and peak current velocities</li>' 
+               } else if(outcome("UpperCurrent") == 'good' & sig("UpperCurrent") == 'Yes') { '<li>Meaningfully lower average current velocities inundation</li>' 
+               } else if(outcome("MeanCurrent") == 'good' & sig("MeanCurrent") == 'Yes') { '<li>Meaningfully lower peak current velocities</li>' },
+               if(outcome("MeanWave") == 'good' & outcome("UpperWave") == 'good' & sig("MeanWave") == 'Yes' & sig("UpperWave") == 'Yes') { '<li>Meaningfully lower average and peak wave orbital velocities</li>' 
+               } else if(outcome("UpperWave") == 'good' & sig("UpperWave") == 'Yes') { '<li>Meaningfully lower average wave orbital velocities</li>' 
+               } else if(outcome("MeanWave") == 'good' & sig("MeanWave") == 'Yes') { '<li>Meaningfully lower peak current velocities</li>' }
+  )
+  bad  = paste(if(outcome("Duration") == 'bad') { '<li>Longer inundation duration</li>' },
+               if(outcome("Frequency") == 'bad') { '<li>More frequent inundation</li>' },
+               if(outcome("MaxWoO") == 'bad') { '<li>Shorter Windows of Opportunity (inundation-free days)</li>' },
+               if(outcome("MeanCurrent") == 'bad' & outcome("UpperCurrent") == 'bad' & sig("MeanCurrent") == 'Yes' & sig("UpperCurrent") == 'Yes') { '<li>Meaningfully higher average and peak current velocities</li>' 
+               } else if(outcome("UpperCurrent") == 'bad' & sig("UpperCurrent") == 'Yes') { '<li>Meaningfully higher average current velocities inundation</li>' 
+               } else if(outcome("MeanCurrent") == 'bad' & sig("MeanCurrent") == 'Yes') { '<li>Meaningfully higher peak current velocities</li>' },
+               if(outcome("MeanWave") == 'bad' & outcome("UpperWave") == 'bad' & sig("MeanWave") == 'Yes' & sig("UpperWave") == 'Yes') { '*Meaningfully higher average and peak wave orbital velocities</li>' 
+               } else if(outcome("UpperWave") == 'bad' & sig("UpperWave") == 'Yes') { '<li>Meaningfully higher average wave orbital velocities</li>' 
+               } else if(outcome("MeanWave") == 'bad' & sig("MeanWave") == 'Yes') { '<li>Meaningfully higher peak current velocities</li>' }
   )
   conc = paste(
     '<b>Conclusion:</b><br/>',
@@ -763,18 +795,20 @@ get.comparison.text = function(data){
     if (!'good' %in% Statistics$Outcome) { 'Using the reference site as a baseline, natural establishment or managed restoration is <b>unlikely</b> to succeed at the target site without intervention aimed at raising tidal flat elevations and attenuating wave and current velocities.<br/><br/>' },
     if ('good'   %in% Statistics$Outcome & 'bad' %in% Statistics$Outcome) { paste(
       'Using the reference site as a baseline, natural establishment or managed restoration will <b>likely be hampered</b>. ', 
-      if(Statistics$Outcome[1] == 'bad' & Statistics$Outcome[2] == 'bad') { 'Prolonged duration and excessive frequency of inundation that exceeds the physiolgical tolerance of the local halophytes. Steps could be taken to raise tidal flat elevations and improve the survival rates of natural or managed plant colonisation. ' 
-      } else if (Statistics$Outcome[1] == 'bad') { 'Prolonged inundation duration that exceeds the physiolgical tolerance of the local halophytes. Steps could be taken to raise tidal flat elevations and improve the survival rates of natural or managed plant colonisation. '
-      } else if (Statistics$Outcome[2] == 'bad') { 'Excessive inundation frequency that exceeds the physiolgical tolerance of the local halophytes. Steps could be taken to raise tidal flat elevations and improve the survival rates of natural or managed plant colonisation. ' },
-      if(!'good' %in% Statistics$Outcome[4:7] & !'No' %in% Statistics$SignificantlyDifferent[4:7]) { 'Current and wave orbital velocities are higher, indicating that scour and dislodgement of plants is more likely. ' 
+      if(outcome("Duration") == 'bad' & outcome("Frequency") == 'bad') { 'Prolonged duration and excessive frequency of inundation that exceeds the physiolgical tolerance of the local halophytes. Steps could be taken to raise tidal flat elevations and improve the survival rates of natural or managed plant colonisation. ' 
+      } else if (outcome("Duration") == 'bad') { 'Prolonged inundation duration that exceeds the physiolgical tolerance of the local halophytes. Steps could be taken to raise tidal flat elevations and improve the survival rates of natural or managed plant colonisation. '
+      } else if (outcome("Frequency") == 'bad') { 'Excessive inundation frequency that exceeds the physiolgical tolerance of the local halophytes. Steps could be taken to raise tidal flat elevations and improve the survival rates of natural or managed plant colonisation. ' },
+      if(!'good' %in% c(outcome("MeanCurrent"),outcome("UpperCurrent"), outcome("MeanWave"), outcome("UpperWave")
+                        ) & !'No' %in% c(sig("MeanCurrent"),sig("UpperCurrent"),sig("MeanWave"), sig("UpperWave"))) { 'Current and wave orbital velocities are higher, indicating that scour and dislodgement of plants is more likely. ' 
         
-      } else if(!'good' %in% Statistics$Outcome[c(4, 6)] & !'bad' %in% Statistics$Outcome[c(5, 7)] & !'No' %in% Statistics$SignificantlyDifferent[c(4, 6)] & !'Yes' %in% Statistics$SignificantlyDifferent[c(5, 7)]) { 'Peak current and wave orbital velocities are higher, indicating that scour and dislodgement of plants from large events, like storms, is more likely. ' 
-      } else if(!'good' %in% Statistics$Outcome[c(5, 7)] & !'bad' %in% Statistics$Outcome[c(4, 6)] & !'No' %in% Statistics$SignificantlyDifferent[c(5, 7)] & !'Yes' %in% Statistics$SignificantlyDifferent[c(4, 6)]) { 'Average current and wave orbital velocities are higher, indicating that scour and dislodgement of plants over successive inundation events is more likely. '
-      } else if(Statistics$Outcome[4] == 'bad' & Statistics$SignificantlyDifferent[4] == 'Yes') { 'Peak current velocities are higher, indicating that scour and dislodgement of plants from large events, like storms, is more likely. ' 
-      } else if(Statistics$Outcome[6] == 'bad' & Statistics$SignificantlyDifferent[6] == 'Yes') { 'Peak wave orbital velocities are higher, indicating that scour and dislodgement of plants from large events, like storms, is more likely. '
-      } else if(Statistics$Outcome[5] == 'bad' & Statistics$SignificantlyDifferent[5] == 'Yes') { 'Average current velocities are higher, indicating that scour and dislodgement of plants over successive inundation events is more likely. '
-      } else if(Statistics$Outcome[7] == 'bad' & Statistics$SignificantlyDifferent[7] == 'Yes') { 'Average wave orbital velocities are higher, indicating that scour and dislodgement of plants over successive inundation events is more likely. '},
-      if(!'good' %in% Statistics$Outcome[4:7] & !'No' %in% Statistics$SignificantlyDifferent[4:7]) {'Steps could be taken to attenuate velocities and improve the survival rates of natural or managed plant colonisation.'}
+      } else if(!'good' %in% c(outcome("MeanCurrent"), outcome("MeanWave")) & !'bad' %in% c(outcome("UpperCurrent"), outcome("UpperWave")) & !'No' %in% c(sig("MeanCurrent"), sig("MeanWave")) & !'Yes' %in% c(sig("UpperCurrent"), sig("UpperWave"))) { 'Peak current and wave orbital velocities are higher, indicating that scour and dislodgement of plants from large events, like storms, is more likely. ' 
+      } else if(!'good' %in% c(outcome("UpperCurrent"), outcome("UpperWave")) & !'bad' %in% c(outcome("MeanCurrent"), outcome("MeanWave")) & !'No' %in% c(sig("UpperCurrent"), sig("UpperWave")) & !'Yes' %in% c(sig("MeanCurrent"), sig("MeanWave"))) { 'Average current and wave orbital velocities are higher, indicating that scour and dislodgement of plants over successive inundation events is more likely. '
+      } else if(outcome("MeanCurrent") == 'bad' & sig("MeanCurrent") == 'Yes') { 'Peak current velocities are higher, indicating that scour and dislodgement of plants from large events, like storms, is more likely. ' 
+      } else if(outcome("MeanWave") == 'bad' & sig("MeanWave") == 'Yes') { 'Peak wave orbital velocities are higher, indicating that scour and dislodgement of plants from large events, like storms, is more likely. '
+      } else if(outcome("UpperCurrent") == 'bad' & sig("UpperCurrent") == 'Yes') { 'Average current velocities are higher, indicating that scour and dislodgement of plants over successive inundation events is more likely. '
+      } else if(outcome("UpperWave") == 'bad' & sig("UpperWave") == 'Yes') { 'Average wave orbital velocities are higher, indicating that scour and dislodgement of plants over successive inundation events is more likely. '},
+      if(!'good' %in% c(outcome("MeanCurrent"),outcome("UpperCurrent"), outcome("MeanWave"), outcome("UpperWave")
+                        ) & !'No' %in%c(sig("MeanCurrent"),sig("UpperCurrent"),sig("MeanWave"), sig("UpperWave"))) {'Steps could be taken to attenuate velocities and improve the survival rates of natural or managed plant colonisation.'}
     ) } 
   )
   note = '<br/><br/><i>We caution against taking management decisions solely on the basis of this interpretation. Factors such as the timing of the survey, inadequate use of a reference site, or fault in the Mini Buoy assembly would invalidate this interpretation.<i>'

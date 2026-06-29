@@ -173,7 +173,7 @@ hyd.reference.box.settings = function(){
       splitLayout(
         numericInput(inputId = "hydro.set.limit.reference",
                      label = HTML("<abbr title='Tilt threshold to identify non-inundation Events'>Tilt limit for emerssion events (degrees)</abbr>"),
-                     value = 15, min = 1, max = 89),
+                     value = 15),
         numericInput(inputId = "hydro.set.adj_tilt.reference",
                      label = HTML("<abbr title='Negative value that fine-tunes non-inundation events, typically between -1 and -5'>Adjusted tilt (negative value)</abbr>"),
                      value = -1, min =-550, max=0)          
