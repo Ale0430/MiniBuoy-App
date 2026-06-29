@@ -734,9 +734,7 @@ get.comparison.text = function(data){
       'Mean wave orbital velocity',
       'Upper 95th percentile wave orbital velocity'))
   Statistics = Statistics %>% left_join(., shortnames, by = 'Parameter') 
-  
- # Statistics$Positive  = c('lower', 'lower', 'higher', 'lower', 'lower', 'lower', 'lower')
- # Statistics$Outcome = ifelse(gsub('[^a-zA-Z]', '', Statistics$TargetIs) == Statistics$Positive, 'good' , 'bad')
+
   positive_lookup <- c(
     Duration     = "lower",
     Frequency    = "lower",
