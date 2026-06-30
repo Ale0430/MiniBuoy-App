@@ -115,7 +115,7 @@ get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
     tilt = 75
     limit = 15
     slope = 0.01
-    adj_tilt = -5
+    adj_tilt = -1
   }
   
   # calculate sampling rate (for selecting the correct current and wave orbital velocity calibration later on):
