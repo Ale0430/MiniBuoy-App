@@ -1146,10 +1146,10 @@ shinyServer(function(input, output, session) {
   ### Variables     ####
   
   ReferenceCustomInput = reactive({
-    return(data.frame(tilt = input$hydro.set.tilt.target,
-                      limit = input$hydro.set.limit.target,
-                      slope = input$hydro.set.slope.target,
-                      adj_tilt = input$hydro.set.adj_tilt.target)
+    return(data.frame(tilt = input$hydro.set.tilt.reference,
+                      limit = input$hydro.set.limit.reference,
+                      slope = input$hydro.set.slope.reference,
+                      adj_tilt = input$hydro.set.adj_tilt.reference)
     )
   })
   
