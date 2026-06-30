@@ -1,0 +1,205 @@
+Parameter,Units,Event,Value
+Inundation duration,[hrs],1,4.3
+Inundation duration,[hrs],2,52.6
+Inundation duration,[hrs],3,36.1166666666667
+Inundation duration,[hrs],4,15.65
+Inundation duration,[hrs],5,2.68333333333333
+Inundation duration,[hrs],6,15.6666666666667
+Inundation duration,[hrs],7,2.7
+Inundation duration,[hrs],8,1.91666666666667
+Inundation duration,[hrs],9,2.7
+Inundation duration,[hrs],10,2.01666666666667
+Inundation duration,[hrs],11,25.9833333333333
+Inundation duration,[hrs],12,15.1333333333333
+Inundation duration,[hrs],13,53.1666666666667
+Inundation duration,[hrs],14,27.65
+Inundation duration,[hrs],15,3.01666666666667
+Inundation duration,[hrs],16,3.55
+Inundation duration,[hrs],17,4.3
+Upper 95th percentile current velocity,[m/s],1,
+Upper 95th percentile current velocity,[m/s],2,0.760422328748353
+Upper 95th percentile current velocity,[m/s],3,0.785745036651798
+Upper 95th percentile current velocity,[m/s],4,0.750580565291302
+Upper 95th percentile current velocity,[m/s],5,0.150007261180479
+Upper 95th percentile current velocity,[m/s],6,0.631956115565993
+Upper 95th percentile current velocity,[m/s],7,0.17294824901341
+Upper 95th percentile current velocity,[m/s],8,0.242147401556547
+Upper 95th percentile current velocity,[m/s],9,0.261707997936601
+Upper 95th percentile current velocity,[m/s],10,
+Upper 95th percentile current velocity,[m/s],11,0.788598403676073
+Upper 95th percentile current velocity,[m/s],12,0.791508574865565
+Upper 95th percentile current velocity,[m/s],13,0.769010451636515
+Upper 95th percentile current velocity,[m/s],14,0.769949560437879
+Upper 95th percentile current velocity,[m/s],15,0.339892437549726
+Upper 95th percentile current velocity,[m/s],16,
+Upper 95th percentile current velocity,[m/s],17,0.294474278954656
+Mean current velocity,[m/s],1,
+Mean current velocity,[m/s],2,0.673240125741026
+Mean current velocity,[m/s],3,0.662812869515584
+Mean current velocity,[m/s],4,0.671463017432948
+Mean current velocity,[m/s],5,0.0797425481936723
+Mean current velocity,[m/s],6,0.57025230783146
+Mean current velocity,[m/s],7,0.107231969997836
+Mean current velocity,[m/s],8,0.195411219800478
+Mean current velocity,[m/s],9,0.21498065091767
+Mean current velocity,[m/s],10,
+Mean current velocity,[m/s],11,0.696775861489289
+Mean current velocity,[m/s],12,0.761636258119352
+Mean current velocity,[m/s],13,0.639692168917202
+Mean current velocity,[m/s],14,0.726924275048377
+Mean current velocity,[m/s],15,0.27708925080185
+Mean current velocity,[m/s],16,
+Mean current velocity,[m/s],17,0.21570877470359
+Median current velocity,[m/s],1,
+Median current velocity,[m/s],2,0.723957508447552
+Median current velocity,[m/s],3,0.777405415733006
+Median current velocity,[m/s],4,0.749135821415766
+Median current velocity,[m/s],5,0.0828598196570473
+Median current velocity,[m/s],6,0.625980840500738
+Median current velocity,[m/s],7,0.109994195959669
+Median current velocity,[m/s],8,0.195241190516999
+Median current velocity,[m/s],9,0.223036666330719
+Median current velocity,[m/s],10,
+Median current velocity,[m/s],11,0.779884472049318
+Median current velocity,[m/s],12,0.790660177593974
+Median current velocity,[m/s],13,0.735076970904235
+Median current velocity,[m/s],14,0.745787532016995
+Median current velocity,[m/s],15,0.283129677117961
+Median current velocity,[m/s],16,
+Median current velocity,[m/s],17,0.219798957131918
+Upper 95th percentile ebb-flood ratio,[-],1,
+Upper 95th percentile ebb-flood ratio,[-],2,1.04951312736325
+Upper 95th percentile ebb-flood ratio,[-],3,1.0041322025706
+Upper 95th percentile ebb-flood ratio,[-],4,0.999670196192804
+Upper 95th percentile ebb-flood ratio,[-],5,1.35872282806286
+Upper 95th percentile ebb-flood ratio,[-],6,1.00972646517012
+Upper 95th percentile ebb-flood ratio,[-],7,0.377092433053639
+Upper 95th percentile ebb-flood ratio,[-],8,
+Upper 95th percentile ebb-flood ratio,[-],9,1.02319244569006
+Upper 95th percentile ebb-flood ratio,[-],10,
+Upper 95th percentile ebb-flood ratio,[-],11,1.00341785965147
+Upper 95th percentile ebb-flood ratio,[-],12,1.00014034887378
+Upper 95th percentile ebb-flood ratio,[-],13,1.02505506169417
+Upper 95th percentile ebb-flood ratio,[-],14,0.968471849184004
+Upper 95th percentile ebb-flood ratio,[-],15,0.855885722652345
+Upper 95th percentile ebb-flood ratio,[-],16,
+Upper 95th percentile ebb-flood ratio,[-],17,1.25993931290878
+Ebb median Curr. Vel ,[m/s],1,
+Ebb median Curr. Vel ,[m/s],2,0.747400503345441
+Ebb median Curr. Vel ,[m/s],3,0.773945848201018
+Ebb median Curr. Vel ,[m/s],4,0.749135821415766
+Ebb median Curr. Vel ,[m/s],5,0.112968532496398
+Ebb median Curr. Vel ,[m/s],6,0.629981965954522
+Ebb median Curr. Vel ,[m/s],7,0.0179273649999999
+Ebb median Curr. Vel ,[m/s],8,0.195241190516999
+Ebb median Curr. Vel ,[m/s],9,0.240944854452285
+Ebb median Curr. Vel ,[m/s],10,
+Ebb median Curr. Vel ,[m/s],11,0.787101369101572
+Ebb median Curr. Vel ,[m/s],12,0.79094301331099
+Ebb median Curr. Vel ,[m/s],13,0.689815048987947
+Ebb median Curr. Vel ,[m/s],14,0.733660144921197
+Ebb median Curr. Vel ,[m/s],15,0.27388770761676
+Ebb median Curr. Vel ,[m/s],16,
+Ebb median Curr. Vel ,[m/s],17,0.239754462080723
+Flood median Median flood Curr. Vel ,[m/s],1,
+Flood median Median flood Curr. Vel ,[m/s],2,0.707926074417242
+Flood median Median flood Curr. Vel ,[m/s],3,0.779153265115786
+Flood median Median flood Curr. Vel ,[m/s],4,0.749300997063564
+Flood median Median flood Curr. Vel ,[m/s],5,0.0534020974904107
+Flood median Median flood Curr. Vel ,[m/s],6,0.622443542268429
+Flood median Median flood Curr. Vel ,[m/s],7,0.114393596034283
+Flood median Median flood Curr. Vel ,[m/s],8,
+Flood median Median flood Curr. Vel ,[m/s],9,0.199054542597124
+Flood median Median flood Curr. Vel ,[m/s],10,
+Flood median Median flood Curr. Vel ,[m/s],11,0.744462902474786
+Flood median Median flood Curr. Vel ,[m/s],12,0.78912414073752
+Flood median Median flood Curr. Vel ,[m/s],13,0.735951432896119
+Flood median Median flood Curr. Vel ,[m/s],14,0.768030016993002
+Flood median Median flood Curr. Vel ,[m/s],15,0.313879687137155
+Flood median Median flood Curr. Vel ,[m/s],16,
+Flood median Median flood Curr. Vel ,[m/s],17,0.193303713256335
+Ebb upper 9th percentil Curr. Vel.,[m/s],1,
+Ebb upper 9th percentil Curr. Vel.,[m/s],2,0.762310804895262
+Ebb upper 9th percentil Curr. Vel.,[m/s],3,0.787344202765043
+Ebb upper 9th percentil Curr. Vel.,[m/s],4,0.750415513615002
+Ebb upper 9th percentil Curr. Vel.,[m/s],5,0.169887172907758
+Ebb upper 9th percentil Curr. Vel.,[m/s],6,0.632207420663099
+Ebb upper 9th percentil Curr. Vel.,[m/s],7,0.0660057880395967
+Ebb upper 9th percentil Curr. Vel.,[m/s],8,0.242147401556547
+Ebb upper 9th percentil Curr. Vel.,[m/s],9,0.262144453333051
+Ebb upper 9th percentil Curr. Vel.,[m/s],10,
+Ebb upper 9th percentil Curr. Vel.,[m/s],11,0.789285880178299
+Ebb upper 9th percentil Curr. Vel.,[m/s],12,0.791557044709167
+Ebb upper 9th percentil Curr. Vel.,[m/s],13,0.769851587975964
+Ebb upper 9th percentil Curr. Vel.,[m/s],14,0.745911661979834
+Ebb upper 9th percentil Curr. Vel.,[m/s],15,0.293953791854588
+Ebb upper 9th percentil Curr. Vel.,[m/s],16,
+Ebb upper 9th percentil Curr. Vel.,[m/s],17,0.306474993003834
+Flood upper 95th percntil Curr. Vel.,[m/s],1,
+Flood upper 95th percntil Curr. Vel.,[m/s],2,0.726347088969205
+Flood upper 95th percntil Curr. Vel.,[m/s],3,0.784104125681287
+Flood upper 95th percntil Curr. Vel.,[m/s],4,0.75066308515841
+Flood upper 95th percntil Curr. Vel.,[m/s],5,0.125034458389109
+Flood upper 95th percntil Curr. Vel.,[m/s],6,0.626117510504772
+Flood upper 95th percntil Curr. Vel.,[m/s],7,0.175038749796944
+Flood upper 95th percntil Curr. Vel.,[m/s],8,
+Flood upper 95th percntil Curr. Vel.,[m/s],9,0.256202490975446
+Flood upper 95th percntil Curr. Vel.,[m/s],10,
+Flood upper 95th percntil Curr. Vel.,[m/s],11,0.786597400660631
+Flood upper 95th percntil Curr. Vel.,[m/s],12,0.791445966159161
+Flood upper 95th percntil Curr. Vel.,[m/s],13,0.751034375366709
+Flood upper 95th percntil Curr. Vel.,[m/s],14,0.770194469367706
+Flood upper 95th percntil Curr. Vel.,[m/s],15,0.34344981353777
+Flood upper 95th percntil Curr. Vel.,[m/s],16,
+Flood upper 95th percntil Curr. Vel.,[m/s],17,0.243245837211227
+Upper 95th percentile wave orbital velocity,[m/s],1,
+Upper 95th percentile wave orbital velocity,[m/s],2,0.124980351846258
+Upper 95th percentile wave orbital velocity,[m/s],3,0.124836257258617
+Upper 95th percentile wave orbital velocity,[m/s],4,0.0769962634397382
+Upper 95th percentile wave orbital velocity,[m/s],5,0.123269741699202
+Upper 95th percentile wave orbital velocity,[m/s],6,0.14312921743314
+Upper 95th percentile wave orbital velocity,[m/s],7,0.107893004363928
+Upper 95th percentile wave orbital velocity,[m/s],8,0.147527182557978
+Upper 95th percentile wave orbital velocity,[m/s],9,0.164344200743243
+Upper 95th percentile wave orbital velocity,[m/s],10,
+Upper 95th percentile wave orbital velocity,[m/s],11,0.183186778716099
+Upper 95th percentile wave orbital velocity,[m/s],12,0.0530213828460714
+Upper 95th percentile wave orbital velocity,[m/s],13,0.142464563674275
+Upper 95th percentile wave orbital velocity,[m/s],14,0.138705533454554
+Upper 95th percentile wave orbital velocity,[m/s],15,0.147385141749699
+Upper 95th percentile wave orbital velocity,[m/s],16,
+Upper 95th percentile wave orbital velocity,[m/s],17,0.183164527473009
+Mean wave orbital velocity,[m/s],1,
+Mean wave orbital velocity,[m/s],2,0.0187886533066604
+Mean wave orbital velocity,[m/s],3,0.0227182798617218
+Mean wave orbital velocity,[m/s],4,0.0152448657564071
+Mean wave orbital velocity,[m/s],5,0.0986301570017997
+Mean wave orbital velocity,[m/s],6,0.0210024562271673
+Mean wave orbital velocity,[m/s],7,0.0952104033231584
+Mean wave orbital velocity,[m/s],8,0.145084635011912
+Mean wave orbital velocity,[m/s],9,0.149314187275165
+Mean wave orbital velocity,[m/s],10,
+Mean wave orbital velocity,[m/s],11,0.0293880252305013
+Mean wave orbital velocity,[m/s],12,0.0107162593150928
+Mean wave orbital velocity,[m/s],13,0.0230406733752219
+Mean wave orbital velocity,[m/s],14,0.0153844006639334
+Mean wave orbital velocity,[m/s],15,0.128343155779338
+Mean wave orbital velocity,[m/s],16,
+Mean wave orbital velocity,[m/s],17,0.154804043928895
+Median wave orbital velocity,[m/s],1,
+Median wave orbital velocity,[m/s],2,0.0048058892822984
+Median wave orbital velocity,[m/s],3,0.00502619415013492
+Median wave orbital velocity,[m/s],4,0.00490759582697008
+Median wave orbital velocity,[m/s],5,0.0951433100517255
+Median wave orbital velocity,[m/s],6,0.00409325989730694
+Median wave orbital velocity,[m/s],7,0.0898254349364179
+Median wave orbital velocity,[m/s],8,0.145084635011912
+Median wave orbital velocity,[m/s],9,0.148176829605783
+Median wave orbital velocity,[m/s],10,
+Median wave orbital velocity,[m/s],11,0.00502403082642837
+Median wave orbital velocity,[m/s],12,0.00373732315020663
+Median wave orbital velocity,[m/s],13,0.00501168065507113
+Median wave orbital velocity,[m/s],14,0.00501677774713804
+Median wave orbital velocity,[m/s],15,0.123703633948122
+Median wave orbital velocity,[m/s],16,
+Median wave orbital velocity,[m/s],17,0.150919929160148

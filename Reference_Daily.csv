@@ -1,0 +1,213 @@
+Parameter,Units,datetime,Value,FullDay
+Inundation duration,[hrs],2022-01-30,6.61666666666667,FALSE
+Inundation duration,[hrs],2022-01-31,24,TRUE
+Inundation duration,[hrs],2022-02-01,24,TRUE
+Inundation duration,[hrs],2022-02-02,15.2,TRUE
+Inundation duration,[hrs],2022-02-03,23.2,TRUE
+Inundation duration,[hrs],2022-02-04,15.65,TRUE
+Inundation duration,[hrs],2022-02-05,13.75,TRUE
+Inundation duration,[hrs],2022-02-06,7.3,TRUE
+Inundation duration,[hrs],2022-02-07,1.91666666666667,TRUE
+Inundation duration,[hrs],2022-02-08,0,TRUE
+Inundation duration,[hrs],2022-02-09,0,TRUE
+Inundation duration,[hrs],2022-02-10,0,TRUE
+Inundation duration,[hrs],2022-02-11,0,TRUE
+Inundation duration,[hrs],2022-02-12,0,TRUE
+Inundation duration,[hrs],2022-02-13,0,TRUE
+Inundation duration,[hrs],2022-02-14,0,TRUE
+Inundation duration,[hrs],2022-02-15,3.5,TRUE
+Inundation duration,[hrs],2022-02-16,22.0333333333333,TRUE
+Inundation duration,[hrs],2022-02-17,17.9166666666667,TRUE
+Inundation duration,[hrs],2022-02-18,15.25,TRUE
+Inundation duration,[hrs],2022-02-19,24,TRUE
+Inundation duration,[hrs],2022-02-20,16.3,TRUE
+Inundation duration,[hrs],2022-02-21,22.8666666666667,TRUE
+Inundation duration,[hrs],2022-02-22,7.8,TRUE
+Inundation duration,[hrs],2022-02-23,7.85,TRUE
+Inundation duration,[hrs],2022-02-24,0,FALSE
+Emersion duration,[hrs],2022-01-30,2.36666666666667,FALSE
+Emersion duration,[hrs],2022-01-31,0,TRUE
+Emersion duration,[hrs],2022-02-01,0,TRUE
+Emersion duration,[hrs],2022-02-02,8.8,TRUE
+Emersion duration,[hrs],2022-02-03,0.8,TRUE
+Emersion duration,[hrs],2022-02-04,8.35,TRUE
+Emersion duration,[hrs],2022-02-05,10.25,TRUE
+Emersion duration,[hrs],2022-02-06,16.7,TRUE
+Emersion duration,[hrs],2022-02-07,22.0833333333333,TRUE
+Emersion duration,[hrs],2022-02-08,24,TRUE
+Emersion duration,[hrs],2022-02-09,24,TRUE
+Emersion duration,[hrs],2022-02-10,24,TRUE
+Emersion duration,[hrs],2022-02-11,24,TRUE
+Emersion duration,[hrs],2022-02-12,24,TRUE
+Emersion duration,[hrs],2022-02-13,24,TRUE
+Emersion duration,[hrs],2022-02-14,24,TRUE
+Emersion duration,[hrs],2022-02-15,20.5,TRUE
+Emersion duration,[hrs],2022-02-16,1.96666666666667,TRUE
+Emersion duration,[hrs],2022-02-17,6.08333333333333,TRUE
+Emersion duration,[hrs],2022-02-18,8.75,TRUE
+Emersion duration,[hrs],2022-02-19,0,TRUE
+Emersion duration,[hrs],2022-02-20,7.7,TRUE
+Emersion duration,[hrs],2022-02-21,1.13333333333333,TRUE
+Emersion duration,[hrs],2022-02-22,16.2,TRUE
+Emersion duration,[hrs],2022-02-23,16.15,TRUE
+Emersion duration,[hrs],2022-02-24,4.63333333333333,FALSE
+Inundation proportion,[%],2022-01-30,27.5694444444444,FALSE
+Inundation proportion,[%],2022-01-31,100,TRUE
+Inundation proportion,[%],2022-02-01,100,TRUE
+Inundation proportion,[%],2022-02-02,63.3333333333333,TRUE
+Inundation proportion,[%],2022-02-03,96.6666666666667,TRUE
+Inundation proportion,[%],2022-02-04,65.2083333333333,TRUE
+Inundation proportion,[%],2022-02-05,57.2916666666667,TRUE
+Inundation proportion,[%],2022-02-06,30.4166666666667,TRUE
+Inundation proportion,[%],2022-02-07,7.98611111111111,TRUE
+Inundation proportion,[%],2022-02-08,0,TRUE
+Inundation proportion,[%],2022-02-09,0,TRUE
+Inundation proportion,[%],2022-02-10,0,TRUE
+Inundation proportion,[%],2022-02-11,0,TRUE
+Inundation proportion,[%],2022-02-12,0,TRUE
+Inundation proportion,[%],2022-02-13,0,TRUE
+Inundation proportion,[%],2022-02-14,0,TRUE
+Inundation proportion,[%],2022-02-15,14.5833333333333,TRUE
+Inundation proportion,[%],2022-02-16,91.8055555555556,TRUE
+Inundation proportion,[%],2022-02-17,74.6527777777778,TRUE
+Inundation proportion,[%],2022-02-18,63.5416666666667,TRUE
+Inundation proportion,[%],2022-02-19,100,TRUE
+Inundation proportion,[%],2022-02-20,67.9166666666667,TRUE
+Inundation proportion,[%],2022-02-21,95.2777777777778,TRUE
+Inundation proportion,[%],2022-02-22,32.5,TRUE
+Inundation proportion,[%],2022-02-23,32.7083333333333,TRUE
+Inundation proportion,[%],2022-02-24,0,FALSE
+Emersion proportion,[%],2022-01-30,9.86111111111111,FALSE
+Emersion proportion,[%],2022-01-31,0,TRUE
+Emersion proportion,[%],2022-02-01,0,TRUE
+Emersion proportion,[%],2022-02-02,36.6666666666667,TRUE
+Emersion proportion,[%],2022-02-03,3.33333333333333,TRUE
+Emersion proportion,[%],2022-02-04,34.7916666666667,TRUE
+Emersion proportion,[%],2022-02-05,42.7083333333333,TRUE
+Emersion proportion,[%],2022-02-06,69.5833333333333,TRUE
+Emersion proportion,[%],2022-02-07,92.0138888888889,TRUE
+Emersion proportion,[%],2022-02-08,100,TRUE
+Emersion proportion,[%],2022-02-09,100,TRUE
+Emersion proportion,[%],2022-02-10,100,TRUE
+Emersion proportion,[%],2022-02-11,100,TRUE
+Emersion proportion,[%],2022-02-12,100,TRUE
+Emersion proportion,[%],2022-02-13,100,TRUE
+Emersion proportion,[%],2022-02-14,100,TRUE
+Emersion proportion,[%],2022-02-15,85.4166666666667,TRUE
+Emersion proportion,[%],2022-02-16,8.19444444444445,TRUE
+Emersion proportion,[%],2022-02-17,25.3472222222222,TRUE
+Emersion proportion,[%],2022-02-18,36.4583333333333,TRUE
+Emersion proportion,[%],2022-02-19,0,TRUE
+Emersion proportion,[%],2022-02-20,32.0833333333333,TRUE
+Emersion proportion,[%],2022-02-21,4.72222222222222,TRUE
+Emersion proportion,[%],2022-02-22,67.5,TRUE
+Emersion proportion,[%],2022-02-23,67.2916666666667,TRUE
+Emersion proportion,[%],2022-02-24,19.3055555555556,FALSE
+Upper 95th percentile current velocity,[m/s],2022-01-30,,FALSE
+Upper 95th percentile current velocity,[m/s],2022-01-31,0.726347088969205,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-01,0.762312854283545,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-02,0.784266248213442,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-03,0.786939464595611,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-04,0.750580565291302,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-05,0.629857175186875,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-06,0.632429242022833,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-07,0.242147401556547,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-15,0.261707997936601,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-16,0.788598403676073,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-17,0.791508574865565,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-18,0.73663817126709,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-19,0.750951873382499,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-20,0.770276098712126,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-21,0.769990380771033,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-22,0.720899965012612,TRUE
+Upper 95th percentile current velocity,[m/s],2022-02-23,0.294474278954656,TRUE
+Mean current velocity,[m/s],2022-01-30,,FALSE
+Mean current velocity,[m/s],2022-01-31,0.671825548550569,TRUE
+Mean current velocity,[m/s],2022-02-01,0.674662852758918,TRUE
+Mean current velocity,[m/s],2022-02-02,0.780426328744612,TRUE
+Mean current velocity,[m/s],2022-02-03,0.610096480319551,TRUE
+Mean current velocity,[m/s],2022-02-04,0.671463017432948,TRUE
+Mean current velocity,[m/s],2022-02-05,0.498441305811612,TRUE
+Mean current velocity,[m/s],2022-02-06,0.523100686704437,TRUE
+Mean current velocity,[m/s],2022-02-07,0.195411219800478,TRUE
+Mean current velocity,[m/s],2022-02-15,0.21498065091767,TRUE
+Mean current velocity,[m/s],2022-02-16,0.696775861489289,TRUE
+Mean current velocity,[m/s],2022-02-17,0.770696460613724,TRUE
+Mean current velocity,[m/s],2022-02-18,0.723986187987394,TRUE
+Mean current velocity,[m/s],2022-02-19,0.623798593671997,TRUE
+Mean current velocity,[m/s],2022-02-20,0.60859947987492,TRUE
+Mean current velocity,[m/s],2022-02-21,0.727469111504288,TRUE
+Mean current velocity,[m/s],2022-02-22,0.54232574823914,TRUE
+Mean current velocity,[m/s],2022-02-23,0.21570877470359,TRUE
+Median current velocity,[m/s],2022-01-30,,FALSE
+Median current velocity,[m/s],2022-01-31,0.707904860187172,TRUE
+Median current velocity,[m/s],2022-02-01,0.747400503345441,TRUE
+Median current velocity,[m/s],2022-02-02,0.782319943046386,TRUE
+Median current velocity,[m/s],2022-02-03,0.774190252079112,TRUE
+Median current velocity,[m/s],2022-02-04,0.749135821415766,TRUE
+Median current velocity,[m/s],2022-02-05,0.624339308537529,TRUE
+Median current velocity,[m/s],2022-02-06,0.631025057416648,TRUE
+Median current velocity,[m/s],2022-02-07,0.195241190516999,TRUE
+Median current velocity,[m/s],2022-02-15,0.223036666330719,TRUE
+Median current velocity,[m/s],2022-02-16,0.779884472049318,TRUE
+Median current velocity,[m/s],2022-02-17,0.790660177593974,TRUE
+Median current velocity,[m/s],2022-02-18,0.735368512036621,TRUE
+Median current velocity,[m/s],2022-02-19,0.691040307567895,TRUE
+Median current velocity,[m/s],2022-02-20,0.764594464072209,TRUE
+Median current velocity,[m/s],2022-02-21,0.764021255706773,TRUE
+Median current velocity,[m/s],2022-02-22,0.71954556230366,TRUE
+Median current velocity,[m/s],2022-02-23,0.219798957131918,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-01-30,,FALSE
+Upper 95th percentile wave orbital velocity,[m/s],2022-01-31,0.0847239583899016,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-01,0.143127596795808,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-02,0.00518976843552095,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-03,0.132818202446241,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-04,0.0769962634397382,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-05,0.143444700417274,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-06,0.0928366965076696,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-07,0.147527182557978,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-15,0.164344200743243,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-16,0.183186778716099,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-17,0.00488915685926912,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-18,0.00526707893057012,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-19,0.104355488370126,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-20,0.162337091499486,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-21,0.14054528713098,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-22,0.146951707063316,TRUE
+Upper 95th percentile wave orbital velocity,[m/s],2022-02-23,0.183164527473009,TRUE
+Mean wave orbital velocity,[m/s],2022-01-30,,FALSE
+Mean wave orbital velocity,[m/s],2022-01-31,0.0143507285463146,TRUE
+Mean wave orbital velocity,[m/s],2022-02-01,0.0232265780670062,TRUE
+Mean wave orbital velocity,[m/s],2022-02-02,0.00479055336425863,TRUE
+Mean wave orbital velocity,[m/s],2022-02-03,0.0306186339114513,TRUE
+Mean wave orbital velocity,[m/s],2022-02-04,0.0152448657564071,TRUE
+Mean wave orbital velocity,[m/s],2022-02-05,0.0353563781819846,TRUE
+Mean wave orbital velocity,[m/s],2022-02-06,0.0184303610208541,TRUE
+Mean wave orbital velocity,[m/s],2022-02-07,0.145084635011912,TRUE
+Mean wave orbital velocity,[m/s],2022-02-15,0.149314187275165,TRUE
+Mean wave orbital velocity,[m/s],2022-02-16,0.0293880252305013,TRUE
+Mean wave orbital velocity,[m/s],2022-02-17,0.00926437469005895,TRUE
+Mean wave orbital velocity,[m/s],2022-02-18,0.00718465907078434,TRUE
+Mean wave orbital velocity,[m/s],2022-02-19,0.0197554648845607,TRUE
+Mean wave orbital velocity,[m/s],2022-02-20,0.0444637430334407,TRUE
+Mean wave orbital velocity,[m/s],2022-02-21,0.0163078126496924,TRUE
+Mean wave orbital velocity,[m/s],2022-02-22,0.0555415820447591,TRUE
+Mean wave orbital velocity,[m/s],2022-02-23,0.154804043928895,TRUE
+Median wave orbital velocity,[m/s],2022-01-30,,FALSE
+Median wave orbital velocity,[m/s],2022-01-31,0.00465302711824392,TRUE
+Median wave orbital velocity,[m/s],2022-02-01,0.00499770530643281,TRUE
+Median wave orbital velocity,[m/s],2022-02-02,0.00477481197487832,TRUE
+Median wave orbital velocity,[m/s],2022-02-03,0.00525665454127376,TRUE
+Median wave orbital velocity,[m/s],2022-02-04,0.00490759582697008,TRUE
+Median wave orbital velocity,[m/s],2022-02-05,0.00442865372635613,TRUE
+Median wave orbital velocity,[m/s],2022-02-06,0.00239991676658134,TRUE
+Median wave orbital velocity,[m/s],2022-02-07,0.145084635011912,TRUE
+Median wave orbital velocity,[m/s],2022-02-15,0.148176829605783,TRUE
+Median wave orbital velocity,[m/s],2022-02-16,0.00502403082642837,TRUE
+Median wave orbital velocity,[m/s],2022-02-17,0.00373602939503604,TRUE
+Median wave orbital velocity,[m/s],2022-02-18,0.00475698631032915,TRUE
+Median wave orbital velocity,[m/s],2022-02-19,0.00497900825248204,TRUE
+Median wave orbital velocity,[m/s],2022-02-20,0.00542757374494594,TRUE
+Median wave orbital velocity,[m/s],2022-02-21,0.00506453219693022,TRUE
+Median wave orbital velocity,[m/s],2022-02-22,0.00479461916861631,TRUE
+Median wave orbital velocity,[m/s],2022-02-23,0.150919929160148,TRUE

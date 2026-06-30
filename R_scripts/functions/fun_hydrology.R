@@ -140,6 +140,15 @@ get.hydrodynamics <- function(data, design, ui.input_settings = NULL) {
     
   }
   
+  ## Debug (temporarily)
+  print(paste(
+    "Using settings:",
+    "tilt =", tilt,
+    "limit =", limit,
+    "slope =", slope,
+    "adj_tilt =", adj_tilt
+  ))
+  
   
   # calculate sampling rate (for selecting the correct current and wave orbital velocity calibration later on):
   rate = 60 / as.numeric(data$datetime[2] - data$datetime[1]) # measurments per minute
