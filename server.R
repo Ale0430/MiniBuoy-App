@@ -858,10 +858,14 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$hydro.set.reset.target, {
     print("TARGET hydro: update with default settings")
+    updateNumericInput(session, "hydro.set.tilt.target",value = hydro.defaults$tilt) 
+    updateNumericInput(session,"hydro.set.limit.target",value = hydro.defaults$limit)
+    updateNumericInput(session, "hydro.set.slope.target", value = hydro.defaults$slope)
+    updateNumericInput(session, "hydro.set.adj_tilt.target", value = hydro.defaults$adj_tilt)
+    
+    updateCheckboxInput(session, "hydro.window.target",value = FALSE)
+    
     values$TargetHydro = data.frame()
-    if (!is.null(input$hydro.window.target)){
-      updateCheckboxInput(session, "hydro.window.target", value = F)
-    }
     values$TargetHydro = get.hydrodynamics(data = Target(),
                                            design = get.design.T(),
                                            ui.input_settings = "Default")
@@ -1206,17 +1210,24 @@ shinyServer(function(input, output, session) {
   })
   
 
+  
   observeEvent(input$hydro.set.reset.reference, {
     print("REFERENCE hydro: update with default settings")
-    values$ReferenceHydro = data.frame()
-    if (!is.null(input$hydro.window.reference)){
-      updateCheckboxInput(session, "hydro.window.reference", value = F)
-    }
-    values$ReferenceHydro = get.hydrodynamics(data = Reference(),
-                                              design = get.design.R(),
-                                              ui.input_settings = "Default")
+    updateNumericInput(session, "hydro.set.tilt.reference",value = hydro.defaults$tilt) 
+    updateNumericInput(session,"hydro.set.limit.reference",value = hydro.defaults$limit)
+    updateNumericInput(session, "hydro.set.slope.reference", value = hydro.defaults$slope)
+    updateNumericInput(session, "hydro.set.adj_tilt.reference", value = hydro.defaults$adj_tilt)
+    
+    updateCheckboxInput(session, "hydro.window.reference",value = FALSE)
+    
+    values$ReferenceHydro <- data.frame()
+    values$ReferenceHydro <- get.hydrodynamics(
+      data = Reference(),
+      design = get.design.R(),
+      ui.input_settings = "Default"
+    )
+    
   })
-  
   
   ReferenceHydroStats <- reactive({
     ReferenceHydro = ReferenceHydro()

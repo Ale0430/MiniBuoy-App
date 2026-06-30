@@ -105,39 +105,30 @@ clean.2 = function(data, design, baseline.window = 3*60, variance.window = 3, sl
   # slope: slope value used to identify non-flood events. Typically lower than 0.01, but it can happen that water ebbs very slow and the slope can increase a  bit (no more than 0.02)
   # adj_tilt: use a proportion of the data for abrupt shift detection (1 = all, 0 = none)
   
-# get.hydrodynamics = function(data, design, ui.input_settings = NULL) {
-#   if (is.data.frame(ui.input_settings)){
-#     tilt = ui.input_settings$tilt
-#     limit = ui.input_settings$limit
-#     slope = ui.input_settings$slope
-#     adj_tilt = ui.input_settings$adj_tilt
-#   } else {
-#     tilt = 75
-#     limit = 15
-#     slope = 0.01
-#     adj_tilt = -1
-#   }
+
+## Default settings
+hydro.defaults <- list(tilt = 75, limit  = 15, slope= 0.01, adj_tilt = -1)
+
 
 get.hydrodynamics <- function(data, design, ui.input_settings = NULL) {
-  
+ 
   ## Default settings
-  tilt     = 75
-  limit    = 15
-  slope    = 0.01
-  adj_tilt = -1
+  tilt     = hydro.defaults$tilt
+  limit    = hydro.defaults$limit
+  slope    = hydro.defaults$slope
+  adj_tilt = hydro.defaults$adj_tilt
   
-  ## Overwrite defaults if custom settings are defined by user
+  ## Overwrite defaults if custom settings are supplied
   if (!is.null(ui.input_settings)) {
     
     if (is.data.frame(ui.input_settings) && nrow(ui.input_settings) > 0) {
       
-      tilt     <- as.numeric(ui.input_settings$tilt[1])
-      limit    <- as.numeric(ui.input_settings$limit[1])
-      slope    <- as.numeric(ui.input_settings$slope[1])
-      adj_tilt <- as.numeric(ui.input_settings$adj_tilt[1])
+      tilt     = as.numeric(ui.input_settings$tilt[1])
+      limit    = as.numeric(ui.input_settings$limit[1])
+      slope    = as.numeric(ui.input_settings$slope[1])
+      adj_tilt = as.numeric(ui.input_settings$adj_tilt[1])
       
     }
-    
   }
   
   ## Debug (temporarily)
