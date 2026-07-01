@@ -335,6 +335,16 @@ shinyServer(function(input, output, session) {
         # Reset reactive value in case of re-upload
         values$Target = NULL
         values$TargetHydro = NULL
+        
+        # Reset hydro settings to defaults
+        updateNumericInput(session, "hydro.set.tilt.target",value = hydro.defaults$tilt)
+        
+        updateNumericInput(session, "hydro.set.limit.target", value = hydro.defaults$limit)
+        
+        updateNumericInput(session, "hydro.set.slope.target",value = hydro.defaults$slope)
+        
+        updateNumericInput(session,"hydro.set.adj_tilt.target",value = hydro.defaults$adj_tilt)
+        
         showNotification(
           "Uploaded target data successfully.",
           type = "message",
@@ -379,6 +389,14 @@ shinyServer(function(input, output, session) {
         # Reset reactive value in case of re-upload
         values$Reference = NULL
         values$ReferenceHydro = NULL
+        
+        
+        # Reset hydro settings to defaults
+        updateNumericInput(session, "hydro.set.tilt.reference",value = hydro.defaults$tilt)    
+        updateNumericInput(session, "hydro.set.limit.reference", value = hydro.defaults$limit)
+        updateNumericInput(session, "hydro.set.slope.reference",value = hydro.defaults$slope)
+        updateNumericInput(session,"hydro.set.adj_tilt.reference",value = hydro.defaults$adj_tilt)
+        
         showNotification(
           "Uploaded reference data successfully.",
           type = "message",
